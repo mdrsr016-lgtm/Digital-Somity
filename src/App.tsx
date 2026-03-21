@@ -1,8 +1,14 @@
 import { useState, useEffect } from "react";
+import { Routes, Route } from "react-router-dom";
 import { LoginPage } from "./pages/LoginPage";
 import { Sidebar } from "./components/Sidebar";
 import { HelpModal } from "./components/HelpModal";
 import { LanguageProvider } from "./contexts/LanguageContext";
+
+import { AdminLayout } from "./pages/admin/AdminLayout";
+import { AdminDashboard } from "./pages/admin/AdminDashboard";
+import { UsersManagement } from "./pages/admin/UsersManagement";
+import { AdminSettings } from "./pages/admin/AdminSettings";
 
 function App() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -22,13 +28,25 @@ function App() {
 
   return (
     <LanguageProvider>
-      <Sidebar 
-        theme={theme} 
-        toggleTheme={toggleTheme} 
-        onHelpClick={() => setIsHelpOpen(true)} 
-      />
-      <LoginPage />
-      <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
+      <Routes>
+        <Route path="/" element={
+          <>
+            <Sidebar 
+              theme={theme} 
+              toggleTheme={toggleTheme} 
+              onHelpClick={() => setIsHelpOpen(true)} 
+            />
+            <LoginPage />
+            <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
+          </>
+        } />
+
+        <Route path="/admin" element={<AdminLayout theme={theme} toggleTheme={toggleTheme} />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="users" element={<UsersManagement />} />
+          <Route path="settings" element={<AdminSettings />} />
+        </Route>
+      </Routes>
     </LanguageProvider>
   );
 }
