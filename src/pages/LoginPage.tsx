@@ -2,7 +2,7 @@ import { LoginCard } from "../components/LoginCard";
 
 export const LoginPage = () => {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-6">
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', width: '100%', padding: '20px', paddingBottom: '100px' }}>
       <LoginCard />
     </div>
   );
