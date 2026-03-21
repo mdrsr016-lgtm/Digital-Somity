@@ -1,0 +1,92 @@
+import { User, Lock, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import { motion } from "framer-motion";
+import { useState } from "react";
+import { ForgotPasswordModal } from "./ForgotPasswordModal";
+import "../styles/LoginCard.css";
+
+export const LoginCard = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const togglePassword = () => setShowPassword(!showPassword);
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="login-card"
+    >
+      {/* Logo Header */}
+      <div className="logo-container">
+        <svg className="header-logo" viewBox="0 0 5000 4008" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3886 750.5h327.8c115.6 0 220.8 47.4 297.1 123.6l.3.3c76.2 76.3 123.6 181.5 123.6 297.1v723.8h224.9c40.7 0 73.8 33.1 73.8 73.8v1014.4c0 40.7-33.1 73.7-73.8 73.7h-224.9v467.1c0 115.7-47.4 220.9-123.6 297.2l-.3.2c-76.3 76.3-181.5 123.7-297.1 123.7H487c-115.7 0-220.9-47.4-297.1-123.7l-.3-.2C113.4 3745.2 66 3640 66 3524.3V477c0-113.8 45.9-217.5 120-293.5 72.4-74.1 171.9-121.9 282.1-126.8 3.4-.4 6.9-.7 10.4-.7H3465c115.6 0 220.9 47.4 297.1 123.6l.3.3C3838.6 256.2 3886 361.4 3886 477zM487 898l-8.8-.1-2.4-.1c-93.6-2.4-179.9-36-248.9-90.5l-.9-.8-2.1-1.6-1.8-1.5-6.1-5-2.1-1.8-.4-.3v2728c0 75.3 30.8 143.7 80.3 193.3 49.5 49.4 117.9 80.2 193.2 80.2h3726.8c75.2 0 143.7-30.8 193.2-80.2 49.5-49.6 80.3-118 80.3-193.3v-467.1h-645.1c-26.7 0-50-14.2-63-35.4l-177.8-249.3-179.9-252.2q-2.1-2.85-3.9-5.7l-1-1.7-1-1.9-.1-.2-1.4-2.7-1.7-4-.5-1.1-1.5-4.2-.1-.3-.4-1.4v-.1c-1.5-4.9-2.4-9.9-2.8-15l-.2-3.4-.1-2.4.1-2.3.2-3.5c.4-5 1.3-10 2.8-15l.4-1.5.1-.2 1.5-4.3.5-1.1 1.7-3.9 1.4-2.7.1-.3 1-1.9 1-1.6q1.8-3 3.9-5.7l179.9-252.2 177.8-249.3c13-21.2 36.3-35.4 63-35.4h645.1v-723.8c0-75.2-30.8-143.7-80.3-193.2S4289 898 4213.8 898zM282.1 657.9l.9.9.2.3 1.7 1.8 3.7 4.1.9.9 1.9 2 2.3 2.3.6.6 6.6 6.3 1.5 1.4 1.2 1.1.3.3c46.8 42.2 108.1 68.6 175.5 70.5h3259.1V477c0-75.3-30.8-143.7-80.3-193.3-49.5-49.4-117.9-80.2-193.2-80.2H478.5v-.1c-73 2.2-139.1 33.5-187.1 82.7-48.1 49.3-77.9 116.8-77.9 190.9 0 69.2 26 132.6 68.6 180.9M4561 2042.8h-681.1l-158.7 222.5-150.4 210.9 150.4 211 158.7 222.5h906v-866.9zm-1139.5 389.4c4.5-6 9.9-11.4 16.3-15.9zm662.8-183.4c62.8 0 119.7 25.5 160.9 66.6 41.1 41.2 66.6 98.1 66.6 160.9s-25.5 119.7-66.6 160.8c-41.2 41.2-98.1 66.7-160.9 66.7s-119.7-25.5-160.8-66.7q-2.4-2.4-4.6-4.9c-38.5-40.8-62.1-95.8-62.1-155.9 0-62.6 25.5-119.4 66.8-160.7l-.1-.2c41.1-41.1 98-66.6 160.8-66.6m56.6 170.9a79.97 79.97 0 0 0-56.6-23.4c-22.1 0-42.1 9-56.6 23.4l-.1-.2-.1.2c-14.4 14.3-23.2 34.3-23.2 56.6 0 20.9 7.8 39.8 20.6 53.9l2.8 2.7c14.5 14.4 34.5 23.4 56.6 23.4s42.2-9 56.6-23.4c14.4-14.5 23.4-34.5 23.4-56.6s-9-42.2-23.4-56.6" fill="currentColor" />
+        </svg>
+        <span className="logo-text">Digital Somiti</span>
+      </div>
+
+      <h1 className="title">Sign In With Your Id</h1>
+      <p className="subtitle">
+        Manage your cooperative and community records securely with Digital Somiti.
+      </p>
+
+      {/* Form Fields */}
+      <div className="input-container">
+        <div className="relative-input">
+          <User className="input-icon" />
+          <input 
+            type="text" 
+            placeholder="User Id" 
+            className="form-input"
+          />
+        </div>
+        <div className="relative-input">
+          <Lock className="input-icon" />
+          <input 
+            type={showPassword ? "text" : "password"} 
+            placeholder="Password" 
+            className="form-input"
+            style={{ paddingRight: '48px' }}
+          />
+          <button 
+            type="button"
+            onClick={togglePassword}
+            className="icon-button input-eye"
+          >
+            {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+          </button>
+        </div>
+      </div>
+
+      <div className="forgot-link">
+        <button type="button" onClick={openModal} className="link-button">
+          Forgot password?
+        </button>
+      </div>
+
+      <ForgotPasswordModal isOpen={isModalOpen} onClose={closeModal} />
+
+      <motion.button 
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.98 }}
+        className="primary-button"
+      >
+        Get Started
+      </motion.button>
+
+      {/* Footer */}
+      <div className="card-footer">
+        <div className="footer-links">
+          <a href="#">Privacy Policy</a>
+          <span className="dot">•</span>
+          <a href="#">Terms & Conditions</a>
+        </div>
+        <div className="security-tag">
+          <ShieldCheck size={14} className="security-icon" />
+          <span>Secured by <span className="brand-highlight">Digital Somiti</span></span>
+        </div>
+      </div>
+    </motion.div>
+  );
+};

@@ -1,0 +1,241 @@
+.login-card {
+  width: 480px;
+  padding: 64px 48px;
+  border-radius: 40px;
+  background: var(--card-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--border-color);
+  box-shadow: 
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05),
+    0 20px 50px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+[data-theme='dark'] .login-card {
+  box-shadow: 
+    0 10px 15px -3px rgba(0, 0, 0, 0.4),
+    0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
+.login-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 
+    0 4px 6px -2px rgba(0, 0, 0, 0.05),
+    0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  color: #4f46e5; /* Professional Trustworthy Indigo */
+}
+
+[data-theme='dark'] .logo-container {
+  color: #818cf8; /* Lighter Indigo for Dark Mode */
+}
+
+.header-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.logo-text {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-violet);
+  letter-spacing: -0.02em;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--text-sub);
+  margin-bottom: 40px;
+  line-height: 1.6;
+  padding: 0 24px;
+}
+
+.input-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.relative-input {
+  position: relative;
+  width: 100%;
+}
+
+.input-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  width: 20px;
+  height: 20px;
+}
+
+.input-eye {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.input-eye:hover {
+  color: var(--color-violet);
+}
+
+.form-input {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 18px 18px 18px 52px;
+  font-size: 1rem;
+  color: var(--text-main);
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme='dark'] .form-input {
+  border: none;
+}
+
+.form-input:focus {
+  background: var(--bg-main);
+  border-color: var(--color-violet);
+  box-shadow: 0 0 0 4px rgba(125, 57, 235, 0.15);
+}
+
+[data-theme='dark'] .form-input:focus {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 2px rgba(125, 57, 235, 0.3);
+}
+
+.forgot-link {
+  width: 100%;
+  text-align: right;
+  margin-bottom: 32px;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s;
+  font-family: inherit;
+}
+
+.link-button:hover {
+  color: var(--color-violet);
+}
+
+.primary-button {
+  width: 100%;
+  background: linear-gradient(135deg, var(--color-violet) 0%, #6a2cd4 100%);
+  color: var(--color-white);
+  border: none;
+  border-radius: 18px;
+  padding: 18px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  margin-bottom: 32px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.01em;
+}
+
+[data-theme='dark'] .primary-button {
+  box-shadow: none;
+}
+
+.primary-button:hover {
+  background: linear-gradient(135deg, #8b5cf6 0%, var(--color-violet) 100%);
+  box-shadow: 0 16px 32px rgba(125, 57, 235, 0.3);
+  transform: translateY(-2px);
+}
+
+.card-footer {
+  width: 100%;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-links a {
+  font-size: 0.8125rem;
+  color: var(--text-sub);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover {
+  color: var(--color-violet);
+}
+
+.dot {
+  color: var(--text-sub);
+  font-size: 0.8125rem;
+  opacity: 0.5;
+}
+
+.security-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-sub);
+  opacity: 0.8;
+}
+
+.security-icon {
+  color: var(--text-sub);
+}
+
+.brand-highlight {
+  font-weight: 700;
+  color: var(--text-main);
+  font-family: 'Outfit', sans-serif;
+}
