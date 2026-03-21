@@ -8,6 +8,7 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import { AdminLayout } from "./pages/admin/AdminLayout";
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { UsersManagement } from "./pages/admin/UsersManagement";
+import { RolesManagement } from "./pages/admin/RolesManagement";
 import { AdminSettings } from "./pages/admin/AdminSettings";
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
         <Route path="/admin" element={<AdminLayout theme={theme} toggleTheme={toggleTheme} />}>
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<UsersManagement />} />
+          <Route path="roles" element={<RolesManagement />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>

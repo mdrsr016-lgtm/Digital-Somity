@@ -42,15 +42,27 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
         <nav className="admin-nav">
           <NavLink to="/admin" end onClick={closeSidebar} className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}>
             <LayoutDashboard size={20} />
-            <span>{t.admin?.dashboard?.split(' ')[0] || "Dashboard"}</span>
+            <span>{t.admin?.dashboardLabel || "Dashboard"}</span>
           </NavLink>
-          <NavLink to="/admin/users" onClick={closeSidebar} className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}>
-            <Users size={20} />
-            <span>{t.admin?.usersManagement?.split(' ')[0] || "Users"}</span>
-          </NavLink>
+
+          <div className="admin-nav-group">
+            <div className="admin-nav-group-label">
+              <Users size={16} />
+              <span>{t.admin?.usersLabel || "Server Users"}</span>
+            </div>
+            <div className="admin-sub-nav">
+              <NavLink to="/admin/users" end onClick={closeSidebar} className={({ isActive }) => `admin-sub-nav-item ${isActive ? 'active' : ''}`}>
+                {t.admin?.userList || "User List"}
+              </NavLink>
+              <NavLink to="/admin/roles" onClick={closeSidebar} className={({ isActive }) => `admin-sub-nav-item ${isActive ? 'active' : ''}`}>
+                {t.admin?.userRoles || "User Roles"}
+              </NavLink>
+            </div>
+          </div>
+
           <NavLink to="/admin/settings" onClick={closeSidebar} className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}>
             <Settings size={20} />
-            <span>{t.admin?.settings?.split(' ')[0] || "Settings"}</span>
+            <span>{t.admin?.settingsLabel || "Settings"}</span>
           </NavLink>
         </nav>
 
