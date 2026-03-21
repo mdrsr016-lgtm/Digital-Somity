@@ -60,6 +60,25 @@ export const translations = {
       title: "Access Limited",
       body: "Please contact your administrator directly to reset your account password.",
       button: "Understood"
+    },
+    admin: {
+      dashboard: "Dashboard Overview",
+      welcome: "Welcome back, here's what's happening today.",
+      totalUsers: "Total Users",
+      activeSessions: "Active Sessions",
+      revenue: "Total Revenue",
+      recentActivity: "Recent Activity",
+      usersManagement: "Users Management",
+      manageUsersMsg: "Manage application users, roles, and permissions.",
+      addNewUser: "Add New User",
+      searchPlaceholder: "Search records...",
+      settings: "System Settings",
+      settingsMsg: "Configure overall application parameters.",
+      thisWeek: "this week",
+      newUserMsg: "New User Registered",
+      sysUpdateMsg: "System Update",
+      paymentMsg: "Payment Received",
+      adminPanel: "Admin Panel"
     }
   },
   bn: {
@@ -121,6 +140,25 @@ export const translations = {
       title: "অ্যাক্সেস সীমিত",
       body: "আপনার পাসওয়ার্ড রিসেট করতে অনুগ্রহ করে সরাসরি আপনার অ্যাডমিনিস্ট্রেটরের সাথে যোগাযোগ করুন।",
       button: "বুঝেছি"
+    },
+    admin: {
+      dashboard: "ড্যাশবোর্ড ওভারভিউ",
+      welcome: "স্বাগতম, আজকের কার্যক্রম দেখুন।",
+      totalUsers: "মোট ব্যবহারকারী",
+      activeSessions: "সক্রিয় সেশন",
+      revenue: "মোট রাজস্ব",
+      recentActivity: "সাম্প্রতিক কার্যক্রম",
+      usersManagement: "ব্যবহারকারী ব্যবস্থাপনা",
+      manageUsersMsg: "অ্যাকাউন্ট ব্যবহারকারী, ভূমিকা, এবং অনুমতি পরিচালনা করুন।",
+      addNewUser: "নতুন ব্যবহারকারী যোগ করুন",
+      searchPlaceholder: "রেকর্ড খুঁজুন...",
+      settings: "সিস্টেম সেটিংস",
+      settingsMsg: "সিস্টেমের সামগ্রিক প্যারামিটার কনফিগার করুন।",
+      thisWeek: "এই সপ্তাহে",
+      newUserMsg: "নতুন ব্যবহারকারী নিবন্ধিত",
+      sysUpdateMsg: "সিস্টেম আপডেট",
+      paymentMsg: "পেমেন্ট প্রাপ্ত",
+      adminPanel: "অ্যাডমিন প্যানেল"
     }
   }
 };
