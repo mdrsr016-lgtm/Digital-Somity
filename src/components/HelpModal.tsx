@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, HelpCircle, User, CreditCard, Users, ShieldCheck } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 import '../styles/Modal.css';
 
 interface HelpModalProps {
@@ -10,11 +11,12 @@ interface HelpModalProps {
 }
 
 export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
+  const { t } = useLanguage();
   const demoUsers = [
-    { id: 'inv123', label: 'Investors', role: 'Investment Manager', icon: <CreditCard size={20} />, description: 'Use this ID to see investment records and profit reports.' },
-    { id: 'cas123', label: 'Cashiers', role: 'Cash Manager', icon: <User size={20} />, description: 'Use this ID to manage daily transactions and member collections.' },
-    { id: 'mem123', label: 'Members', role: 'Society Member', icon: <Users size={20} />, description: 'Use this ID to see your own savings, loans, and profile.' },
-    { id: 'adm123', label: 'Admins', role: 'System Administrator', icon: <ShieldCheck size={20} />, description: 'Use this ID to access full system control and management tools.' }
+    { id: 'inv123', label: t.help.investorsLabel, role: t.help.investorsRole, icon: <CreditCard size={20} />, description: t.help.investorsDesc },
+    { id: 'cas123', label: t.help.cashiersLabel, role: t.help.cashiersRole, icon: <User size={20} />, description: t.help.cashiersDesc },
+    { id: 'mem123', label: t.help.membersLabel, role: t.help.membersRole, icon: <Users size={20} />, description: t.help.membersDesc },
+    { id: 'adm123', label: t.help.adminsLabel, role: t.help.adminsRole, icon: <ShieldCheck size={20} />, description: t.help.adminsDesc }
   ];
 
   return createPortal(
@@ -44,22 +46,22 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
                 <div className="icon-badge">
                   <HelpCircle className="badge-icon" />
                 </div>
-                <h2>How to Log In?</h2>
-                <p>Welcome! Please follow these simple steps to enter the system.</p>
+                <h2>{t.help.title}</h2>
+                <p>{t.help.subtitle}</p>
               </div>
 
               <div className="help-steps">
                 <div className="step-item">
                   <div className="step-number">1</div>
-                  <div className="step-text">Look at the list below to find your <b>User ID</b>.</div>
+                  <div className="step-text">{t.help.step1Start} <b>{t.help.step1UserId}</b> {t.help.step1End}</div>
                 </div>
                 <div className="step-item">
                   <div className="step-number">2</div>
-                  <div className="step-text">Type that ID into the <b>User Id</b> box on the login screen.</div>
+                  <div className="step-text">{t.help.step2Start} <b>{t.help.step2Box}</b> {t.help.step2End}</div>
                 </div>
                 <div className="step-item">
                   <div className="step-number">3</div>
-                  <div className="step-text">Type your <b>Password</b> and click <b>Get Started</b>.</div>
+                  <div className="step-text">{t.help.step3Start} <b>{t.help.step3Password}</b> {t.help.step3Mid} <b>{t.help.step3GetStarted}</b> {t.help.step3End}</div>
                 </div>
               </div>
 
@@ -71,7 +73,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
                       <span className="demo-label">{user.label}</span>
                     </div>
                     <div className="demo-id-box">
-                      <span className="id-label">User ID:</span>
+                      <span className="id-label">{t.help.userIdLabel}</span>
                       <code className="id-code">{user.id}</code>
                     </div>
                     <p className="demo-desc">{user.description}</p>
@@ -80,7 +82,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
               </div>
 
               <div className="modal-footer-info">
-                <p>Need more help? Please contact your branch supervisor.</p>
+                <p>{t.help.footerInfo}</p>
               </div>
             </motion.div>
           </div>

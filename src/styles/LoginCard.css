@@ -66,12 +66,17 @@
   letter-spacing: -0.02em;
 }
 
+.title.title-bn {
+  font-size: 1.5rem;
+  white-space: nowrap;
+}
+
 .subtitle {
   font-size: 1rem;
   color: var(--text-sub);
   margin-bottom: 40px;
   line-height: 1.6;
-  padding: 0 24px;
+  padding: 0 12px;
 }
 
 .input-container {

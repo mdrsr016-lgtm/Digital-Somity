@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { LoginPage } from "./pages/LoginPage";
 import { Sidebar } from "./components/Sidebar";
 import { HelpModal } from "./components/HelpModal";
+import { LanguageProvider } from "./contexts/LanguageContext";
 
 function App() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -20,7 +21,7 @@ function App() {
   };
 
   return (
-    <>
+    <LanguageProvider>
       <Sidebar 
         theme={theme} 
         toggleTheme={toggleTheme} 
@@ -28,7 +29,7 @@ function App() {
       />
       <LoginPage />
       <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
-    </>
+    </LanguageProvider>
   );
 }
 

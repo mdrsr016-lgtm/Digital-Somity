@@ -1,0 +1,126 @@
+export type Language = "en" | "bn";
+
+export const translations = {
+  en: {
+    login: {
+      logoText: "Digital Somiti",
+      title: "Sign In With Your Id",
+      subtitle: "Manage your cooperative and community records securely with Digital Somiti.",
+      userIdPlaceholder: "User Id",
+      passwordPlaceholder: "Password",
+      forgotPassword: "Forgot password?",
+      getStarted: "Log in",
+      privacyPolicy: "Privacy Policy",
+      termsConditions: "Terms & Conditions",
+      securedBy: "Secured by",
+      privacyPolicyHeader: "Privacy Policy",
+      privacyPolicyBody: "We collect your basic info to keep your account safe. We will never sell your information to anyone. Only our trusted staff can see your details to help you. If you have any worries, you can ask us to delete your data at any time.",
+      termsConditionsHeader: "Terms & Conditions",
+      termsConditionsBody: "By using our service, you agree to be honest and respectful. You must keep your password secret. We promise to provide our best service, but if the system is down for repairs, please be patient. We can stop your account if you break the rules.",
+      understoodButton: "Understood"
+    },
+    sidebar: {
+      help: "Help",
+      language: "Language",
+      darkMode: "Dark Mode",
+      lightMode: "Light Mode",
+      langUS: "US",
+      langBD: "BD"
+    },
+    help: {
+      title: "How to Log In?",
+      subtitle: "Welcome! Please follow these simple steps to enter the system.",
+      step1Start: "Look at the list below to find your",
+      step1UserId: "User ID",
+      step1End: ".",
+      step2Start: "Type that ID into the",
+      step2Box: "User Id",
+      step2End: "box on the login screen.",
+      step3Start: "Type your",
+      step3Password: "Password",
+      step3Mid: "and click",
+      step3GetStarted: "Log in",
+      step3End: ".",
+      investorsLabel: "Investors",
+      investorsRole: "Investment Manager",
+      investorsDesc: "Use this ID to see investment records and profit reports.",
+      cashiersLabel: "Cashiers",
+      cashiersRole: "Cash Manager",
+      cashiersDesc: "Use this ID to manage daily transactions and member collections.",
+      membersLabel: "Members",
+      membersRole: "Society Member",
+      membersDesc: "Use this ID to see your own savings, loans, and profile.",
+      adminsLabel: "Admins",
+      adminsRole: "System Administrator",
+      adminsDesc: "Use this ID to access full system control and management tools.",
+      userIdLabel: "User ID:",
+      footerInfo: "Need more help? Please contact your branch supervisor."
+    },
+    forgotPassword: {
+      title: "Access Limited",
+      body: "Please contact your administrator directly to reset your account password.",
+      button: "Understood"
+    }
+  },
+  bn: {
+    login: {
+      logoText: "ডিজিটাল সমিতি",
+      title: "আইডি দিয়ে সাইন ইন করুন",
+      subtitle: "ডিজিটাল সমিতি দিয়ে আপনার সমবায় ও কমিউনিটির রেকর্ড নিরাপদে পরিচালনা করুন।",
+      userIdPlaceholder: "ইউজার আইডি",
+      passwordPlaceholder: "পাসওয়ার্ড",
+      forgotPassword: "পাসওয়ার্ড ভুলে গেছেন?",
+      getStarted: "লগ ইন",
+      privacyPolicy: "গোপনীয়তা নীতি",
+      termsConditions: "শর্তাবলী",
+      securedBy: "দ্বারা সুরক্ষিত",
+      privacyPolicyHeader: "গোপনীয়তা নীতি",
+      privacyPolicyBody: "আপনার অ্যাকাউন্ট নিরাপদ রাখতে আমরা আপনার সাধারণ তথ্য সংগ্রহ করি। আমরা কারও কাছে আপনার তথ্য বিক্রি করব না। শুধুমাত্র আমাদের বিশ্বস্ত কর্মীরা আপনাকে সাহায্য করার জন্য আপনার বিবরণ দেখতে পারেন। কোন দুশ্চিন্তা থাকলে, আপনি যে কোন সময় আমাদের আপনার ডেটা মুছে ফেলতে বলতে পারেন।",
+      termsConditionsHeader: "শর্তাবলী",
+      termsConditionsBody: "আমাদের পরিষেবা ব্যবহার করে, আপনি সৎ এবং শ্রদ্ধাশীল হতে সম্মত হন। আপনাকে আপনার পাসওয়ার্ড গোপন রাখতে হবে। আমরা আমাদের সেরা পরিষেবা দেওয়ার প্রতিশ্রুতি দিচ্ছি, কিন্তু মেরামতির জন্য সিস্টেম বন্ধ থাকলে, অনুগ্রহ করে ধৈর্য ধরুন। আপনি নিয়ম ভঙ্গ করলে আমরা আপনার অ্যাকাউন্ট বন্ধ করতে পারি।",
+      understoodButton: "বুঝেছি"
+    },
+    sidebar: {
+      help: "সাহায্য",
+      language: "ভাষা",
+      darkMode: "ডার্ক মোড",
+      lightMode: "লাইট মোড",
+      langUS: "ইউএস",
+      langBD: "বিডি"
+    },
+    help: {
+      title: "কিভাবে লগ ইন করবেন?",
+      subtitle: "স্বাগতম! সিস্টেমে প্রবেশ করতে এই সহজ ধাপগুলো অনুসরণ করুন।",
+      step1Start: "আপনার",
+      step1UserId: "ইউজার আইডি",
+      step1End: "খুঁজে পেতে নিচের তালিকাটি দেখুন।",
+      step2Start: "সেই আইডি লগইন স্ক্রিনে",
+      step2Box: "ইউজার আইডি",
+      step2End: "বক্সে লিখুন।",
+      step3Start: "আপনার",
+      step3Password: "পাসওয়ার্ড",
+      step3Mid: "লিখুন এবং",
+      step3GetStarted: "লগ ইন",
+      step3End: "এ ক্লিক করুন।",
+      investorsLabel: "বিনিয়োগকারী",
+      investorsRole: "বিনিয়োগ ব্যবস্থাপক",
+      investorsDesc: "বিনিয়োগ এবং লাভের রিপোর্ট দেখতে এই আইডি ব্যবহার করুন।",
+      cashiersLabel: "ক্যাশিয়ার",
+      cashiersRole: "ক্যাশ ম্যানেজার",
+      cashiersDesc: "দৈনন্দিন লেনদেন এবং সদস্য সংগ্রহ পরিচালনা করতে এই আইডি ব্যবহার করুন।",
+      membersLabel: "সদস্য",
+      membersRole: "সমিতির সদস্য",
+      membersDesc: "নিজের সঞ্চয়, ঋণ এবং প্রোফাইল দেখতে এই আইডি ব্যবহার করুন।",
+      adminsLabel: "অ্যাডমিন",
+      adminsRole: "সিস্টেম অ্যাডমিনিস্ট্রেটর",
+      adminsDesc: "সম্পূর্ণ সিস্টেম নিয়ন্ত্রণ এবং ব্যবস্থাপনা টুলের জন্য এই আইডি ব্যবহার করুন।",
+      userIdLabel: "ইউজার আইডি:",
+      footerInfo: "আরও সাহায্য প্রয়োজন? অনুগ্রহ করে আপনার শাখা সুপারভাইজারের সাথে যোগাযোগ করুন।"
+    },
+    forgotPassword: {
+      title: "অ্যাক্সেস সীমিত",
+      body: "আপনার পাসওয়ার্ড রিসেট করতে অনুগ্রহ করে সরাসরি আপনার অ্যাডমিনিস্ট্রেটরের সাথে যোগাযোগ করুন।",
+      button: "বুঝেছি"
+    }
+  }
+};

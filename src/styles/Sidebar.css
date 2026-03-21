@@ -69,8 +69,10 @@
 .language-selector-container {
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   margin-top: auto;
+  width: 100%;
 }
 
 .language-dropdown {
@@ -80,21 +82,23 @@
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 4px;
+  padding: 8px 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  min-width: 60px;
+  gap: 8px;
+  width: 48px;
+  min-width: 48px;
   margin-top: 12px;
   z-index: 1001;
 }
 
 .dropdown-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 8px;
+  gap: 4px;
+  padding: 6px 0;
   border-radius: 8px;
   color: var(--text-main);
   background: none;
@@ -116,8 +120,8 @@
 }
 
 .flag {
-  width: 24px;
-  height: 16px;
+  width: 20px;
+  height: 14px;
   border-radius: 2px;
   position: relative;
   overflow: hidden;
@@ -133,8 +137,8 @@
 
 .bd-flag::after {
   content: '';
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   background-color: #f42a41; /* Bangladesh Red */
   border-radius: 50%;
 }
@@ -142,9 +146,9 @@
 .us-flag {
   background: repeating-linear-gradient(
     #b22234,
-    #b22234 1.2px,
-    #ffffff 1.2px,
-    #ffffff 2.4px
+    #b22234 1.1px,
+    #ffffff 1.1px,
+    #ffffff 2.2px
   );
 }
 
@@ -153,15 +157,16 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 12px;
-  height: 8px;
+  width: 10px;
+  height: 7px;
   background-color: #3c3b6e; /* US Blue */
 }
 
 .lang-name {
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
  .theme-toggle {

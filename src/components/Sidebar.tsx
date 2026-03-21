@@ -1,6 +1,7 @@
 import { HelpCircle, Languages, Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import { useLanguage } from "../contexts/LanguageContext";
 import "../styles/Sidebar.css";
 
 interface SidebarProps {
@@ -11,12 +12,13 @@ interface SidebarProps {
 
 export const Sidebar = ({ theme, toggleTheme, onHelpClick }: SidebarProps) => {
   const [isLangOpen, setIsLangOpen] = useState(false);
+  const { t, setLanguage } = useLanguage();
 
   return (
     <div className="sidebar">
       <button className="sidebar-item" onClick={onHelpClick}>
         <HelpCircle size={24} />
-        <span className="sidebar-tooltip">Help</span>
+        <span className="sidebar-tooltip">{t.sidebar.help}</span>
       </button>
 
       <div className="language-selector-container">
@@ -25,7 +27,7 @@ export const Sidebar = ({ theme, toggleTheme, onHelpClick }: SidebarProps) => {
           onClick={() => setIsLangOpen(!isLangOpen)}
         >
           <Languages size={24} />
-          <span className="sidebar-tooltip">Language</span>
+          <span className="sidebar-tooltip">{t.sidebar.language}</span>
         </button>
 
         <AnimatePresence>
@@ -37,14 +39,14 @@ export const Sidebar = ({ theme, toggleTheme, onHelpClick }: SidebarProps) => {
               className="language-dropdown"
               style={{ overflow: 'hidden' }}
             >
-              <button className="dropdown-item">
+              <button className="dropdown-item" onClick={() => { setLanguage('en'); setIsLangOpen(false); }}>
                 <div className="flag us-flag" />
-                <span className="lang-name">US</span>
+                <span className="lang-name">{t.sidebar.langUS}</span>
               </button>
               <div className="dropdown-divider" />
-              <button className="dropdown-item">
+              <button className="dropdown-item" onClick={() => { setLanguage('bn'); setIsLangOpen(false); }}>
                 <div className="flag bd-flag" />
-                <span className="lang-name">BD</span>
+                <span className="lang-name">{t.sidebar.langBD}</span>
               </button>
             </motion.div>
           )}
@@ -56,7 +58,7 @@ export const Sidebar = ({ theme, toggleTheme, onHelpClick }: SidebarProps) => {
         onClick={toggleTheme}
       >
         {theme === 'light' ? <Moon size={24} /> : <Sun size={24} />}
-        <span className="sidebar-tooltip">{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
+        <span className="sidebar-tooltip">{theme === 'light' ? t.sidebar.darkMode : t.sidebar.lightMode}</span>
       </button>
     </div>
   );

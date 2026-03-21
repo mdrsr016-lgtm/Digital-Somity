@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, User } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 import '../styles/Modal.css';
 
 interface ForgotPasswordModalProps {
@@ -10,6 +11,8 @@ interface ForgotPasswordModalProps {
 }
 
 export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen, onClose }) => {
+  const { t } = useLanguage();
+
   return createPortal(
     <AnimatePresence>
       {isOpen && (
@@ -39,8 +42,8 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen
                 <div className="icon-badge">
                   <User className="badge-icon" />
                 </div>
-                <h2>Access Limited</h2>
-                <p>Please contact your administrator directly to reset your account password.</p>
+                <h2>{t.forgotPassword.title}</h2>
+                <p>{t.forgotPassword.body}</p>
               </div>
 
               <div className="modal-body" style={{ alignItems: 'center' }}>
@@ -51,7 +54,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen
                   onClick={onClose}
                   style={{ marginTop: '0', width: 'auto', padding: '14px 32px' }}
                 >
-                  Understood
+                  {t.forgotPassword.button}
                 </motion.button>
               </div>
             </motion.div>
