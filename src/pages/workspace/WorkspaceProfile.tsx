@@ -2,10 +2,12 @@ import { motion } from "framer-motion";
 import { useOutletContext } from "react-router-dom";
 import { Shield, Calendar, Edit3, Award, Info, Lock } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { useState } from "react";
 
 export const WorkspaceProfile = () => {
   const { activeUser, workspaces } = useOutletContext<any>();
   const { language } = useLanguage();
+  const [twoFaClicked, setTwoFaClicked] = useState(false);
 
   const container = {
     hidden: { opacity: 0 },
@@ -125,13 +127,21 @@ export const WorkspaceProfile = () => {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', background: 'var(--ws-glass)', borderRadius: '16px' }}>
                 <div>
-                  <h4 style={{ margin: '0 0 4px 0' }}>{language === 'bn' ? 'টু-ফ্যাক্টর অথেন্টিকেশন' : 'Two-Factor Authentication'}</h4>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--ws-text-muted)', margin: 0 }}>{language === 'bn' ? 'অতিরিক্ত নিরাপত্তার জন্য চালু করুন' : 'Enable for extra security'}</p>
+                  <h4 style={{ margin: '0 0 4px 0' }}>{language === 'bn' ? 'দুই-ফ্যাক্টর অথেন্টিকেশন' : 'Two-Factor Authentication'}</h4>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--ws-text-muted)', margin: 0 }}>
+                    {twoFaClicked
+                      ? (language === 'bn' ? '২০২৫ সালে আসছে — শীঘ্রই পাবেন!' : 'Coming in 2025 — stay tuned!')
+                      : (language === 'bn' ? 'অতিরিক্ত নিরাপত্তার জন্য চালু করুন' : 'Enable for extra security')}
+                  </p>
                 </div>
-                <div 
+                <div
+                  title={language === 'bn' ? 'শীঘ্রই আসছে' : 'Coming Soon'}
+                  onClick={() => setTwoFaClicked(true)}
                   style={{ 
                     width: '44px', height: '24px', background: 'rgba(255,255,255,0.1)', borderRadius: '20px', 
-                    position: 'relative', cursor: 'pointer' 
+                    position: 'relative', cursor: 'pointer',
+                    border: twoFaClicked ? '1px solid var(--ws-violet)' : '1px solid transparent',
+                    transition: 'border 0.2s'
                   }}
                 >
                   <div style={{ width: '18px', height: '18px', background: 'var(--ws-text-muted)', borderRadius: '50%', position: 'absolute', top: '3px', left: '3px' }} />

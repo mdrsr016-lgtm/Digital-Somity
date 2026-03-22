@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import "../../styles/Admin.css";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { MockUser } from "../../data/mockUsers";
-import { api } from "../../services/api";
+import { mockUsers, MockUser } from "../../data/mockUsers";
 
 interface AdminLayoutProps {
   theme: 'light' | 'dark';
@@ -20,37 +19,47 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isServerMenuOpen, setIsServerMenuOpen] = useState(true);
   const [activeUser, setActiveUser] = useState<MockUser | null>(null);
-
-  const [users, setUsers] = useState<MockUser[]>([]);
-  const [roles, setRoles] = useState<any[]>([]);
-  const [workspaces, setWorkspaces] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [usersData, rolesData, workspacesData] = await Promise.all([
-          api.getUsers(),
-          api.getRoles(),
-          api.getWorkspaces()
-        ]);
-        setUsers(usersData);
-        setRoles(rolesData);
-        setWorkspaces(workspacesData);
-
-        const userId = localStorage.getItem("ds_logged_in_user");
-        const foundUser = usersData.find((u: any) => u.id.toLowerCase() === userId?.toLowerCase());
-        
-        if (!foundUser || foundUser.roleEn !== 'System Administrator') {
-          navigate(foundUser ? "/workspace" : "/");
-        } else {
-          setActiveUser(foundUser);
-        }
-      } catch (error) {
-        console.error("Failed to fetch initial admin data", error);
-      }
-    };
-    fetchData();
+    const userId = localStorage.getItem("ds_logged_in_user");
+    // Case-insensitive lookup for extra robustness
+    const user = mockUsers.find(u => u.id.toLowerCase() === userId?.toLowerCase());
+    
+    if (!user || user.roleEn !== 'System Administrator') {
+      navigate(user ? "/workspace" : "/");
+    } else {
+      setActiveUser(user);
+    }
   }, [navigate]);
+
+  const [users, setUsers] = useState<MockUser[]>(() => {
+    const saved = localStorage.getItem("ds_users");
+    if (saved) return JSON.parse(saved);
+    return mockUsers;
+  });
+
+  const [roles, setRoles] = useState<any[]>(() => {
+    const saved = localStorage.getItem("ds_roles");
+    if (saved) return JSON.parse(saved);
+    return [
+      { id: '1', nameEn: 'Super Admin', nameBn: 'সুপার এডমিন', count: 2, status: 'active' },
+      { id: '2', nameEn: 'Manager', nameBn: 'ম্যানেজার', count: 5, status: 'active' },
+      { id: '3', nameEn: 'Cashier', nameBn: 'ক্যাশিয়ার', count: 8, status: 'active' },
+      { id: '4', nameEn: 'Investor', nameBn: 'বিনিয়োগকারী', count: 12, status: 'active' },
+      { id: '5', nameEn: 'Member', nameBn: 'সদস্য', count: 120, status: 'active' },
+    ];
+  });
+
+  const [workspaces, setWorkspaces] = useState<any[]>(() => {
+    const saved = localStorage.getItem("ds_workspaces");
+    if (saved) return JSON.parse(saved);
+    return [
+      { id: '1', name: 'Main HQ', typeen: 'Yearly', typebn: 'বার্ষিক', createdEn: 'Jan 12, 2024', createdBn: '১২ জানুয়ারি, ২০২৪', members: 45, status: 'active' },
+      { id: '2', name: 'Dhaka North', typeen: 'Monthly', typebn: 'মাসিক', createdEn: 'Feb 05, 2024', createdBn: '০৫ ফেব্রুয়ারি, ২০২৪', members: 12, status: 'active' },
+      { id: '3', name: 'Sylhet Regional', typeen: 'Monthly', typebn: 'মাসিক', createdEn: 'Mar 10, 2024', createdBn: '১০ মার্চ, ২০২৪', members: 8, status: 'active' },
+    ];
+  });
 
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'err' } | null>(null);
 
@@ -63,6 +72,18 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("ds_users", JSON.stringify(users));
+  }, [users]);
+
+  useEffect(() => {
+    localStorage.setItem("ds_roles", JSON.stringify(roles));
+  }, [roles]);
+
+  useEffect(() => {
+    localStorage.setItem("ds_workspaces", JSON.stringify(workspaces));
+  }, [workspaces]);
 
   const generateUserId = (role: string) => {
     let prefix = 'USR';
@@ -84,33 +105,16 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
     return `${prefix}${nextNumber}`;
   };
 
-  const updateStatus = async (userId: string, status: MockUser['status']) => {
-    try {
-      await fetch(`http://localhost:3001/users/${userId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      });
-      setUsers(prev => prev.map(u => u.id === userId ? { ...u, status } : u));
-    } catch (e) { console.error(e); }
+  const updateStatus = (userId: string, status: MockUser['status']) => {
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, status } : u));
   };
 
-  const deleteUser = async (userId: string) => {
-    try {
-      await api.deleteUser(userId);
-      setUsers(prev => prev.filter(u => u.id !== userId));
-    } catch (e) { console.error(e); }
+  const deleteUser = (userId: string) => {
+    setUsers(prev => prev.filter(u => u.id !== userId));
   };
 
-  const updateRoleStatus = async (roleId: string, status: 'active' | 'archived') => {
-    try {
-      await fetch(`http://localhost:3001/roles/${roleId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      });
-      setRoles(prev => prev.map(r => r.id === roleId ? { ...r, status } : r));
-    } catch (e) { console.error(e); }
+  const updateRoleStatus = (roleId: string, status: 'active' | 'archived') => {
+    setRoles(prev => prev.map(r => r.id === roleId ? { ...r, status } : r));
   };
 
   const handleLogout = () => {
@@ -118,29 +122,16 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
     navigate("/");
   };
 
-  const deleteRolePermanently = async (roleId: string) => {
-    try {
-      await api.deleteRole(roleId);
-      setRoles(prev => prev.filter(r => r.id !== roleId));
-    } catch (e) { console.error(e); }
+  const deleteRolePermanently = (roleId: string) => {
+    setRoles(prev => prev.filter(r => r.id !== roleId));
   };
 
-  const updateWorkspaceStatus = async (wsId: string, status: 'active' | 'archived') => {
-    try {
-      await fetch(`http://localhost:3001/workspaces/${wsId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      });
-      setWorkspaces(prev => prev.map(w => w.id === wsId ? { ...w, status } : w));
-    } catch (e) { console.error(e); }
+  const updateWorkspaceStatus = (wsId: string, status: 'active' | 'archived') => {
+    setWorkspaces(prev => prev.map(w => w.id === wsId ? { ...w, status } : w));
   };
 
-  const deleteWorkspacePermanently = async (wsId: string) => {
-    try {
-      await api.deleteWorkspace(wsId);
-      setWorkspaces(prev => prev.filter(w => w.id !== wsId));
-    } catch (e) { console.error(e); }
+  const deleteWorkspacePermanently = (wsId: string) => {
+    setWorkspaces(prev => prev.filter(w => w.id !== wsId));
   };
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -240,8 +231,14 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
               <Menu size={24} />
             </button>
             <div className="admin-topbar-search desktop-only">
-              <input type="text" placeholder={t.admin?.searchPlaceholder || "Search..."} className="admin-search-input" />
-            </div>
+                <input
+                  type="text"
+                  placeholder={t.admin?.searchPlaceholder || "Search..."}
+                  className="admin-search-input"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
           </div>
           
           <div className="admin-topbar-right">
@@ -297,9 +294,14 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
               <span className="desktop-only text-truncate" style={{ maxWidth: '100px' }}>{activeUser?.name || 'Admin'}</span>
             </div>
 
-            <NavLink to="/" className="topbar-exit-btn" title="Exit Admin">
+            <button
+              className="topbar-exit-btn"
+              title="Exit Admin"
+              onClick={handleLogout}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+            >
               <LogOut size={20} />
-            </NavLink>
+            </button>
           </div>
         </header>
 
@@ -307,7 +309,8 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
           <Outlet context={{ 
             activeUser, users, setUsers, updateStatus, deleteUser, generateUserId, showToast,
             roles, setRoles, updateRoleStatus, deleteRolePermanently,
-            workspaces, setWorkspaces, updateWorkspaceStatus, deleteWorkspacePermanently
+            workspaces, setWorkspaces, updateWorkspaceStatus, deleteWorkspacePermanently,
+            searchQuery
           }} />
         </div>
       </main>

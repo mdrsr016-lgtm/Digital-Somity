@@ -5,10 +5,9 @@ import {
   UserPlus, Settings, RefreshCw, Server, CheckCircle, XCircle,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { mockUsers } from "../../data/mockUsers";
 
 // ─── Static Config ────────────────────────────────────────────────────────────
 const TOTAL_CASHIERS = 5;
@@ -87,6 +86,7 @@ const cardAnim = {
 export const AdminDashboard = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
+  const { users } = useOutletContext<any>();
   const adminT = t.admin || {} as any;
   const now = new Date();
 
@@ -108,7 +108,7 @@ export const AdminDashboard = () => {
   const greeting     = getGreeting(now.getHours(), language);
   const dateStr      = getFormattedDate(language);
   const isBn         = language === 'bn';
-  const totalMembers = mockUsers.length + roleBreakdown.reduce((a, r) => a + r.count, 0);
+  const totalMembers = (users ?? []).filter((u: any) => u.status === 'active').length;
   const healthOk     = systemChecks.filter(c => c.status === 'ok').length;
 
   const kpiCards = [

@@ -4,12 +4,16 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import { MockUser } from "../../data/mockUsers";
 import { X, Trash2, ShieldAlert, Power, UserPlus, AlertTriangle, Lock, Unlock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { api } from "../../services/api";
+
+const generateRandomPassword = () => {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#$!';
+  return Array.from({ length: 10 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+};
 
 export const UsersManagement = () => {
   const { t, language } = useLanguage();
   const adminT = t.admin || {} as any;
-  const { users, setUsers, workspaces, updateStatus: globalUpdateStatus, generateUserId, showToast } = useOutletContext<any>();
+  const { users, setUsers, workspaces, updateStatus: globalUpdateStatus, generateUserId, showToast, searchQuery } = useOutletContext<any>();
   const [selectedUser, setSelectedUser] = useState<MockUser | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filterRole, setFilterRole] = useState<string | null>(null);
@@ -42,7 +46,12 @@ export const UsersManagement = () => {
 
   const displayedUsers = (filterRole 
     ? users.filter((u: MockUser) => u.roleEn === filterRole)
-    : users).filter((u: MockUser) => !['removed', 'suspended', 'disabled'].includes(u.status));
+    : users).filter((u: MockUser) => !['removed', 'suspended', 'disabled'].includes(u.status))
+    .filter((u: MockUser) => {
+      if (!searchQuery) return true;
+      const q = searchQuery.toLowerCase();
+      return u.name.toLowerCase().includes(q) || u.roleEn.toLowerCase().includes(q) || u.id.toLowerCase().includes(q);
+    });
 
   const handleEdit = (user: MockUser) => {
     setSelectedUser(user);
@@ -50,7 +59,7 @@ export const UsersManagement = () => {
     setModalRole(user.roleEn);
     setModalWorkspace(user.workspaceId || "");
     setModalUserId(user.id);
-    setModalPassword(user.password || "123456");
+    setModalPassword(user.password || '');
     setIsModalOpen(true);
   };
 
@@ -84,7 +93,7 @@ export const UsersManagement = () => {
     closeModal();
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!modalName.trim()) {
       showToast(language === 'bn' ? 'দয়া করে নাম লিখুন' : 'Please enter a name');
       return;
@@ -96,45 +105,39 @@ export const UsersManagement = () => {
 
     const roleBn = uniqueRoles.find((r: any) => r.en === modalRole)?.bn || modalRole;
     
-    try {
-      if (selectedUser) {
-        // Edit User
-        const updatedUser: MockUser = {
-          ...selectedUser,
-          id: modalUserId, // Key fix: use the value in the input field!
-          name: modalName,
-          roleEn: modalRole,
-          roleBn: roleBn,
-          workspaceId: modalWorkspace || selectedUser.workspaceId,
-          password: modalPassword || selectedUser.password
-        };
-        await api.updateUser(selectedUser.id, updatedUser);
-        // If the ID changed, we need to map by the original ID but save the new one
-        setUsers(users.map((u: MockUser) => u.id === selectedUser.id ? updatedUser : u));
-        showToast(language === 'bn' ? 'পরিবর্তনগুলো সফলভাবে সংরক্ষিত হয়েছে' : 'Changes saved successfully.');
-      } else {
-        // Create New User
-        const newUser: MockUser = {
-          id: modalUserId || Math.random().toString(36).substr(2, 9),
-          name: modalName,
-          roleEn: modalRole,
-          roleBn: roleBn,
-          status: 'active',
-          workspaceId: modalWorkspace,
-          password: modalPassword,
-          initial: modalName.charAt(0).toUpperCase() || 'U',
-          lastLoginEn: 'Never',
-          lastLoginBn: 'কখনো না'
-        };
-        await api.createUser(newUser);
-        setUsers([...users, newUser]);
-        showToast(language === 'bn' ? 'নতুন ব্যবহারকারী সফলভাবে তৈরি হয়েছে' : 'New user created successfully.');
-      }
-      closeModal();
-    } catch (error) {
-      console.error('Failed to save user', error);
-      showToast('Error saving user');
+    if (selectedUser) {
+      // Edit User
+      const updatedUser: MockUser = {
+        ...selectedUser,
+        id: modalUserId, // Key fix: use the value in the input field!
+        name: modalName,
+        roleEn: modalRole,
+        roleBn: roleBn,
+        workspaceId: modalWorkspace || selectedUser.workspaceId,
+        password: modalPassword || selectedUser.password
+      };
+      // If the ID changed, we need to map by the original ID but save the new one
+      setUsers(users.map((u: MockUser) => u.id === selectedUser.id ? updatedUser : u));
+      showToast(language === 'bn' ? 'পরিবর্তনগুলো সফলভাবে সংরক্ষিত হয়েছে' : 'Changes saved successfully.');
+    } else {
+      // Create New User
+      const newUser: MockUser = {
+        id: modalUserId || Math.random().toString(36).substr(2, 9),
+        name: modalName,
+        roleEn: modalRole,
+        roleBn: roleBn,
+        status: 'active',
+        workspaceId: modalWorkspace,
+        password: modalPassword,
+        initial: modalName.charAt(0).toUpperCase() || 'U',
+        lastLoginEn: 'Never',
+        lastLoginBn: 'কখনো না'
+      };
+      setUsers([...users, newUser]);
+      showToast(language === 'bn' ? 'নতুন ব্যবহারকারী সফলভাবে তৈরি হয়েছে' : 'New user created successfully.');
     }
+    
+    closeModal();
   };
 
   // Keyboard support for modal
@@ -308,7 +311,7 @@ export const UsersManagement = () => {
                       
                       if (newRole) {
                         setModalUserId(generateUserId(newRole));
-                        setModalPassword('123456');
+                        setModalPassword(generateRandomPassword());
                       } else {
                         setModalUserId("");
                         setModalPassword("");
@@ -391,7 +394,7 @@ export const UsersManagement = () => {
                     <div className="modal-input-group" style={{ marginBottom: 0 }}>
                       <label>{language === 'bn' ? 'পাসওয়ার্ড' : 'Password'}</label>
                       <input 
-                        type="text" 
+                        type="password" 
                         className="admin-input" 
                         value={modalPassword} 
                         onChange={e => setModalPassword(e.target.value)}

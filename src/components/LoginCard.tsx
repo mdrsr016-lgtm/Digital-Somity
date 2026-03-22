@@ -6,10 +6,28 @@ import { ForgotPasswordModal } from "./ForgotPasswordModal";
 import { PrivacyModal } from "./PrivacyModal";
 import { TermsModal } from "./TermsModal";
 import { useLanguage } from "../contexts/LanguageContext";
-import { api } from "../services/api";
+import { mockUsers } from "../data/mockUsers";
 import "../styles/LoginCard.css";
 
 const MATRIX_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*!";
+
+// Load ALL users from localStorage or fallback to mockUsers
+function getAllUsers() {
+  let users: any[] = [];
+  try {
+    const saved = localStorage.getItem("ds_users");
+    if (saved) {
+      users = JSON.parse(saved);
+    } else {
+      // Fallback to initial mockUsers if no storage found
+      users = [...mockUsers];
+    }
+  } catch (_) {
+    users = [...mockUsers];
+  }
+
+  return users;
+}
 
 type VerifyState = 'idle' | 'verifying' | 'verified' | 'not-found';
 
@@ -68,22 +86,17 @@ export const LoginCard = () => {
     }, 60);
   }, [userId, stopMatrix]);
 
-  const handleUserIdBlur = useCallback(async () => {
+  const handleUserIdBlur = useCallback(() => {
     if (!userId.trim() || verifyState === 'verified') return;
 
-    try {
-      const users = await api.getUsers();
-      const match = users.find(
-        (u: any) => u.id === userId.trim() || u.id.toLowerCase() === userId.trim().toLowerCase()
-      );
+    const users = getAllUsers();
+    const match = users.find(
+      (u: any) => u.id === userId.trim() || u.id.toLowerCase() === userId.trim().toLowerCase()
+    );
 
-      if (match) {
-        startMatrixAnimation(match.name, true);
-      } else {
-        startMatrixAnimation(userId, false);
-      }
-    } catch (e) {
-      console.error(e);
+    if (match) {
+      startMatrixAnimation(match.name, true);
+    } else {
       startMatrixAnimation(userId, false);
     }
   }, [userId, verifyState, startMatrixAnimation]);
@@ -124,44 +137,38 @@ export const LoginCard = () => {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const handleLogin = async (e?: React.FormEvent) => {
+  const handleLogin = (e?: React.FormEvent) => {
     e?.preventDefault();
     if (isVerifying) return;
     if (!isLocked) {
       handleUserIdBlur();
       return;
     }
-    
-    try {
-      const users = await api.getUsers();
-      // Normalize lookup to be case-insensitive
-      const user = users.find((u: any) => 
-        u.id.toLowerCase() === userId.trim().toLowerCase()
-      );
+    const users = getAllUsers();
+    // Normalize lookup to be case-insensitive
+    const user = users.find((u: any) => 
+      u.id.toLowerCase() === userId.trim().toLowerCase()
+    );
 
-      if (!user) {
-        setVerifyState('not-found');
-        return;
-      }
-
-      const password = passwordRef.current?.value || "";
-      if (user.password && user.password !== password) {
-        // Access denied
-        setVerifyState('not-found'); 
-        return;
-      }
-
-      // Persistent Session Mock - Use the canonical ID from the match
-      localStorage.setItem("ds_logged_in_user", user.id);
-      
-      if (user.roleEn === 'System Administrator') {
-        navigate("/admin");
-      } else {
-        navigate("/workspace");
-      }
-    } catch (err) {
-      console.error(err);
+    if (!user) {
       setVerifyState('not-found');
+      return;
+    }
+
+    const password = passwordRef.current?.value || "";
+    if (user.password && user.password !== password) {
+      // Access denied
+      setVerifyState('not-found'); 
+      return;
+    }
+
+    // Persistent Session Mock - Use the canonical ID from the match
+    localStorage.setItem("ds_logged_in_user", user.id);
+    
+    if (user.roleEn === 'System Administrator') {
+      navigate("/admin");
+    } else {
+      navigate("/workspace");
     }
   };
 

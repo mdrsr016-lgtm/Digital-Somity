@@ -3,7 +3,6 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import { Plus, Building2, Trash2, AlertTriangle, X } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { api } from "../../services/api";
 
 interface MockWorkspace {
   id: string;
@@ -100,7 +99,7 @@ export const WorkspaceList = () => {
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!modalName.trim()) {
       setNameError(true);
       showToast(language === 'bn' ? 'দয়া করে নাম দিন' : 'Please enter a name');
@@ -109,40 +108,33 @@ export const WorkspaceList = () => {
 
     const typeBn = modalType === 'Monthly' ? 'মাসিক' : modalType === 'Yearly' ? 'বার্ষিক' : 'আজীবনের';
     
-    try {
-      if (!selectedWs) {
-        // Logic for adding new workspace
-        const newWs = {
-          id: Math.random().toString(36).substr(2, 9),
-          name: modalName,
-          typeen: modalType,
-          typebn: typeBn,
-          createdEn: new Date().toLocaleDateString('en-US'),
-          createdBn: new Date().toLocaleDateString('bn-BD'),
-          members: modalMembers,
-          status: 'active' as const
-        };
-        await api.createWorkspace(newWs);
-        setWorkspaces([...workspaces, newWs]);
-      } else {
-        // Logic for editing
-        const updatedWs = {
-          ...selectedWs,
-          name: modalName,
-          typeen: modalType,
-          typebn: typeBn,
-          members: modalMembers
-        };
-        await api.updateWorkspace(selectedWs.id, updatedWs);
-        setWorkspaces(workspaces.map((w: any) => w.id === selectedWs.id ? updatedWs : w));
-      }
-
-      showToast(language === 'bn' ? 'সফলভাবে সংরক্ষিত হয়েছে!' : 'Saved Successfully!');
-      closeModal();
-    } catch (error) {
-      console.error('Failed to save workspace', error);
-      showToast('Error saving workspace');
+    if (!selectedWs) {
+      // Logic for adding new workspace
+      const newWs = {
+        id: Math.random().toString(36).substr(2, 9),
+        name: modalName,
+        typeen: modalType,
+        typebn: typeBn,
+        createdEn: new Date().toLocaleDateString('en-US'),
+        createdBn: new Date().toLocaleDateString('bn-BD'),
+        members: modalMembers,
+        status: 'active' as const
+      };
+      setWorkspaces([...workspaces, newWs]);
+    } else {
+      // Logic for editing
+      const updatedWs = {
+        ...selectedWs,
+        name: modalName,
+        typeen: modalType,
+        typebn: typeBn,
+        members: modalMembers
+      };
+      setWorkspaces(workspaces.map((w: any) => w.id === selectedWs.id ? updatedWs : w));
     }
+
+    showToast(language === 'bn' ? 'সফলভাবে সংরক্ষিত হয়েছে!' : 'Saved Successfully!');
+    closeModal();
   };
 
   return (

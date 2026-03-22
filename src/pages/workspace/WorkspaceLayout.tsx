@@ -3,14 +3,15 @@ import { LayoutDashboard, LogOut, Bell, Users, Menu, X as XIcon, Settings } from
 import { useState, useEffect } from "react";
 import "../../styles/Workspace.css";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { api } from "../../services/api";
+import { mockUsers } from "../../data/mockUsers";
 
 interface WorkspaceLayoutProps {
-  theme: 'light' | 'dark';
-  toggleTheme: () => void;
+  // theme and toggleTheme reserved for future workspace theme support
+  theme?: 'light' | 'dark';
+  toggleTheme?: () => void;
 }
 
-export const WorkspaceLayout = ({ theme, toggleTheme }: WorkspaceLayoutProps) => {
+export const WorkspaceLayout = (_props: WorkspaceLayoutProps) => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
@@ -25,29 +26,30 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: WorkspaceLayoutProps) =>
   }, [location.pathname]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [usersData, workspacesData] = await Promise.all([
-          api.getUsers(),
-          api.getWorkspaces()
-        ]);
-        
-        setUsers(usersData);
-        setWorkspaces(workspacesData);
+    const userId = localStorage.getItem("ds_logged_in_user");
+    
+    // Get latest users and workspaces from storage
+    let currentUsers = mockUsers;
+    let currentWorkspaces: any[] = [];
+    
+    try {
+      const savedUsers = localStorage.getItem("ds_users");
+      if (savedUsers) currentUsers = JSON.parse(savedUsers);
+      
+      const savedWorkspaces = localStorage.getItem("ds_workspaces");
+      if (savedWorkspaces) currentWorkspaces = JSON.parse(savedWorkspaces);
+    } catch (_) {}
 
-        const userId = localStorage.getItem("ds_logged_in_user");
-        const user = usersData.find((u: any) => u.id.toLowerCase() === userId?.toLowerCase());
-        
-        if (!user) {
-          navigate("/");
-        } else {
-          setActiveUser(user);
-        }
-      } catch (error) {
-        console.error("Failed to fetch workspace data", error);
-      }
-    };
-    fetchData();
+    setUsers(currentUsers);
+    setWorkspaces(currentWorkspaces);
+
+    const user = currentUsers.find(u => u.id.toLowerCase() === userId?.toLowerCase());
+    
+    if (!user) {
+      navigate("/");
+    } else {
+      setActiveUser(user);
+    }
   }, [navigate]);
 
   const handleLogout = () => {
@@ -151,8 +153,8 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: WorkspaceLayoutProps) =>
           </div>
         </header>
 
-        <div className="ws-overview">
-          <Outlet context={{ activeUser, users, workspaces, theme, toggleTheme }} />
+        <div className="ws-content">
+          <Outlet context={{ activeUser, users, workspaces }} />
         </div>
       </main>
     </div>

@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useNavigate } from "react-router-dom";
 import { TrendingUp, Users, Calendar, ShieldCheck, PieChart, Activity, Wallet } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 
 export const WorkspaceOverview = () => {
   const { activeUser } = useOutletContext<any>();
   const { language } = useLanguage();
+  const navigate = useNavigate();
 
   const container = {
     hidden: { opacity: 0 },
@@ -107,7 +108,11 @@ export const WorkspaceOverview = () => {
               {language === 'bn' ? 'ভেরিফায়েড প্রোফাইল' : 'Verified Profile'}
             </div>
             <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-              <button className="admin-btn-primary" style={{ padding: '10px 20px', fontSize: '0.9rem' }}>
+              <button
+                className="admin-btn-primary"
+                style={{ padding: '10px 20px', fontSize: '0.9rem' }}
+                onClick={() => navigate('/workspace/profile')}
+              >
                 {language === 'bn' ? 'প্রোফাইল আপডেট করুন' : 'Update Profile'}
               </button>
             </div>
