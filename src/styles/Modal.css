@@ -67,7 +67,7 @@
 .icon-badge {
   width: 64px;
   height: 64px;
-  background: rgba(125, 57, 235, 0.1);
+  background: var(--color-violet-soft);
   border-radius: 20px;
   display: flex;
   align-items: center;

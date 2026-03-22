@@ -1,6 +1,7 @@
 import { Outlet, NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, Settings, LogOut, Sun, Moon, Clock, Menu, X } from "lucide-react";
+import { LayoutDashboard, Users, Settings, LogOut, Sun, Moon, Clock, Menu, X, HelpCircle, Languages } from "lucide-react";
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import "../../styles/Admin.css";
 import { useLanguage } from "../../contexts/LanguageContext";
 
@@ -10,9 +11,10 @@ interface AdminLayoutProps {
 }
 
 export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
-  const { t } = useLanguage();
+  const { t, setLanguage } = useLanguage();
   const [time, setTime] = useState(new Date());
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isLangOpen, setIsLangOpen] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -67,15 +69,9 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
         </nav>
 
         <div className="admin-sidebar-footer">
-          <button className="admin-nav-item" onClick={toggleTheme}>
-            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-            <span>{theme === 'light' ? t.sidebar.darkMode : t.sidebar.lightMode}</span>
-          </button>
-          
-          <NavLink to="/" className="admin-nav-item logout">
-            <LogOut size={20} />
-            <span>Exit Admin</span>
-          </NavLink>
+          <div className="admin-footer-copyright">
+            &copy; 2026 Digital Somiti
+          </div>
         </div>
       </aside>
 
@@ -91,15 +87,62 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
             </div>
           </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-            <div className="admin-clock desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-sub)', fontWeight: 500, fontFamily: "'Questrial', sans-serif" }}>
+          <div className="admin-topbar-right">
+            <div className="admin-clock desktop-only">
               <Clock size={16} />
-              {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              <span>
+                {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                <span style={{ opacity: 0.5, margin: '0 8px' }}>•</span>
+                {time.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
+              </span>
             </div>
+
+            <div className="admin-topbar-actions">
+              <button className="topbar-btn" title={t.sidebar.help}>
+                <HelpCircle size={20} />
+              </button>
+
+              <div className="topbar-lang-container">
+                <button 
+                  className={`topbar-btn ${isLangOpen ? 'active' : ''}`}
+                  onClick={() => setIsLangOpen(!isLangOpen)}
+                >
+                  <Languages size={20} />
+                </button>
+                <AnimatePresence>
+                  {isLangOpen && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="topbar-lang-dropdown"
+                    >
+                      <button className="lang-option" onClick={() => { setLanguage('en'); setIsLangOpen(false); }}>
+                        <div className="flag us-flag" />
+                        <span>English</span>
+                      </button>
+                      <button className="lang-option" onClick={() => { setLanguage('bn'); setIsLangOpen(false); }}>
+                        <div className="flag bd-flag" />
+                        <span>বাংলা</span>
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <button className="topbar-btn" onClick={toggleTheme}>
+                {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+              </button>
+            </div>
+
             <div className="admin-topbar-profile">
               <div className="admin-avatar">R</div>
-              <span className="desktop-only">Rafiqul Islam</span>
+              <span className="desktop-only text-truncate" style={{ maxWidth: '100px' }}>Rafiqul Islam</span>
             </div>
+
+            <NavLink to="/" className="topbar-exit-btn" title="Exit Admin">
+              <LogOut size={20} />
+            </NavLink>
           </div>
         </header>
 

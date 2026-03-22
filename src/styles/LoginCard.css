@@ -47,11 +47,11 @@
   justify-content: center;
   gap: 12px;
   margin-bottom: 24px;
-  color: #4f46e5; /* Professional Trustworthy Indigo */
+  color: var(--color-violet);
 }
 
 [data-theme='dark'] .logo-container {
-  color: #818cf8; /* Lighter Indigo for Dark Mode */
+  color: var(--color-violet);
 }
 
 .header-logo {
@@ -147,12 +147,12 @@
 .form-input:focus {
   background: var(--bg-main);
   border-color: var(--color-violet);
-  box-shadow: 0 0 0 4px rgba(125, 57, 235, 0.15);
+  box-shadow: 0 0 0 4px var(--color-violet-soft);
 }
 
 [data-theme='dark'] .form-input:focus {
   background: rgba(255, 255, 255, 0.05);
-  box-shadow: 0 0 0 2px rgba(125, 57, 235, 0.3);
+  box-shadow: 0 0 0 2px var(--color-violet-glow);
 }
 
 .forgot-link {
@@ -199,7 +199,7 @@
 
 .primary-button:hover {
   background: linear-gradient(135deg, #8b5cf6 0%, var(--color-violet) 100%);
-  box-shadow: 0 16px 32px rgba(125, 57, 235, 0.3);
+  box-shadow: 0 16px 32px var(--color-violet-glow);
   transform: translateY(-2px);
 }
 

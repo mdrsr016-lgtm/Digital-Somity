@@ -1,12 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Questrial&family=Outfit:wght@400;700&display=swap');
 
 :root {
-  --color-black: #000000;
+  /* ── Brand Palette ─────────────────── */
+  --color-black:  #000000;
   --color-violet: #7D39EB;
-  --color-lime: #C6FF33;
-  --color-white: #FFFFFF;
-  
-  /* Light Mode Variables */
+  --color-lime:   #C6FF33;
+  --color-white:  #FFFFFF;
+
+  /* ── Violet Tints ──────────────────── */
+  --color-violet-glow:  rgba(125, 57, 235, 0.30);
+  --color-violet-soft:  rgba(125, 57, 235, 0.10);
+  --color-violet-xsoft: rgba(125, 57, 235, 0.05);
+
+  /* ── Lime Tints ────────────────────── */
+  --color-lime-glow: rgba(198, 255, 51, 0.20);
+  --color-lime-soft: rgba(198, 255, 51, 0.10);
+  --color-lime-text: #000000; /* ALWAYS use black text on lime */
+
+  /* ── Light Mode Variables ──────────── */
   --bg-main: #fcfcfd;
   --bg-sub: #f8fafc;
   --text-main: #020617;
