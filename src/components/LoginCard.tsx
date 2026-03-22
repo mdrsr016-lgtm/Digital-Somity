@@ -11,22 +11,29 @@ import "../styles/LoginCard.css";
 
 const MATRIX_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*!";
 
-// Load ALL users from localStorage or fallback to mockUsers
+// Load ALL users from localStorage and merge with mockUsers
 function getAllUsers() {
-  let users: any[] = [];
+  let localUsers: any[] = [];
   try {
     const saved = localStorage.getItem("ds_users");
     if (saved) {
-      users = JSON.parse(saved);
-    } else {
-      // Fallback to initial mockUsers if no storage found
-      users = [...mockUsers];
+      localUsers = JSON.parse(saved);
     }
   } catch (_) {
-    users = [...mockUsers];
+    // Ignore parse errors
   }
 
-  return users;
+  // Merge: mockUsers take precedence or are just added alongside local ones
+  // We'll use a Map to ensure unique IDs
+  const usersMap = new Map();
+  
+  // Add mock users first
+  mockUsers.forEach(u => usersMap.set(u.id.toLowerCase(), u));
+  
+  // Add local users (they will overwrite mock users if IDs clash, which is fine)
+  localUsers.forEach(u => usersMap.set(u.id.toLowerCase(), u));
+
+  return Array.from(usersMap.values());
 }
 
 type VerifyState = 'idle' | 'verifying' | 'verified' | 'not-found';
