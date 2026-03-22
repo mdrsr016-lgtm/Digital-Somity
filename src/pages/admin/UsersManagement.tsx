@@ -4,6 +4,7 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import { MockUser } from "../../data/mockUsers";
 import { X, Trash2, ShieldAlert, Power, UserPlus, AlertTriangle, Lock, Unlock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { api } from "../../services/api";
 
 export const UsersManagement = () => {
   const { t, language } = useLanguage();
@@ -83,7 +84,7 @@ export const UsersManagement = () => {
     closeModal();
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!modalName.trim()) {
       showToast(language === 'bn' ? 'দয়া করে নাম লিখুন' : 'Please enter a name');
       return;
@@ -95,39 +96,45 @@ export const UsersManagement = () => {
 
     const roleBn = uniqueRoles.find((r: any) => r.en === modalRole)?.bn || modalRole;
     
-    if (selectedUser) {
-      // Edit User
-      const updatedUser: MockUser = {
-        ...selectedUser,
-        id: modalUserId, // Key fix: use the value in the input field!
-        name: modalName,
-        roleEn: modalRole,
-        roleBn: roleBn,
-        workspaceId: modalWorkspace || selectedUser.workspaceId,
-        password: modalPassword || selectedUser.password
-      };
-      // If the ID changed, we need to map by the original ID but save the new one
-      setUsers(users.map((u: MockUser) => u.id === selectedUser.id ? updatedUser : u));
-      showToast(language === 'bn' ? 'পরিবর্তনগুলো সফলভাবে সংরক্ষিত হয়েছে' : 'Changes saved successfully.');
-    } else {
-      // Create New User
-      const newUser: MockUser = {
-        id: modalUserId || Math.random().toString(36).substr(2, 9),
-        name: modalName,
-        roleEn: modalRole,
-        roleBn: roleBn,
-        status: 'active',
-        workspaceId: modalWorkspace,
-        password: modalPassword,
-        initial: modalName.charAt(0).toUpperCase() || 'U',
-        lastLoginEn: 'Never',
-        lastLoginBn: 'কখনো না'
-      };
-      setUsers([...users, newUser]);
-      showToast(language === 'bn' ? 'নতুন ব্যবহারকারী সফলভাবে তৈরি হয়েছে' : 'New user created successfully.');
+    try {
+      if (selectedUser) {
+        // Edit User
+        const updatedUser: MockUser = {
+          ...selectedUser,
+          id: modalUserId, // Key fix: use the value in the input field!
+          name: modalName,
+          roleEn: modalRole,
+          roleBn: roleBn,
+          workspaceId: modalWorkspace || selectedUser.workspaceId,
+          password: modalPassword || selectedUser.password
+        };
+        await api.updateUser(selectedUser.id, updatedUser);
+        // If the ID changed, we need to map by the original ID but save the new one
+        setUsers(users.map((u: MockUser) => u.id === selectedUser.id ? updatedUser : u));
+        showToast(language === 'bn' ? 'পরিবর্তনগুলো সফলভাবে সংরক্ষিত হয়েছে' : 'Changes saved successfully.');
+      } else {
+        // Create New User
+        const newUser: MockUser = {
+          id: modalUserId || Math.random().toString(36).substr(2, 9),
+          name: modalName,
+          roleEn: modalRole,
+          roleBn: roleBn,
+          status: 'active',
+          workspaceId: modalWorkspace,
+          password: modalPassword,
+          initial: modalName.charAt(0).toUpperCase() || 'U',
+          lastLoginEn: 'Never',
+          lastLoginBn: 'কখনো না'
+        };
+        await api.createUser(newUser);
+        setUsers([...users, newUser]);
+        showToast(language === 'bn' ? 'নতুন ব্যবহারকারী সফলভাবে তৈরি হয়েছে' : 'New user created successfully.');
+      }
+      closeModal();
+    } catch (error) {
+      console.error('Failed to save user', error);
+      showToast('Error saving user');
     }
-    
-    closeModal();
   };
 
   // Keyboard support for modal

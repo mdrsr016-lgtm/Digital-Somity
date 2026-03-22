@@ -6,45 +6,10 @@ import { ForgotPasswordModal } from "./ForgotPasswordModal";
 import { PrivacyModal } from "./PrivacyModal";
 import { TermsModal } from "./TermsModal";
 import { useLanguage } from "../contexts/LanguageContext";
-import { mockUsers } from "../data/mockUsers";
+import { api } from "../services/api";
 import "../styles/LoginCard.css";
 
 const MATRIX_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*!";
-
-// Load ALL users from localStorage or fallback to mockUsers
-function getAllUsers() {
-  let users: any[] = [];
-  try {
-    const saved = localStorage.getItem("ds_users");
-    if (saved) {
-      users = JSON.parse(saved);
-    } else {
-      // Fallback to initial mockUsers if no storage found
-      users = [...mockUsers];
-    }
-  } catch (_) {
-    users = [...mockUsers];
-  }
-
-  // Ensure adm00 is ALWAYS available and up to date
-  const adminIdx = users.findIndex(u => u.id.toLowerCase() === 'adm00');
-  const admin = { 
-    id: 'adm00', 
-    name: 'Rashid Shahriyar', 
-    roleEn: 'System Administrator', 
-    status: 'active', 
-    initial: 'R', 
-    password: 'adm00' 
-  };
-
-  if (adminIdx === -1) {
-    users.push(admin);
-  } else {
-    users[adminIdx] = { ...users[adminIdx], ...admin };
-  }
-
-  return users;
-}
 
 type VerifyState = 'idle' | 'verifying' | 'verified' | 'not-found';
 
@@ -103,17 +68,22 @@ export const LoginCard = () => {
     }, 60);
   }, [userId, stopMatrix]);
 
-  const handleUserIdBlur = useCallback(() => {
+  const handleUserIdBlur = useCallback(async () => {
     if (!userId.trim() || verifyState === 'verified') return;
 
-    const users = getAllUsers();
-    const match = users.find(
-      (u: any) => u.id === userId.trim() || u.id.toLowerCase() === userId.trim().toLowerCase()
-    );
+    try {
+      const users = await api.getUsers();
+      const match = users.find(
+        (u: any) => u.id === userId.trim() || u.id.toLowerCase() === userId.trim().toLowerCase()
+      );
 
-    if (match) {
-      startMatrixAnimation(match.name, true);
-    } else {
+      if (match) {
+        startMatrixAnimation(match.name, true);
+      } else {
+        startMatrixAnimation(userId, false);
+      }
+    } catch (e) {
+      console.error(e);
       startMatrixAnimation(userId, false);
     }
   }, [userId, verifyState, startMatrixAnimation]);
@@ -154,39 +124,44 @@ export const LoginCard = () => {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const handleLogin = (e?: React.FormEvent) => {
+  const handleLogin = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (isVerifying) return;
     if (!isLocked) {
       handleUserIdBlur();
       return;
     }
-    const users = getAllUsers();
-    // Normalize lookup to be case-insensitive
-    const user = users.find((u: any) => 
-      u.id.toLowerCase() === userId.trim().toLowerCase()
-    );
-
-    if (!user) {
-      setVerifyState('not-found');
-      return;
-    }
-
-    const password = passwordRef.current?.value || "";
-    if (user.password && user.password !== password) {
-      // Access denied
-      setVerifyState('not-found'); 
-      return;
-    }
-
-    // Persistent Session Mock - Use the canonical ID from the match
-    localStorage.setItem("ds_logged_in_user", user.id);
-    console.log("Logging in with:", user.id);
     
-    if (user.roleEn === 'System Administrator') {
-      navigate("/admin");
-    } else {
-      navigate("/workspace");
+    try {
+      const users = await api.getUsers();
+      // Normalize lookup to be case-insensitive
+      const user = users.find((u: any) => 
+        u.id.toLowerCase() === userId.trim().toLowerCase()
+      );
+
+      if (!user) {
+        setVerifyState('not-found');
+        return;
+      }
+
+      const password = passwordRef.current?.value || "";
+      if (user.password && user.password !== password) {
+        // Access denied
+        setVerifyState('not-found'); 
+        return;
+      }
+
+      // Persistent Session Mock - Use the canonical ID from the match
+      localStorage.setItem("ds_logged_in_user", user.id);
+      
+      if (user.roleEn === 'System Administrator') {
+        navigate("/admin");
+      } else {
+        navigate("/workspace");
+      }
+    } catch (err) {
+      console.error(err);
+      setVerifyState('not-found');
     }
   };
 

@@ -3,6 +3,7 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import { Shield, Users, Plus, Trash2, AlertTriangle, X } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { api } from "../../services/api";
 
 interface Role {
   id: string;
@@ -15,7 +16,7 @@ interface Role {
 export const RolesManagement = () => {
   const { t, language } = useLanguage();
   const adminT = t.admin || {} as any;
-  const { roles, updateRoleStatus, showToast } = useOutletContext<any>();
+  const { roles, setRoles, updateRoleStatus, showToast } = useOutletContext<any>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
   const [roleToDelete, setRoleToDelete] = useState<Role | null>(null);
@@ -77,11 +78,22 @@ export const RolesManagement = () => {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!editingRole) return;
-    // In a real app, we'd update global state
-    showToast(language === 'bn' ? 'সফলভাবে সংরক্ষিত হয়েছে!' : 'Saved Successfully!');
-    setIsModalOpen(false);
+    try {
+      if (roles.find((r: any) => r.id === editingRole.id)) {
+        await api.updateRole(editingRole.id, editingRole);
+        setRoles(roles.map((r: any) => r.id === editingRole.id ? editingRole : r));
+      } else {
+        await api.createRole(editingRole);
+        setRoles([...roles, editingRole]);
+      }
+      showToast(language === 'bn' ? 'সফলভাবে সংরক্ষিত হয়েছে!' : 'Saved Successfully!');
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Failed to save role', error);
+      showToast('Error saving role');
+    }
   };
 
   return (

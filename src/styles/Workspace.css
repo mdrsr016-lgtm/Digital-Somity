@@ -48,6 +48,8 @@
   padding: 2rem 1.5rem;
   z-index: 50;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .ws-brand {
@@ -90,6 +92,25 @@
   flex-direction: column;
   gap: 10px;
   flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.ws-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.ws-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ws-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.ws-nav::-webkit-scrollbar-thumb:hover {
+  background: var(--ws-violet);
 }
 
 .ws-nav-item {
@@ -551,7 +572,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    height: 100vh;
+    height: 100dvh;
     width: 300px;
     transform: translateX(-100%);
     box-shadow: 20px 0 50px rgba(0, 0, 0, 0.5);
@@ -675,7 +696,7 @@
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
