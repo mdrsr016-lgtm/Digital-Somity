@@ -12,16 +12,30 @@ const MATRIX_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345
 
 // Load ALL users from localStorage or fallback to mockUsers
 function getAllUsers() {
+  let users: any[] = [];
   try {
     const saved = localStorage.getItem("ds_users");
-    if (saved) return JSON.parse(saved);
+    if (saved) users = JSON.parse(saved);
   } catch (_) {}
-  // Fallback hardcoded users
-  return [
-    { id: '1', name: 'Rafiqul Islam', roleEn: 'System Administrator', status: 'active', initial: 'R' },
-    { id: '2', name: 'Nusrat Jahan', roleEn: 'Investment Manager', status: 'active', initial: 'N' },
-    { id: '3', name: 'Abdul Karim', roleEn: 'Society Member', status: 'inactive', initial: 'A' },
-  ];
+
+  // Ensure adm00 is ALWAYS available and up to date
+  const adminIdx = users.findIndex(u => u.id.toLowerCase() === 'adm00');
+  const admin = { 
+    id: 'adm00', 
+    name: 'Rashid Shahriyar', 
+    roleEn: 'System Administrator', 
+    status: 'active', 
+    initial: 'R', 
+    password: 'adm00' 
+  };
+
+  if (adminIdx === -1) {
+    users.push(admin);
+  } else {
+    users[adminIdx] = { ...users[adminIdx], ...admin };
+  }
+
+  return users;
 }
 
 type VerifyState = 'idle' | 'verifying' | 'verified' | 'not-found';
@@ -139,14 +153,29 @@ export const LoginCard = () => {
       handleUserIdBlur();
       return;
     }
-    // Persistent Session Mock
-    localStorage.setItem("ds_logged_in_user", userId);
-    console.log("Logging in with:", userId);
-    
     const users = getAllUsers();
-    const user = users.find((u: any) => u.id === userId.trim());
+    // Normalize lookup to be case-insensitive
+    const user = users.find((u: any) => 
+      u.id.toLowerCase() === userId.trim().toLowerCase()
+    );
+
+    if (!user) {
+      setVerifyState('not-found');
+      return;
+    }
+
+    const password = passwordRef.current?.value || "";
+    if (user.password && user.password !== password) {
+      // Access denied
+      setVerifyState('not-found'); 
+      return;
+    }
+
+    // Persistent Session Mock - Use the canonical ID from the match
+    localStorage.setItem("ds_logged_in_user", user.id);
+    console.log("Logging in with:", user.id);
     
-    if (user?.roleEn === 'System Administrator') {
+    if (user.roleEn === 'System Administrator') {
       navigate("/admin");
     } else {
       navigate("/workspace");

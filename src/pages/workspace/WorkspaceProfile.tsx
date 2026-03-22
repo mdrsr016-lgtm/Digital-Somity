@@ -4,7 +4,7 @@ import { Shield, Calendar, Edit3, Award, Info, Lock } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 
 export const WorkspaceProfile = () => {
-  const { activeUser } = useOutletContext<any>();
+  const { activeUser, workspaces } = useOutletContext<any>();
   const { language } = useLanguage();
 
   const container = {
@@ -91,17 +91,17 @@ export const WorkspaceProfile = () => {
               </div>
               <div>
                 <p style={{ fontSize: '0.85rem', color: 'var(--ws-text-muted)', marginBottom: '0.5rem' }}>{language === 'bn' ? 'ইমেইল' : 'Email Address'}</p>
-                <p style={{ fontWeight: '600' }}>{activeUser?.name.toLowerCase().replace(' ', '.')}@somiti.com</p>
+                <p style={{ fontWeight: '600' }}>{activeUser?.email || 'N/A'}</p>
               </div>
               <div>
                 <p style={{ fontSize: '0.85rem', color: 'var(--ws-text-muted)', marginBottom: '0.5rem' }}>{language === 'bn' ? 'শাখা / ওয়ার্কস্পেস' : 'Branch / Workspace'}</p>
                 <p style={{ fontWeight: '600' }}>
-                  {activeUser?.workspaceId === '2' ? 'Dhaka North' : (activeUser?.workspaceId === '3' ? 'Sylhet Regional' : 'General Workspace')}
+                  {workspaces.find((w: any) => w.id === activeUser?.workspaceId)?.name || 'General Workspace'}
                 </p>
               </div>
               <div>
                 <p style={{ fontSize: '0.85rem', color: 'var(--ws-text-muted)', marginBottom: '0.5rem' }}>{language === 'bn' ? 'মোবাইল নম্বর' : 'Phone Number'}</p>
-                <p style={{ fontWeight: '600' }}>+৮৮০ ১৭৩৩-৪৫৬৭৮৯</p>
+                <p style={{ fontWeight: '600' }}>{activeUser?.phone || 'N/A'}</p>
               </div>
             </div>
           </motion.div>

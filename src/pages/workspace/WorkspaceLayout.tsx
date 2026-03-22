@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, User, LogOut, Sun, Moon, Languages, Bell } from "lucide-react";
+import { LayoutDashboard, User, LogOut, Sun, Moon, Languages, Bell, Users } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import "../../styles/Workspace.css";
@@ -16,16 +16,35 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: WorkspaceLayoutProps) =>
   const navigate = useNavigate();
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [activeUser, setActiveUser] = useState<any>(null);
+  const [users, setUsers] = useState<any[]>([]);
+  const [workspaces, setWorkspaces] = useState<any[]>([]);
 
   useEffect(() => {
     const userId = localStorage.getItem("ds_logged_in_user");
-    const user = mockUsers.find(u => u.id === userId);
-    if (!user || user.roleEn === 'System Administrator') {
-      setActiveUser(user || mockUsers[1]);
+    
+    // Get latest users and workspaces from storage
+    let currentUsers = mockUsers;
+    let currentWorkspaces: any[] = [];
+    
+    try {
+      const savedUsers = localStorage.getItem("ds_users");
+      if (savedUsers) currentUsers = JSON.parse(savedUsers);
+      
+      const savedWorkspaces = localStorage.getItem("ds_workspaces");
+      if (savedWorkspaces) currentWorkspaces = JSON.parse(savedWorkspaces);
+    } catch (_) {}
+
+    setUsers(currentUsers);
+    setWorkspaces(currentWorkspaces);
+
+    const user = currentUsers.find(u => u.id.toLowerCase() === userId?.toLowerCase());
+    
+    if (!user) {
+      navigate("/");
     } else {
       setActiveUser(user);
     }
-  }, []);
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem("ds_logged_in_user");
@@ -57,6 +76,10 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: WorkspaceLayoutProps) =>
             <Bell size={20} />
             <span>{language === 'bn' ? 'নোটিফিকেশন' : 'Notifications'}</span>
           </NavLink>
+          <NavLink to="/workspace/members" className={({ isActive }) => `ws-nav-item ${isActive ? 'active' : ''}`}>
+            <Users size={20} />
+            <span>{language === 'bn' ? 'সদস্য তালিকা' : 'Members Database'}</span>
+          </NavLink>
         </nav>
 
         <div className="ws-user-widget">
@@ -80,7 +103,9 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: WorkspaceLayoutProps) =>
           <div className="ws-topbar-left">
             <div className="ws-badge">
               <span className="ws-badge-dot"></span>
-              {activeUser?.workspaceId === '2' ? 'Dhaka North' : (activeUser?.workspaceId === '3' ? 'Sylhet Regional' : 'General Workspace')}
+              {
+                workspaces.find(w => w.id === activeUser?.workspaceId)?.name || 'General Workspace'
+              }
             </div>
           </div>
           
@@ -120,7 +145,7 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: WorkspaceLayoutProps) =>
         </header>
 
         <div className="ws-overview">
-          <Outlet context={{ activeUser }} />
+          <Outlet context={{ activeUser, users, workspaces }} />
         </div>
       </main>
     </div>

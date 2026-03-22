@@ -8,40 +8,24 @@ export interface MockUser {
   lastLoginBn: string;
   initial: string;
   workspaceId: string;
+  email?: string;
+  phone?: string;
+  password?: string;
 }
 
 export const mockUsers: MockUser[] = [
   {
-    id: '1',
-    name: 'Rafiqul Islam',
+    id: 'adm00',
+    name: 'Rashid Shahriyar',
     roleEn: 'System Administrator',
     roleBn: 'সিস্টেম অ্যাডমিনিস্ট্রেটর',
     status: 'active',
     lastLoginEn: 'Today, 10:30 AM',
     lastLoginBn: 'আজ, সকাল ১০:৩০',
     initial: 'R',
-    workspaceId: '1'
-  },
-  {
-    id: '2',
-    name: 'Nusrat Jahan',
-    roleEn: 'Investment Manager',
-    roleBn: 'বিনিয়োগ ব্যবস্থাপক',
-    status: 'active',
-    lastLoginEn: 'Yesterday, 4:15 PM',
-    lastLoginBn: 'গতকাল, বিকাল ৪:১৫',
-    initial: 'N',
-    workspaceId: '2'
-  },
-  {
-    id: '3',
-    name: 'Abdul Karim',
-    roleEn: 'Society Member',
-    roleBn: 'সমিতির সদস্য',
-    status: 'inactive',
-    lastLoginEn: 'Oct 12, 2023',
-    lastLoginBn: '১২ অক্টো, ২০২৩',
-    initial: 'A',
-    workspaceId: '3'
+    workspaceId: '1',
+    email: 'admin@dsbd.com',
+    phone: '+880 1711-234567',
+    password: 'adm00'
   }
 ];

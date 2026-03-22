@@ -18,6 +18,20 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isServerMenuOpen, setIsServerMenuOpen] = useState(true);
+  const [activeUser, setActiveUser] = useState<MockUser | null>(null);
+
+  useEffect(() => {
+    const userId = localStorage.getItem("ds_logged_in_user");
+    // Case-insensitive lookup for extra robustness
+    const user = mockUsers.find(u => u.id.toLowerCase() === userId?.toLowerCase());
+    
+    if (!user || user.roleEn !== 'System Administrator') {
+      navigate(user ? "/workspace" : "/");
+    } else {
+      setActiveUser(user);
+    }
+  }, [navigate]);
+
   const [users, setUsers] = useState<MockUser[]>(() => {
     const saved = localStorage.getItem("ds_users");
     if (saved) return JSON.parse(saved);
@@ -71,22 +85,23 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
   }, [workspaces]);
 
   const generateUserId = (role: string) => {
-    let prefix = 'usr';
+    let prefix = 'USR';
     const r = role.toLowerCase();
-    if (r.includes('admin')) prefix = 'adm';
-    else if (r.includes('cashier')) prefix = 'cas';
-    else if (r.includes('member')) prefix = 'mem';
-    else if (r.includes('manager') || r.includes('invest')) prefix = 'inv';
+    if (r.includes('admin')) prefix = 'ADM';
+    else if (r.includes('cashier')) prefix = 'CAS';
+    else if (r.includes('member')) prefix = 'MEM';
+    else if (r.includes('manager') || r.includes('invest')) prefix = 'INV';
     
     const count = users.filter((u: MockUser) => {
       const ur = u.roleEn.toLowerCase();
-      if (prefix === 'adm') return ur.includes('admin');
-      if (prefix === 'cas') return ur.includes('cashier');
-      if (prefix === 'mem') return ur.includes('member');
+      if (prefix === 'ADM') return ur.includes('admin');
+      if (prefix === 'CAS') return ur.includes('cashier');
+      if (prefix === 'MEM') return ur.includes('member');
       return ur.includes('manager') || ur.includes('invest');
     }).length;
 
-    return `${prefix}${count}`;
+    const nextNumber = (count + 1).toString().padStart(3, '0');
+    return `${prefix}${nextNumber}`;
   };
 
   const updateStatus = (userId: string, status: MockUser['status']) => {
@@ -123,6 +138,8 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
 
   return (
     <div className="admin-layout">
+      <div className="admin-bg-glow" />
+      <div className="admin-bg-glow-bottom" />
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div className="admin-sidebar-overlay" onClick={closeSidebar}></div>
@@ -266,8 +283,8 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
             </div>
 
             <div className="admin-topbar-profile">
-              <div className="admin-avatar">R</div>
-              <span className="desktop-only text-truncate" style={{ maxWidth: '100px' }}>Rafiqul Islam</span>
+              <div className="admin-avatar">{activeUser?.initial || 'A'}</div>
+              <span className="desktop-only text-truncate" style={{ maxWidth: '100px' }}>{activeUser?.name || 'Admin'}</span>
             </div>
 
             <NavLink to="/" className="topbar-exit-btn" title="Exit Admin">
@@ -278,7 +295,7 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
 
         <div className="admin-content-wrapper">
           <Outlet context={{ 
-            users, setUsers, updateStatus, deleteUser, generateUserId, showToast,
+            activeUser, users, setUsers, updateStatus, deleteUser, generateUserId, showToast,
             roles, setRoles, updateRoleStatus, deleteRolePermanently,
             workspaces, setWorkspaces, updateWorkspaceStatus, deleteWorkspacePermanently
           }} />
