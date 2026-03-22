@@ -3,7 +3,7 @@ export interface MockUser {
   name: string;
   roleEn: string;
   roleBn: string;
-  status: 'active' | 'inactive';
+  status: 'active' | 'inactive' | 'removed' | 'suspended' | 'disabled';
   lastLoginEn: string;
   lastLoginBn: string;
   initial: string;

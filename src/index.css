@@ -30,6 +30,7 @@
 }
 
 [data-theme='dark'] {
+  color-scheme: dark;
   --bg-main: #000000;
   --bg-sub: #0f172a;
   --text-main: #ffffff;

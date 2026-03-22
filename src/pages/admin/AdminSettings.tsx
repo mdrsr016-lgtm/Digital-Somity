@@ -37,8 +37,10 @@ export const AdminSettings = () => {
   return (
     <div className="admin-page">
       <div className="admin-page-header">
-        <h2>{adminT.settings || "Settings"}</h2>
-        <p>{adminT.settingsMsg || "Configure overall application settings."}</p>
+        <div className="admin-page-header-text">
+          <h2>{adminT.settings || "Settings"}</h2>
+          <p>{adminT.settingsMsg || "Configure overall application settings."}</p>
+        </div>
       </div>
 
       <div className="settings-grid">

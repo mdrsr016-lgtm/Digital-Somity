@@ -10,6 +10,8 @@ import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { UsersManagement } from "./pages/admin/UsersManagement";
 import { RolesManagement } from "./pages/admin/RolesManagement";
 import { AdminSettings } from "./pages/admin/AdminSettings";
+import { WorkspaceList } from "./pages/admin/WorkspaceList";
+import { UserFridge } from "./pages/admin/UserFridge";
 
 function App() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -44,8 +46,10 @@ function App() {
 
         <Route path="/admin" element={<AdminLayout theme={theme} toggleTheme={toggleTheme} />}>
           <Route index element={<AdminDashboard />} />
+          <Route path="workspaces" element={<WorkspaceList />} />
           <Route path="users" element={<UsersManagement />} />
           <Route path="roles" element={<RolesManagement />} />
+          <Route path="fridge" element={<UserFridge />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>
