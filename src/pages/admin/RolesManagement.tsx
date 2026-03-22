@@ -15,7 +15,7 @@ interface Role {
 export const RolesManagement = () => {
   const { t, language } = useLanguage();
   const adminT = t.admin || {} as any;
-  const { roles, updateRoleStatus, showToast } = useOutletContext<any>();
+  const { roles, updateRoleStatus, showToast, saveRole } = useOutletContext<any>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
   const [roleToDelete, setRoleToDelete] = useState<Role | null>(null);
@@ -77,11 +77,22 @@ export const RolesManagement = () => {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!editingRole) return;
-    // In a real app, we'd update global state
-    showToast(language === 'bn' ? 'সফলভাবে সংরক্ষিত হয়েছে!' : 'Saved Successfully!');
-    setIsModalOpen(false);
+    if (!editingRole.nameEn.trim()) {
+      showToast(language === 'bn' ? 'দয়া করে নাম (ইংরেজি) দিন' : 'Please enter name (English)');
+      return;
+    }
+
+    const isExisting = roles.some((r: any) => r.id === editingRole.id);
+    const success = await saveRole(editingRole, !isExisting);
+    
+    if (success) {
+      showToast(language === 'bn' ? 'সফলভাবে সংরক্ষিত হয়েছে!' : 'Saved Successfully!');
+      closeModal();
+    } else {
+      showToast(language === 'bn' ? 'ত্রুটি ঘটেছে!' : 'An error occurred!');
+    }
   };
 
   return (

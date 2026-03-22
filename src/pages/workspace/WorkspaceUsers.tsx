@@ -3,7 +3,6 @@ import { useOutletContext } from "react-router-dom";
 import { Search, User, Mail, Phone, Shield, Filter, MoreVertical } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useState, useMemo } from "react";
-import { MockUser } from "../../data/mockUsers";
 
 export const WorkspaceUsers = () => {
   const { activeUser, users } = useOutletContext<any>();
@@ -12,7 +11,7 @@ export const WorkspaceUsers = () => {
 
   // Filter users by workspace and search term
   const workspaceMembers = useMemo(() => {
-    return (users || []).filter((u: MockUser) => {
+    return (users || []).filter((u: any) => {
       const isInWorkspace = u.workspaceId === activeUser?.workspaceId;
       const matchesSearch = u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                            u.id.toLowerCase().includes(searchTerm.toLowerCase());
@@ -61,7 +60,7 @@ export const WorkspaceUsers = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button className="ws-badge" style={{ height: '44px', padding: '0 16px', background: 'rgba(255,255,255,0.05)', border: 'none', cursor: 'pointer' }}>
+          <button className="ws-badge" style={{ height: '44px', padding: '0 16px', background: 'rgba(255,255,255,0.05)', border: 'none', cursor: 'cursor' }}>
             <Filter size={16} />
             <span>{language === 'bn' ? 'ফিল্টার' : 'Filter'}</span>
           </button>
@@ -75,7 +74,7 @@ export const WorkspaceUsers = () => {
         animate="show"
         style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}
       >
-        {workspaceMembers.map((member: MockUser) => (
+        {workspaceMembers.map((member: any) => (
           <motion.div 
             key={member.id} 
             variants={item}
@@ -99,15 +98,15 @@ export const WorkspaceUsers = () => {
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--ws-text-muted)' }}>
-                    < Shield size={14} />
+                    <Shield size={14} />
                     <span>ID: {member.id}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--ws-text-muted)' }}>
-                    < Mail size={14} />
-                    <span>{member.email || (member.name.toLowerCase().replace(' ', '.') + "@somiti.com")}</span>
+                    <Mail size={14} />
+                    <span>{member.email || (member.name.toLowerCase().replace(/\s+/g, '.') + "@somiti.com")}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--ws-text-muted)' }}>
-                    < Phone size={14} />
+                    <Phone size={14} />
                     <span>{member.phone || "+880 1XXX-XXXXXX"}</span>
                   </div>
                 </div>
@@ -115,9 +114,9 @@ export const WorkspaceUsers = () => {
             </div>
             
             <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div className={`ws-stat-trend ${member.status === 'active' ? 'up' : 'neutral'}`} style={{ margin: 0 }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: member.status === 'active' ? 'var(--ws-lime)' : '#666', marginRight: '6px' }}></span>
-                {member.status.charAt(0).toUpperCase() + member.status.slice(1)}
+              <div className={`ws-stat-trend ${member.status?.toLowerCase() === 'active' ? 'up' : 'neutral'}`} style={{ margin: 0 }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: member.status?.toLowerCase() === 'active' ? 'var(--ws-lime)' : '#666', marginRight: '6px' }}></span>
+                {member.status ? (member.status.charAt(0).toUpperCase() + member.status.slice(1)) : 'Unknown'}
               </div>
               <button className="admin-btn-text" style={{ fontSize: '0.8rem', color: 'var(--ws-lime)' }}>
                 {language === 'bn' ? 'বিস্তারিত' : 'View Details'}

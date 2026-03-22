@@ -3,7 +3,7 @@ import { LayoutDashboard, LogOut, Bell, Users, Menu, X as XIcon, Settings } from
 import { useState, useEffect } from "react";
 import "../../styles/Workspace.css";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { mockUsers } from "../../data/mockUsers";
+import { supabase } from "../../utils/supabaseClient";
 
 interface WorkspaceLayoutProps {
   // theme and toggleTheme reserved for future workspace theme support
@@ -26,30 +26,64 @@ export const WorkspaceLayout = (_props: WorkspaceLayoutProps) => {
   }, [location.pathname]);
 
   useEffect(() => {
-    const userId = localStorage.getItem("ds_logged_in_user");
-    
-    // Get latest users and workspaces from storage
-    let currentUsers = mockUsers;
-    let currentWorkspaces: any[] = [];
-    
-    try {
-      const savedUsers = localStorage.getItem("ds_users");
-      if (savedUsers) currentUsers = JSON.parse(savedUsers);
+    const fetchWorkspaceData = async () => {
+      const loggedInId = localStorage.getItem("ds_logged_in_user");
+      if (!loggedInId) {
+        navigate("/");
+        return;
+      }
+
+      // Fetch active user details (using the view)
+      const { data: user, error: userError } = await supabase
+        .from('user_details')
+        .select('*')
+        .eq('login_id', loggedInId)
+        .single();
+
+      if (userError || !user) {
+        console.error("User not found:", userError);
+        navigate("/");
+        return;
+      }
+
+      setActiveUser({
+        id: user.login_id,
+        name: user.name,
+        roleEn: user.role_name_en,
+        roleBn: user.role_name_bn,
+        workspaceId: user.workspace_id,
+        initial: user.name.charAt(0).toUpperCase()
+      });
+
+      // Fetch all users for the member list (only active ones)
+      const { data: allUsers } = await supabase
+        .from('user_details')
+        .select('*')
+        .eq('status', 'active');
       
-      const savedWorkspaces = localStorage.getItem("ds_workspaces");
-      if (savedWorkspaces) currentWorkspaces = JSON.parse(savedWorkspaces);
-    } catch (_) {}
+      if (allUsers) {
+        setUsers(allUsers.map((u: any) => ({
+          id: u.login_id,
+          name: u.name,
+          roleEn: u.role_name_en,
+          roleBn: u.role_name_bn,
+          workspaceId: u.workspace_id,
+          initial: u.name.charAt(0).toUpperCase()
+        })));
+      }
 
-    setUsers(currentUsers);
-    setWorkspaces(currentWorkspaces);
+      // Fetch all active workspaces
+      const { data: wsData } = await supabase
+        .from('workspaces')
+        .select('*')
+        .eq('status', 'active');
+      
+      if (wsData) {
+        setWorkspaces(wsData);
+      }
+    };
 
-    const user = currentUsers.find(u => u.id.toLowerCase() === userId?.toLowerCase());
-    
-    if (!user) {
-      navigate("/");
-    } else {
-      setActiveUser(user);
-    }
+    fetchWorkspaceData();
   }, [navigate]);
 
   const handleLogout = () => {

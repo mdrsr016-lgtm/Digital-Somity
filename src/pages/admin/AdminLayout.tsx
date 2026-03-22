@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import "../../styles/Admin.css";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { mockUsers, MockUser } from "../../data/mockUsers";
+import { supabase } from "../../utils/supabaseClient";
 
 interface AdminLayoutProps {
   theme: 'light' | 'dark';
@@ -18,50 +18,117 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isServerMenuOpen, setIsServerMenuOpen] = useState(true);
-  const [activeUser, setActiveUser] = useState<MockUser | null>(null);
+  const [activeUser, setActiveUser] = useState<any | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const userId = localStorage.getItem("ds_logged_in_user");
-    // Case-insensitive lookup for extra robustness
-    const user = mockUsers.find(u => u.id.toLowerCase() === userId?.toLowerCase());
-    
-    if (!user || user.roleEn !== 'System Administrator') {
-      navigate(user ? "/workspace" : "/");
-    } else {
-      setActiveUser(user);
-    }
+    const checkAuth = async () => {
+      const userId = localStorage.getItem("ds_logged_in_user");
+      if (!userId) {
+        navigate("/");
+        return;
+      }
+
+      // Try searching in Supabase first using the view
+      const { data: dbUser } = await supabase
+        .from('user_details')
+        .select('*')
+        .eq('login_id', userId)
+        .single();
+
+      if (dbUser) {
+        // Map DB user to MockUser for compatibility
+        const mappedUser: any = {
+          id: dbUser.login_id,
+          name: dbUser.name,
+          roleEn: dbUser.role_name_en || 'Member',
+          roleBn: dbUser.role_name_bn || 'সদস্য',
+          status: dbUser.status as any,
+          lastLoginEn: dbUser.last_login_at ? new Date(dbUser.last_login_at).toLocaleDateString() : 'Never',
+          lastLoginBn: dbUser.last_login_at ? new Date(dbUser.last_login_at).toLocaleDateString('bn-BD') : 'কখনো না',
+          initial: dbUser.initial || dbUser.name.charAt(0).toUpperCase(),
+          workspaceId: dbUser.workspace_id,
+          email: dbUser.email,
+          phone: dbUser.phone
+        };
+        
+        if (mappedUser.roleEn !== 'System Administrator' && mappedUser.roleEn !== 'System Admin / Owner') {
+          navigate("/workspace");
+        } else {
+          setActiveUser(mappedUser);
+        }
+        return;
+      }
+
+      // Final verification
+      if (!dbUser && !activeUser) {
+        navigate("/");
+      }
+    };
+
+    checkAuth();
   }, [navigate]);
 
-  const [users, setUsers] = useState<MockUser[]>(() => {
-    const saved = localStorage.getItem("ds_users");
-    if (saved) return JSON.parse(saved);
-    return mockUsers;
-  });
+  const [users, setUsers] = useState<any[]>([]);
+  const [roles, setRoles] = useState<any[]>([]);
+  const [workspaces, setWorkspaces] = useState<any[]>([]);
 
-  const [roles, setRoles] = useState<any[]>(() => {
-    const saved = localStorage.getItem("ds_roles");
-    if (saved) return JSON.parse(saved);
-    return [
-      { id: '1', nameEn: 'Super Admin', nameBn: 'সুপার এডমিন', count: 2, status: 'active' },
-      { id: '2', nameEn: 'Manager', nameBn: 'ম্যানেজার', count: 5, status: 'active' },
-      { id: '3', nameEn: 'Cashier', nameBn: 'ক্যাশিয়ার', count: 8, status: 'active' },
-      { id: '4', nameEn: 'Investor', nameBn: 'বিনিয়োগকারী', count: 12, status: 'active' },
-      { id: '5', nameEn: 'Member', nameBn: 'সদস্য', count: 120, status: 'active' },
-    ];
-  });
+  // 1. Fetch data from Supabase on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      // Fetch Users
+      const { data: userData } = await supabase
+        .from('user_details')
+        .select('*');
+      
+      if (userData) {
+        setUsers(userData.map((u: any) => ({
+          id: u.login_id,
+          name: u.name,
+          roleEn: u.role_name_en,
+          roleBn: u.role_name_bn,
+          status: u.status,
+          lastLoginEn: u.last_login_at ? new Date(u.last_login_at).toLocaleDateString() : 'Never',
+          lastLoginBn: u.last_login_at ? new Date(u.last_login_at).toLocaleDateString('bn-BD') : 'কখনো না',
+          initial: u.initial,
+          workspaceId: u.workspace_id,
+          email: u.email,
+          phone: u.phone
+        })));
+      }
 
-  const [workspaces, setWorkspaces] = useState<any[]>(() => {
-    const saved = localStorage.getItem("ds_workspaces");
-    if (saved) return JSON.parse(saved);
-    return [
-      { id: '1', name: 'Main HQ', typeen: 'Yearly', typebn: 'বার্ষিক', createdEn: 'Jan 12, 2024', createdBn: '১২ জানুয়ারি, ২০২৪', members: 45, status: 'active' },
-      { id: '2', name: 'Dhaka North', typeen: 'Monthly', typebn: 'মাসিক', createdEn: 'Feb 05, 2024', createdBn: '০৫ ফেব্রুয়ারি, ২০২৪', members: 12, status: 'active' },
-      { id: '3', name: 'Sylhet Regional', typeen: 'Monthly', typebn: 'মাসিক', createdEn: 'Mar 10, 2024', createdBn: '১০ মার্চ, ২০২৪', members: 8, status: 'active' },
-    ];
-  });
+      // Fetch Roles
+      const { data: roleData } = await supabase.from('roles').select('*');
+      if (roleData) {
+        setRoles(roleData.map((r: any) => ({
+          id: r.id,
+          nameEn: r.name_en,
+          nameBn: r.name_bn,
+          status: r.status,
+          count: users.filter(u => u.roleEn === r.name_en).length // Approximate count
+        })));
+      }
 
-  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'err' } | null>(null);
+      // Fetch Workspaces
+      const { data: wsData } = await supabase.from('workspaces').select('*');
+      if (wsData) {
+        setWorkspaces(wsData.map((w: any) => ({
+          id: w.id,
+          name: w.name,
+          typeen: w.type_en,
+          typebn: w.type_bn,
+          createdEn: new Date(w.created_at).toLocaleDateString(),
+          createdBn: new Date(w.created_at).toLocaleDateString('bn-BD'),
+          members: users.filter(u => u.workspaceId === w.id).length,
+          status: w.status === 'removed' ? 'archived' : 'active'
+        })));
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'on-error' } | null>(null);
 
   const showToast = (msg: string) => {
     setToast({ msg, type: 'success' });
@@ -73,18 +140,6 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("ds_users", JSON.stringify(users));
-  }, [users]);
-
-  useEffect(() => {
-    localStorage.setItem("ds_roles", JSON.stringify(roles));
-  }, [roles]);
-
-  useEffect(() => {
-    localStorage.setItem("ds_workspaces", JSON.stringify(workspaces));
-  }, [workspaces]);
-
   const generateUserId = (role: string) => {
     let prefix = 'USR';
     const r = role.toLowerCase();
@@ -93,7 +148,7 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
     else if (r.includes('member')) prefix = 'MEM';
     else if (r.includes('manager') || r.includes('invest')) prefix = 'INV';
     
-    const count = users.filter((u: MockUser) => {
+    const count = users.filter((u: any) => {
       const ur = u.roleEn.toLowerCase();
       if (prefix === 'ADM') return ur.includes('admin');
       if (prefix === 'CAS') return ur.includes('cashier');
@@ -105,16 +160,37 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
     return `${prefix}${nextNumber}`;
   };
 
-  const updateStatus = (userId: string, status: MockUser['status']) => {
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, status } : u));
+  const updateStatus = async (id: string, status: any) => {
+    const { error } = await supabase
+      .from('users')
+      .update({ status })
+      .eq('login_id', id);
+    
+    if (!error) {
+      setUsers(prev => prev.map(u => u.id === id ? { ...u, status } : u));
+    }
   };
 
-  const deleteUser = (userId: string) => {
-    setUsers(prev => prev.filter(u => u.id !== userId));
+  const deleteUser = async (id: string) => {
+    const { error } = await supabase
+      .from('users')
+      .delete()
+      .eq('login_id', id);
+    
+    if (!error) {
+      setUsers(prev => prev.filter(u => u.id !== id));
+    }
   };
 
-  const updateRoleStatus = (roleId: string, status: 'active' | 'archived') => {
-    setRoles(prev => prev.map(r => r.id === roleId ? { ...r, status } : r));
+  const updateRoleStatus = async (roleId: string, status: 'active' | 'archived') => {
+    const { error } = await supabase
+      .from('roles')
+      .update({ status: status === 'archived' ? 'disabled' : 'active' })
+      .eq('id', roleId);
+
+    if (!error) {
+      setRoles(prev => prev.map(r => r.id === roleId ? { ...r, status } : r));
+    }
   };
 
   const handleLogout = () => {
@@ -122,16 +198,114 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
     navigate("/");
   };
 
-  const deleteRolePermanently = (roleId: string) => {
-    setRoles(prev => prev.filter(r => r.id !== roleId));
+  const deleteRolePermanently = async (roleId: string) => {
+    const { error } = await supabase
+      .from('roles')
+      .delete()
+      .eq('id', roleId);
+
+    if (!error) {
+      setRoles(prev => prev.filter(r => r.id !== roleId));
+    }
   };
 
-  const updateWorkspaceStatus = (wsId: string, status: 'active' | 'archived') => {
-    setWorkspaces(prev => prev.map(w => w.id === wsId ? { ...w, status } : w));
+  const updateWorkspaceStatus = async (wsId: string, status: 'active' | 'archived') => {
+    const { error } = await supabase
+      .from('workspaces')
+      .update({ status: status === 'archived' ? 'removed' : 'active' })
+      .eq('id', wsId);
+
+    if (!error) {
+      setWorkspaces(prev => prev.map(w => w.id === wsId ? { ...w, status } : w));
+    }
   };
 
-  const deleteWorkspacePermanently = (wsId: string) => {
-    setWorkspaces(prev => prev.filter(w => w.id !== wsId));
+  const deleteWorkspacePermanently = async (wsId: string) => {
+    const { error } = await supabase
+      .from('workspaces')
+      .delete()
+      .eq('id', wsId);
+
+    if (!error) {
+      setWorkspaces(prev => prev.filter(w => w.id !== wsId));
+    }
+  };
+
+  const saveUser = async (user: any, isNew: boolean) => {
+    // Map MockUser to DB structure
+    const dbUser = {
+      login_id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role_id: (await supabase.from('roles').select('id').eq('name_en', user.roleEn).single()).data?.id,
+      workspace_id: user.workspaceId,
+      status: user.status,
+      initial: user.initial,
+      password_hash: user.password // Note: Should be hashed in production
+    };
+
+    if (isNew) {
+      const { error } = await supabase.from('users').insert([dbUser]).select();
+      if (!error) {
+        setUsers(prev => [...prev, user]);
+        return true;
+      }
+    } else {
+      const { error } = await supabase.from('users').update(dbUser).eq('login_id', user.id);
+      if (!error) {
+        setUsers(prev => prev.map(u => u.id === user.id ? user : u));
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const saveRole = async (role: any, isNew: boolean) => {
+    const dbRole = {
+      name_en: role.nameEn,
+      name_bn: role.nameBn,
+      status: role.status === 'archived' ? 'disabled' : 'active'
+    };
+
+    if (isNew) {
+      const { data, error } = await supabase.from('roles').insert([dbRole]).select();
+      if (!error && data) {
+        setRoles(prev => [...prev, { ...role, id: data[0].id }]);
+        return true;
+      }
+    } else {
+      const { error } = await supabase.from('roles').update(dbRole).eq('id', role.id);
+      if (!error) {
+        setRoles(prev => prev.map(r => r.id === role.id ? role : r));
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const saveWorkspace = async (ws: any, isNew: boolean) => {
+    const dbWs = {
+      name: ws.name,
+      type_en: ws.typeen,
+      type_bn: ws.typebn,
+      status: ws.status === 'archived' ? 'removed' : 'active'
+    };
+
+    if (isNew) {
+      const { data, error } = await supabase.from('workspaces').insert([dbWs]).select();
+      if (!error && data) {
+        setWorkspaces(prev => [...prev, { ...ws, id: data[0].id, createdEn: new Date().toLocaleDateString() }]);
+        return true;
+      }
+    } else {
+      const { error } = await supabase.from('workspaces').update(dbWs).eq('id', ws.id);
+      if (!error) {
+        setWorkspaces(prev => prev.map(w => w.id === ws.id ? ws : w));
+        return true;
+      }
+    }
+    return false;
   };
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -310,6 +484,7 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
             activeUser, users, setUsers, updateStatus, deleteUser, generateUserId, showToast,
             roles, setRoles, updateRoleStatus, deleteRolePermanently,
             workspaces, setWorkspaces, updateWorkspaceStatus, deleteWorkspacePermanently,
+            saveUser, saveRole, saveWorkspace,
             searchQuery
           }} />
         </div>

@@ -18,7 +18,7 @@ interface MockWorkspace {
 export const WorkspaceList = () => {
   const { t, language } = useLanguage();
   const adminT: any = t.admin || {};
-  const { workspaces, setWorkspaces, updateWorkspaceStatus, showToast } = useOutletContext<any>();
+  const { workspaces, setWorkspaces, updateWorkspaceStatus, showToast, saveWorkspace } = useOutletContext<any>();
   const [selectedWs, setSelectedWs] = useState<MockWorkspace | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -99,7 +99,7 @@ export const WorkspaceList = () => {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!modalName.trim()) {
       setNameError(true);
       showToast(language === 'bn' ? 'দয়া করে নাম দিন' : 'Please enter a name');
@@ -108,33 +108,23 @@ export const WorkspaceList = () => {
 
     const typeBn = modalType === 'Monthly' ? 'মাসিক' : modalType === 'Yearly' ? 'বার্ষিক' : 'আজীবনের';
     
-    if (!selectedWs) {
-      // Logic for adding new workspace
-      const newWs = {
-        id: Math.random().toString(36).substr(2, 9),
-        name: modalName,
-        typeen: modalType,
-        typebn: typeBn,
-        createdEn: new Date().toLocaleDateString('en-US'),
-        createdBn: new Date().toLocaleDateString('bn-BD'),
-        members: modalMembers,
-        status: 'active' as const
-      };
-      setWorkspaces([...workspaces, newWs]);
-    } else {
-      // Logic for editing
-      const updatedWs = {
-        ...selectedWs,
-        name: modalName,
-        typeen: modalType,
-        typebn: typeBn,
-        members: modalMembers
-      };
-      setWorkspaces(workspaces.map((w: any) => w.id === selectedWs.id ? updatedWs : w));
-    }
+    const wsData = {
+      id: selectedWs?.id,
+      name: modalName,
+      typeen: modalType,
+      typebn: typeBn,
+      members: modalMembers,
+      status: selectedWs?.status || 'active'
+    };
 
-    showToast(language === 'bn' ? 'সফলভাবে সংরক্ষিত হয়েছে!' : 'Saved Successfully!');
-    closeModal();
+    const success = await saveWorkspace(wsData, !selectedWs);
+
+    if (success) {
+      showToast(language === 'bn' ? 'সফলভাবে সংরক্ষিত হয়েছে!' : 'Saved Successfully!');
+      closeModal();
+    } else {
+      showToast(language === 'bn' ? 'ত্রুটি ঘটেছে!' : 'An error occurred!');
+    }
   };
 
   return (

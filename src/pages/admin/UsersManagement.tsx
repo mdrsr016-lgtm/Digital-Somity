@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { MockUser } from "../../data/mockUsers";
 import { X, Trash2, ShieldAlert, Power, UserPlus, AlertTriangle, Lock, Unlock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -13,8 +12,9 @@ const generateRandomPassword = () => {
 export const UsersManagement = () => {
   const { t, language } = useLanguage();
   const adminT = t.admin || {} as any;
-  const { users, setUsers, workspaces, updateStatus: globalUpdateStatus, generateUserId, showToast, searchQuery } = useOutletContext<any>();
-  const [selectedUser, setSelectedUser] = useState<MockUser | null>(null);
+  const { users, workspaces, updateStatus: globalUpdateStatus, generateUserId, showToast, searchQuery, saveUser } = useOutletContext<any>();
+
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filterRole, setFilterRole] = useState<string | null>(null);
   const [modalName, setModalName] = useState("");
@@ -28,32 +28,30 @@ export const UsersManagement = () => {
   const [userToArchive, setUserToArchive] = useState<MockUser | null>(null);
 
   const uniqueRoles = useMemo(() => {
-    const saved = localStorage.getItem("ds_roles");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed && Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map((r: any) => ({ en: r.nameEn, bn: r.nameBn }));
-        }
-      } catch (e) {
-        console.error("Failed to parse ds_roles", e);
-      }
-    }
     const rolesMap = new Map();
-    users.forEach((u: MockUser) => rolesMap.set(u.roleEn, u.roleBn));
+    const rolesList = JSON.parse(localStorage.getItem("ds_roles") || '[]');
+    if (rolesList.length > 0) {
+      rolesList.forEach((r: any) => rolesMap.set(r.nameEn, r.nameBn));
+    } else {
+      users.forEach((u: any) =>
+ rolesMap.set(u.roleEn, u.roleBn));
+      users.forEach((u: any) => rolesMap.set(u.roleEn, u.roleBn));
+    }
     return Array.from(rolesMap.entries()).map(([en, bn]) => ({ en, bn }));
   }, [users]);
 
-  const displayedUsers = (filterRole 
-    ? users.filter((u: MockUser) => u.roleEn === filterRole)
-    : users).filter((u: MockUser) => !['removed', 'suspended', 'disabled'].includes(u.status))
-    .filter((u: MockUser) => {
+  const displayedUsers = (users || [])
+    .filter((u: any) => {
+      if (filterRole && u.roleEn !== filterRole) return false;
+      return !['removed', 'suspended', 'disabled'].includes(u.status);
+    })
+    .filter((u: any) => {
       if (!searchQuery) return true;
       const q = searchQuery.toLowerCase();
       return u.name.toLowerCase().includes(q) || u.roleEn.toLowerCase().includes(q) || u.id.toLowerCase().includes(q);
     });
 
-  const handleEdit = (user: MockUser) => {
+  const handleEdit = (user: any) => {
     setSelectedUser(user);
     setModalName(user.name);
     setModalRole(user.roleEn);
@@ -80,9 +78,9 @@ export const UsersManagement = () => {
     setIsIdEditable(false);
   };
 
-  const updateStatus = (status: MockUser['status']) => {
+  const updateStatus = async (status: MockUser['status']) => {
     if (!selectedUser) return;
-    globalUpdateStatus(selectedUser.id, status);
+    await globalUpdateStatus(selectedUser.id, status);
     
     let msg = "";
     if (status === 'removed') msg = language === 'bn' ? 'অপসারণ করা হয়েছে!' : 'User Removed!';
@@ -93,7 +91,7 @@ export const UsersManagement = () => {
     closeModal();
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!modalName.trim()) {
       showToast(language === 'bn' ? 'দয়া করে নাম লিখুন' : 'Please enter a name');
       return;
@@ -105,39 +103,30 @@ export const UsersManagement = () => {
 
     const roleBn = uniqueRoles.find((r: any) => r.en === modalRole)?.bn || modalRole;
     
-    if (selectedUser) {
-      // Edit User
-      const updatedUser: MockUser = {
-        ...selectedUser,
-        id: modalUserId, // Key fix: use the value in the input field!
-        name: modalName,
-        roleEn: modalRole,
-        roleBn: roleBn,
-        workspaceId: modalWorkspace || selectedUser.workspaceId,
-        password: modalPassword || selectedUser.password
-      };
-      // If the ID changed, we need to map by the original ID but save the new one
-      setUsers(users.map((u: MockUser) => u.id === selectedUser.id ? updatedUser : u));
-      showToast(language === 'bn' ? 'পরিবর্তনগুলো সফলভাবে সংরক্ষিত হয়েছে' : 'Changes saved successfully.');
-    } else {
-      // Create New User
-      const newUser: MockUser = {
-        id: modalUserId || Math.random().toString(36).substr(2, 9),
-        name: modalName,
-        roleEn: modalRole,
-        roleBn: roleBn,
-        status: 'active',
-        workspaceId: modalWorkspace,
-        password: modalPassword,
-        initial: modalName.charAt(0).toUpperCase() || 'U',
-        lastLoginEn: 'Never',
-        lastLoginBn: 'কখনো না'
-      };
-      setUsers([...users, newUser]);
-      showToast(language === 'bn' ? 'নতুন ব্যবহারকারী সফলভাবে তৈরি হয়েছে' : 'New user created successfully.');
-    }
+    const userData: MockUser = {
+      id: modalUserId || (selectedUser?.id ?? Math.random().toString(36).substr(2, 9)),
+      name: modalName,
+      roleEn: modalRole,
+      roleBn: roleBn,
+      status: selectedUser?.status || 'active',
+      workspaceId: modalWorkspace,
+      password: modalPassword,
+      initial: modalName.charAt(0).toUpperCase() || 'U',
+      lastLoginEn: selectedUser?.lastLoginEn || 'Never',
+      lastLoginBn: selectedUser?.lastLoginBn || 'কখনো না'
+    };
+
+    const success = await saveUser(userData, !selectedUser);
     
-    closeModal();
+    if (success) {
+      showToast(language === 'bn' 
+        ? (selectedUser ? 'পরিবর্তনগুলো সফলভাবে সংরক্ষিত হয়েছে' : 'নতুন ব্যবহারকারী সফলভাবে তৈরি হয়েছে')
+        : (selectedUser ? 'Changes saved successfully.' : 'New user created successfully.')
+      );
+      closeModal();
+    } else {
+      showToast(language === 'bn' ? 'ত্রুটি ঘটেছে!' : 'An error occurred!');
+    }
   };
 
   // Keyboard support for modal
@@ -155,12 +144,10 @@ export const UsersManagement = () => {
   const handleModalKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       const target = e.target as HTMLElement;
-      // If it's an input or select, move to next or save
       if (target.tagName === 'INPUT' || target.tagName === 'SELECT') {
         const modal = target.closest('.admin-modal-card');
         const allInputs = Array.from(modal?.querySelectorAll('input:not([readOnly]), select') || []) as HTMLElement[];
         const index = allInputs.indexOf(target);
-        
         if (index > -1 && index < allInputs.length - 1) {
           e.preventDefault();
           allInputs[index + 1].focus();
@@ -172,14 +159,14 @@ export const UsersManagement = () => {
     }
   };
 
-  const handleArchiveClick = (user: MockUser) => {
+  const handleArchiveClick = (user: any) => {
     setUserToArchive(user);
     setIsArchiveModalOpen(true);
   };
 
-  const confirmArchive = () => {
+  const confirmArchive = async () => {
     if (userToArchive) {
-      globalUpdateStatus(userToArchive.id, 'removed');
+      await globalUpdateStatus(userToArchive.id, 'removed');
       showToast(language === 'bn' ? 'ব্যবহারকারীকে ফ্রিজে পাঠানো হয়েছে!' : 'User moved to Fridge!');
       setIsArchiveModalOpen(false);
       setUserToArchive(null);
@@ -232,7 +219,7 @@ export const UsersManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {displayedUsers.map((user: MockUser) => (
+            {displayedUsers.map((user: any) => (
               <tr key={user.id}>
                 <td>
                   <div className="user-cell">

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { MockUser } from "../../data/mockUsers";
 import { Snowflake, RefreshCw, Trash2, AlertTriangle, Users, Shield, Building2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -19,7 +18,7 @@ export const UserFridge = () => {
   const [itemToDelete, setItemToDelete] = useState<{ id: string; name: string; type: 'user' | 'role' | 'workspace' } | null>(null);
 
   // Filter archived items
-  const fridgedUsers = users.filter((u: MockUser) => ['removed', 'suspended', 'disabled'].includes(u.status));
+  const fridgedUsers = users.filter((u: any) => ['removed', 'suspended', 'disabled'].includes(u.status));
   const fridgedRoles = roles?.filter((r: any) => r.status === 'archived') || [];
   const fridgedWorkspaces = workspaces?.filter((w: any) => w.status === 'archived') || [];
 

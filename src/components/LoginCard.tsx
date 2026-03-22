@@ -6,35 +6,11 @@ import { ForgotPasswordModal } from "./ForgotPasswordModal";
 import { PrivacyModal } from "./PrivacyModal";
 import { TermsModal } from "./TermsModal";
 import { useLanguage } from "../contexts/LanguageContext";
-import { mockUsers } from "../data/mockUsers";
+import { supabase } from "../utils/supabaseClient";
 import "../styles/LoginCard.css";
 
 const MATRIX_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*!";
 
-// Load ALL users from localStorage and merge with mockUsers
-function getAllUsers() {
-  let localUsers: any[] = [];
-  try {
-    const saved = localStorage.getItem("ds_users");
-    if (saved) {
-      localUsers = JSON.parse(saved);
-    }
-  } catch (_) {
-    // Ignore parse errors
-  }
-
-  // Merge: mockUsers take precedence or are just added alongside local ones
-  // We'll use a Map to ensure unique IDs
-  const usersMap = new Map();
-  
-  // Add mock users first
-  mockUsers.forEach(u => usersMap.set(u.id.toLowerCase(), u));
-  
-  // Add local users (they will overwrite mock users if IDs clash, which is fine)
-  localUsers.forEach(u => usersMap.set(u.id.toLowerCase(), u));
-
-  return Array.from(usersMap.values());
-}
 
 type VerifyState = 'idle' | 'verifying' | 'verified' | 'not-found';
 
@@ -93,16 +69,20 @@ export const LoginCard = () => {
     }, 60);
   }, [userId, stopMatrix]);
 
-  const handleUserIdBlur = useCallback(() => {
+  const handleUserIdBlur = useCallback(async () => {
     if (!userId.trim() || verifyState === 'verified') return;
 
-    const users = getAllUsers();
-    const match = users.find(
-      (u: any) => u.id === userId.trim() || u.id.toLowerCase() === userId.trim().toLowerCase()
-    );
+    setVerifyState('verifying'); // Show animation immediately
+    
+    // Fetch user and join with roles using the view
+    const { data: userData, error } = await supabase
+      .from('user_details')
+      .select('name, role_name_en, role_name_bn')
+      .eq('login_id', userId.trim())
+      .single();
 
-    if (match) {
-      startMatrixAnimation(match.name, true);
+    if (userData && !error) {
+      startMatrixAnimation(userData.name, true);
     } else {
       startMatrixAnimation(userId, false);
     }
@@ -144,35 +124,36 @@ export const LoginCard = () => {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const handleLogin = (e?: React.FormEvent) => {
+  const handleLogin = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (isVerifying) return;
     if (!isLocked) {
-      handleUserIdBlur();
+      await handleUserIdBlur();
       return;
     }
-    const users = getAllUsers();
-    // Normalize lookup to be case-insensitive
-    const user = users.find((u: any) => 
-      u.id.toLowerCase() === userId.trim().toLowerCase()
-    );
 
-    if (!user) {
+    const { data: user, error } = await supabase
+      .from('user_details')
+      .select('*')
+      .eq('login_id', userId.trim())
+      .single();
+
+    if (!user || error) {
       setVerifyState('not-found');
       return;
     }
 
     const password = passwordRef.current?.value || "";
-    if (user.password && user.password !== password) {
+    if (user.password_hash && user.password_hash !== password) {
       // Access denied
       setVerifyState('not-found'); 
       return;
     }
 
     // Persistent Session Mock - Use the canonical ID from the match
-    localStorage.setItem("ds_logged_in_user", user.id);
+    localStorage.setItem("ds_logged_in_user", user.login_id);
     
-    if (user.roleEn === 'System Administrator') {
+    if (user.role_name_en === 'System Administrator' || user.role_name_en === 'System Admin / Owner') {
       navigate("/admin");
     } else {
       navigate("/workspace");
