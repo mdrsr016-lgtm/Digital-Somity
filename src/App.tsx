@@ -15,6 +15,7 @@ import { UserFridge } from "./pages/admin/UserFridge";
 
 import { WorkspaceLayout } from "./pages/workspace/WorkspaceLayout";
 import { WorkspaceOverview } from "./pages/workspace/WorkspaceOverview";
+import { WorkspaceProfile } from "./pages/workspace/WorkspaceProfile";
 
 function App() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -58,6 +59,7 @@ function App() {
 
         <Route path="/workspace" element={<WorkspaceLayout theme={theme} toggleTheme={toggleTheme} />}>
           <Route index element={<WorkspaceOverview />} />
+          <Route path="profile" element={<WorkspaceProfile />} />
         </Route>
       </Routes>
     </LanguageProvider>
