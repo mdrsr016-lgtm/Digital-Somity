@@ -89,7 +89,7 @@ export const WorkspaceOverview = () => {
         </motion.div>
       </motion.div>
 
-      <div className="dashboard-main-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
+      <div className="dashboard-main-grid">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -139,7 +139,7 @@ export const WorkspaceOverview = () => {
         </motion.div>
       </div>
 
-      <div style={{ marginTop: '3rem', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)', gap: '2rem' }}>
+      <div className="ws-events-grid">
         {[1, 2, 3].map((i) => (
           <motion.div 
             key={i}

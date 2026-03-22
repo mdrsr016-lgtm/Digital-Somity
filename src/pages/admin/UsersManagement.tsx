@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { MockUser } from "../../data/mockUsers";
-import { X, Trash2, ShieldAlert, Power, UserPlus, AlertTriangle } from "lucide-react";
+import { X, Trash2, ShieldAlert, Power, UserPlus, AlertTriangle, Lock, Unlock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export const UsersManagement = () => {
@@ -19,6 +19,7 @@ export const UsersManagement = () => {
   const [modalPassword, setModalPassword] = useState<string>("");
   const [workspaceError, setWorkspaceError] = useState<boolean>(false);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
+  const [isIdEditable, setIsIdEditable] = useState(false);
   const [userToArchive, setUserToArchive] = useState<MockUser | null>(null);
 
   const uniqueRoles = useMemo(() => {
@@ -46,9 +47,9 @@ export const UsersManagement = () => {
     setSelectedUser(user);
     setModalName(user.name);
     setModalRole(user.roleEn);
-    setModalWorkspace("");
-    setModalUserId(user.id); // Or generate if needed, but usually keep ID
-    setModalPassword("123456");
+    setModalWorkspace(user.workspaceId || "");
+    setModalUserId(user.id);
+    setModalPassword(user.password || "123456");
     setIsModalOpen(true);
   };
 
@@ -66,6 +67,7 @@ export const UsersManagement = () => {
     setIsModalOpen(false);
     setWorkspaceError(false);
     setSelectedUser(null);
+    setIsIdEditable(false);
   };
 
   const updateStatus = (status: MockUser['status']) => {
@@ -97,11 +99,14 @@ export const UsersManagement = () => {
       // Edit User
       const updatedUser: MockUser = {
         ...selectedUser,
+        id: modalUserId, // Key fix: use the value in the input field!
         name: modalName,
         roleEn: modalRole,
         roleBn: roleBn,
-        // Workspace could be added to MockUser if needed
+        workspaceId: modalWorkspace || selectedUser.workspaceId,
+        password: modalPassword || selectedUser.password
       };
+      // If the ID changed, we need to map by the original ID but save the new one
       setUsers(users.map((u: MockUser) => u.id === selectedUser.id ? updatedUser : u));
       showToast(language === 'bn' ? 'পরিবর্তনগুলো সফলভাবে সংরক্ষিত হয়েছে' : 'Changes saved successfully.');
     } else {
@@ -112,6 +117,8 @@ export const UsersManagement = () => {
         roleEn: modalRole,
         roleBn: roleBn,
         status: 'active',
+        workspaceId: modalWorkspace,
+        password: modalPassword,
         initial: modalName.charAt(0).toUpperCase() || 'U',
         lastLoginEn: 'Never',
         lastLoginBn: 'কখনো না'
@@ -336,14 +343,42 @@ export const UsersManagement = () => {
                 {modalWorkspace && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '24px' }}>
                     <div className="modal-input-group" style={{ marginBottom: 0 }}>
-                      <label>{language === 'bn' ? 'ব্যবহারকারী আইডি' : 'User ID'}</label>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <label style={{ marginBottom: 0 }}>{language === 'bn' ? 'ব্যবহারকারী আইডি' : 'User ID'}</label>
+                        <button 
+                          type="button"
+                          onClick={() => setIsIdEditable(!isIdEditable)}
+                          style={{ 
+                            background: 'none', 
+                            border: 'none', 
+                            color: isIdEditable ? 'var(--ws-lime)' : 'var(--text-sub)', 
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '0.75rem',
+                            padding: '4px'
+                          }}
+                        >
+                          {isIdEditable ? <Unlock size={14} /> : <Lock size={14} />}
+                          {isIdEditable 
+                            ? (language === 'bn' ? 'লক করুন' : 'Lock') 
+                            : (language === 'bn' ? 'আনলক করুন' : 'Unlock')}
+                        </button>
+                      </div>
                       <input 
                         type="text" 
                         className="admin-input" 
                         value={modalUserId} 
-                        readOnly
+                        onChange={(e) => setModalUserId(e.target.value)}
+                        readOnly={!isIdEditable}
                         placeholder="e.g. adm123"
-                        style={{ fontFamily: 'monospace', letterSpacing: '1px', opacity: 0.6, cursor: 'not-allowed' }}
+                        style={{ 
+                          fontFamily: 'monospace', 
+                          letterSpacing: '1px', 
+                          opacity: isIdEditable ? 1 : 0.6, 
+                          cursor: isIdEditable ? 'text' : 'not-allowed' 
+                        }}
                       />
                     </div>
                     <div className="modal-input-group" style={{ marginBottom: 0 }}>

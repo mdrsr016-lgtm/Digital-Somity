@@ -1,5 +1,5 @@
-import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, User, LogOut, Sun, Moon, Languages, Bell, Users } from "lucide-react";
+import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
+import { LayoutDashboard, User, LogOut, Sun, Moon, Languages, Bell, Users, Menu, X as XIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import "../../styles/Workspace.css";
@@ -14,10 +14,17 @@ interface WorkspaceLayoutProps {
 export const WorkspaceLayout = ({ theme, toggleTheme }: WorkspaceLayoutProps) => {
   const { setLanguage, language } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [activeUser, setActiveUser] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [workspaces, setWorkspaces] = useState<any[]>([]);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     const userId = localStorage.getItem("ds_logged_in_user");
@@ -57,10 +64,19 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: WorkspaceLayoutProps) =>
       <div className="ws-bg-glow-bottom" />
 
       {/* Sidebar - Premium Design */}
-      <aside className="workspace-sidebar">
+      <aside className={`workspace-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
         <div className="ws-brand">
-          <div className="ws-logo">DS</div>
-          <span className="ws-brand-name">Digital Somiti</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1 }}>
+            <div className="ws-logo">DS</div>
+            <span className="ws-brand-name">Digital Somiti</span>
+          </div>
+          <button 
+            className="ws-mobile-close" 
+            onClick={() => setIsMobileMenuOpen(false)}
+            style={{ display: 'none' }} // Visible only in CSS media query
+          >
+            <XIcon size={24} />
+          </button>
         </div>
 
         <nav className="ws-nav">
@@ -97,10 +113,25 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: WorkspaceLayoutProps) =>
         </div>
       </aside>
 
+      {/* Overlay for mobile sidebar */}
+      {isMobileMenuOpen && (
+        <div 
+          className="ws-sidebar-overlay" 
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Main Content Area */}
       <main className="workspace-main">
         <header className="workspace-topbar">
           <div className="ws-topbar-left">
+            <button 
+              className="ws-mobile-menu-btn" 
+              onClick={() => setIsMobileMenuOpen(true)}
+              style={{ display: 'none', background: 'none', border: 'none', color: 'var(--ws-text)', cursor: 'pointer', marginRight: '1rem' }}
+            >
+              <Menu size={24} />
+            </button>
             <div className="ws-badge">
               <span className="ws-badge-dot"></span>
               {

@@ -6,6 +6,7 @@ import { ForgotPasswordModal } from "./ForgotPasswordModal";
 import { PrivacyModal } from "./PrivacyModal";
 import { TermsModal } from "./TermsModal";
 import { useLanguage } from "../contexts/LanguageContext";
+import { mockUsers } from "../data/mockUsers";
 import "../styles/LoginCard.css";
 
 const MATRIX_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*!";
@@ -15,8 +16,15 @@ function getAllUsers() {
   let users: any[] = [];
   try {
     const saved = localStorage.getItem("ds_users");
-    if (saved) users = JSON.parse(saved);
-  } catch (_) {}
+    if (saved) {
+      users = JSON.parse(saved);
+    } else {
+      // Fallback to initial mockUsers if no storage found
+      users = [...mockUsers];
+    }
+  } catch (_) {
+    users = [...mockUsers];
+  }
 
   // Ensure adm00 is ALWAYS available and up to date
   const adminIdx = users.findIndex(u => u.id.toLowerCase() === 'adm00');
