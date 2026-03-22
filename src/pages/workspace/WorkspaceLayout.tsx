@@ -1,7 +1,6 @@
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, User, LogOut, Sun, Moon, Languages, Bell, Users, Menu, X as XIcon } from "lucide-react";
+import { LayoutDashboard, LogOut, Bell, Users, Menu, X as XIcon, Settings } from "lucide-react";
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import "../../styles/Workspace.css";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { mockUsers } from "../../data/mockUsers";
@@ -12,10 +11,9 @@ interface WorkspaceLayoutProps {
 }
 
 export const WorkspaceLayout = ({ theme, toggleTheme }: WorkspaceLayoutProps) => {
-  const { setLanguage, language } = useLanguage();
+  const { language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isLangOpen, setIsLangOpen] = useState(false);
   const [activeUser, setActiveUser] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [workspaces, setWorkspaces] = useState<any[]>([]);
@@ -84,10 +82,6 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: WorkspaceLayoutProps) =>
             <LayoutDashboard size={20} />
             <span>{language === 'bn' ? 'ওভারভিউ' : 'Overview'}</span>
           </NavLink>
-          <NavLink to="/workspace/profile" className={({ isActive }) => `ws-nav-item ${isActive ? 'active' : ''}`}>
-            <User size={20} />
-            <span>{language === 'bn' ? 'আমার প্রোফাইল' : 'My Profile'}</span>
-          </NavLink>
           <NavLink to="/workspace/notifications" className={({ isActive }) => `ws-nav-item ${isActive ? 'active' : ''}`}>
             <Bell size={20} />
             <span>{language === 'bn' ? 'নোটিফিকেশন' : 'Notifications'}</span>
@@ -96,10 +90,18 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: WorkspaceLayoutProps) =>
             <Users size={20} />
             <span>{language === 'bn' ? 'সদস্য তালিকা' : 'Members Database'}</span>
           </NavLink>
+          <NavLink to="/workspace/settings" className={({ isActive }) => `ws-nav-item ${isActive ? 'active' : ''}`}>
+            <Settings size={20} />
+            <span>{language === 'bn' ? 'সেটিংস' : 'Settings'}</span>
+          </NavLink>
         </nav>
 
         <div className="ws-user-widget">
-          <div className="ws-user-info">
+          <div 
+            className="ws-user-info" 
+            onClick={() => navigate('/workspace/profile')}
+            style={{ cursor: 'pointer' }}
+          >
             <div className="ws-user-avatar">{activeUser?.initial}</div>
             <div className="ws-user-text">
               <h4>{activeUser?.name}</h4>
@@ -132,8 +134,8 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: WorkspaceLayoutProps) =>
             >
               <Menu size={24} />
             </button>
-            <div className="ws-badge">
-              <span className="ws-badge-dot"></span>
+            <div className="ws-header-brand">
+              <span className="ws-header-dot"></span>
               {
                 workspaces.find(w => w.id === activeUser?.workspaceId)?.name || 'General Workspace'
               }
@@ -142,41 +144,16 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: WorkspaceLayoutProps) =>
           
           <div className="ws-topbar-right">
             <div className="ws-topbar-actions">
-              <button className="topbar-btn" onClick={toggleTheme}>
-                {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+              <button className="topbar-btn">
+                <Bell size={20} />
+                <span className="ws-notification-dot"></span>
               </button>
-
-              <div className="topbar-lang-container">
-                <button 
-                  className={`topbar-btn ${isLangOpen ? 'active' : ''}`}
-                  onClick={() => setIsLangOpen(!isLangOpen)}
-                >
-                  <Languages size={20} />
-                </button>
-                <AnimatePresence>
-                  {isLangOpen && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="topbar-lang-dropdown"
-                    >
-                      <button className="lang-option" onClick={() => { setLanguage('en'); setIsLangOpen(false); }}>
-                        <span>English</span>
-                      </button>
-                      <button className="lang-option" onClick={() => { setLanguage('bn'); setIsLangOpen(false); }}>
-                        <span>বাংলা</span>
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
             </div>
           </div>
         </header>
 
         <div className="ws-overview">
-          <Outlet context={{ activeUser, users, workspaces }} />
+          <Outlet context={{ activeUser, users, workspaces, theme, toggleTheme }} />
         </div>
       </main>
     </div>

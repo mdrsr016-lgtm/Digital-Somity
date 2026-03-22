@@ -17,6 +17,7 @@ import { WorkspaceLayout } from "./pages/workspace/WorkspaceLayout";
 import { WorkspaceOverview } from "./pages/workspace/WorkspaceOverview";
 import { WorkspaceProfile } from "./pages/workspace/WorkspaceProfile";
 import { WorkspaceUsers } from "./pages/workspace/WorkspaceUsers";
+import { WorkspaceSettings } from "./pages/workspace/WorkspaceSettings";
 
 function App() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -62,6 +63,7 @@ function App() {
           <Route index element={<WorkspaceOverview />} />
           <Route path="profile" element={<WorkspaceProfile />} />
           <Route path="members" element={<WorkspaceUsers />} />
+          <Route path="settings" element={<WorkspaceSettings />} />
         </Route>
       </Routes>
     </LanguageProvider>

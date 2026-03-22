@@ -61,14 +61,7 @@ export const Sidebar = ({ theme, toggleTheme, onHelpClick }: SidebarProps) => {
         <span className="sidebar-tooltip">{theme === 'light' ? t.sidebar.darkMode : t.sidebar.lightMode}</span>
       </button>
 
-      <div style={{ marginTop: 'auto', marginBottom: '1rem' }}>
-        <a href="/admin" className="sidebar-item" style={{ color: 'inherit', textDecoration: 'none' }} title="Admin Panel">
-          <div className="sidebar-logo" style={{ width: '24px', height: '24px', background: 'var(--color-violet)', borderRadius: '6px', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold' }}>
-            DS
-          </div>
-          <span className="sidebar-tooltip">Admin</span>
-        </a>
-      </div>
+
     </div>
   );
 };

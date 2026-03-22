@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Questrial&family=Outfit:wght@400;700;800&display=swap');
+
 /* Premium Workspace Design System */
 
 :root {
@@ -31,7 +33,7 @@
   background-color: var(--ws-bg);
   color: var(--ws-text);
   overflow: hidden;
-  font-family: 'Questrial', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 /* Sidebar Styling */
@@ -71,13 +73,15 @@
 }
 
 .ws-brand-name {
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  background: linear-gradient(to right, var(--ws-text), var(--ws-text-muted));
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  background: linear-gradient(to right, var(--ws-text) 30%, var(--ws-violet));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 }
 
 /* Sidebar Nav */
@@ -209,6 +213,41 @@
   z-index: 40;
 }
 
+.ws-header-brand {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--ws-text);
+  letter-spacing: -0.03em;
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.3),
+    inset 0 0 20px rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.ws-header-brand:hover {
+  border-color: var(--ws-violet);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.2);
+  transform: translateY(-1px);
+}
+
+.ws-header-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--ws-lime);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--ws-lime);
+}
+
 .ws-badge {
   display: flex;
   align-items: center;
@@ -220,14 +259,6 @@
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--ws-text-muted);
-}
-
-.ws-badge-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--ws-lime);
-  border-radius: 50%;
-  box-shadow: 0 0 10px var(--ws-lime);
 }
 
 .ws-topbar-actions {
@@ -438,14 +469,15 @@
   }
 }
 
-@media (max-width: 768px) {
-  .workspace-sidebar {
+@media (max-width: 768px) {  .workspace-sidebar {
     position: fixed;
     top: 0;
     left: 0;
     height: 100vh;
+    width: 280px;
     transform: translateX(-100%);
     box-shadow: 20px 0 50px rgba(0, 0, 0, 0.5);
+    z-index: 100;
   }
 
   .workspace-sidebar.mobile-open {
@@ -520,33 +552,74 @@
     top: 0;
     left: 0;
     height: 100vh;
+    width: 300px;
     transform: translateX(-100%);
     box-shadow: 20px 0 50px rgba(0, 0, 0, 0.5);
+    z-index: 100;
   }
 
   .workspace-sidebar.mobile-open {
     transform: translateX(0);
   }
 
-  .ws-sidebar-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    z-index: 45;
+  .ws-brand {
+    padding: 1.5rem 1.2rem;
+    gap: 12px;
+  }
+
+  .ws-logo {
+    width: 38px;
+    height: 38px;
+    font-size: 1.1rem;
+  }
+
+  .ws-nav-item {
+    margin: 0.2rem 1rem;
+    padding: 0.8rem 1.2rem;
+    border-radius: 12px;
+    white-space: nowrap;
+    font-size: 0.9rem;
+  }
+
+  .ws-user-widget {
+    margin: 1rem;
+    padding: 1.2rem;
+    border-radius: 20px;
+    gap: 12px;
+  }
+
+  .ws-user-avatar {
+    width: 38px;
+    height: 38px;
+    font-size: 0.9rem;
+  }
+
+  .ws-user-text h4 {
+    font-size: 0.9rem;
+  }
+
+  .ws-user-text p {
+    font-size: 0.75rem;
+  }
+
+  .ws-logout-btn {
+    padding: 10px;
+    font-size: 0.85rem;
+    border-radius: 12px;
+    margin-top: 5px;
   }
 
   .ws-mobile-close {
     display: flex !important;
+    position: absolute;
+    right: 1.2rem;
+    top: 1.4rem;
     background: none;
     border: none;
     color: var(--ws-text);
     cursor: pointer;
     padding: 4px;
+    opacity: 0.8;
   }
 
   .ws-mobile-menu-btn {
@@ -566,9 +639,25 @@
     font-size: 1.8rem;
   }
 
-  .ws-badge {
-    padding: 8px 12px;
-    font-size: 0.75rem;
+  .ws-header-brand {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    gap: 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+    max-width: 60vw;
+  }
+
+  .ws-header-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .ws-topbar-left {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 12px;
   }
 
   .profile-content-grid {
@@ -581,4 +670,136 @@
     gap: 1.5rem;
     padding: 1.5rem;
   }
+  .ws-sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 45;
+  }
 }
+
+/* Settings Page Styling */
+.ws-settings-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  max-width: 800px;
+}
+
+.ws-settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.ws-settings-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ws-violet);
+}
+
+.ws-settings-header h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--ws-text);
+  letter-spacing: -0.01em;
+}
+
+.ws-settings-card {
+  background: var(--ws-glass);
+  border: 1px solid var(--ws-border);
+  border-radius: 24px;
+  padding: 1.5rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.ws-setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.ws-setting-info h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ws-text);
+}
+
+.ws-setting-info p {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: var(--ws-text-muted);
+}
+
+.ws-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--ws-border);
+  border-radius: 12px;
+  color: var(--ws-text);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ws-toggle-btn.active {
+  background: var(--ws-violet);
+  border-color: var(--ws-violet);
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.ws-lang-switch {
+  display: flex;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--ws-border);
+}
+
+.ws-lang-btn {
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--ws-text-muted);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ws-lang-btn.active {
+  background: var(--ws-lime);
+  color: #000;
+  box-shadow: 0 4px 12px rgba(235, 255, 30, 0.2);
+}
+
+@media (max-width: 600px) {
+  .ws-setting-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .ws-lang-switch {
+    width: 100%;
+  }
+  
+  .ws-lang-btn {
+    flex: 1;
+  }
+}
+
+
