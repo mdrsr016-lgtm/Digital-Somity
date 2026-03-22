@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { MockUser } from "../../data/mockUsers";
@@ -8,10 +8,11 @@ import { motion, AnimatePresence } from "framer-motion";
 export const UsersManagement = () => {
   const { t, language } = useLanguage();
   const adminT = t.admin || {} as any;
-  const { users, workspaces, updateStatus: globalUpdateStatus, generateUserId, showToast } = useOutletContext<any>();
+  const { users, setUsers, workspaces, updateStatus: globalUpdateStatus, generateUserId, showToast } = useOutletContext<any>();
   const [selectedUser, setSelectedUser] = useState<MockUser | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filterRole, setFilterRole] = useState<string | null>(null);
+  const [modalName, setModalName] = useState("");
   const [modalRole, setModalRole] = useState<string>("");
   const [modalWorkspace, setModalWorkspace] = useState<string>("");
   const [modalUserId, setModalUserId] = useState<string>("");
@@ -43,15 +44,17 @@ export const UsersManagement = () => {
 
   const handleEdit = (user: MockUser) => {
     setSelectedUser(user);
+    setModalName(user.name);
     setModalRole(user.roleEn);
     setModalWorkspace("");
-    setModalUserId(generateUserId(user.roleEn));
+    setModalUserId(user.id); // Or generate if needed, but usually keep ID
     setModalPassword("123456");
     setIsModalOpen(true);
   };
 
   const handleAdd = () => {
     setSelectedUser(null);
+    setModalName("");
     setModalRole("");
     setModalWorkspace("");
     setModalUserId("");
@@ -79,17 +82,77 @@ export const UsersManagement = () => {
   };
 
   const handleSave = () => {
+    if (!modalName.trim()) {
+      showToast(language === 'bn' ? 'দয়া করে নাম লিখুন' : 'Please enter a name');
+      return;
+    }
     if (modalRole && !modalWorkspace) {
       setWorkspaceError(true);
       return;
     }
+
+    const roleBn = uniqueRoles.find((r: any) => r.en === modalRole)?.bn || modalRole;
     
-    const msg = selectedUser 
-      ? (language === 'bn' ? 'পরিবর্তনগুলো সফলভাবে সংরক্ষিত হয়েছে' : 'Changes saved successfully.')
-      : (language === 'bn' ? 'নতুন ব্যবহারকারী সফলভাবে তৈরি হয়েছে' : 'New user created successfully.');
+    if (selectedUser) {
+      // Edit User
+      const updatedUser: MockUser = {
+        ...selectedUser,
+        name: modalName,
+        roleEn: modalRole,
+        roleBn: roleBn,
+        // Workspace could be added to MockUser if needed
+      };
+      setUsers(users.map((u: MockUser) => u.id === selectedUser.id ? updatedUser : u));
+      showToast(language === 'bn' ? 'পরিবর্তনগুলো সফলভাবে সংরক্ষিত হয়েছে' : 'Changes saved successfully.');
+    } else {
+      // Create New User
+      const newUser: MockUser = {
+        id: modalUserId || Math.random().toString(36).substr(2, 9),
+        name: modalName,
+        roleEn: modalRole,
+        roleBn: roleBn,
+        status: 'active',
+        initial: modalName.charAt(0).toUpperCase() || 'U',
+        lastLoginEn: 'Never',
+        lastLoginBn: 'কখনো না'
+      };
+      setUsers([...users, newUser]);
+      showToast(language === 'bn' ? 'নতুন ব্যবহারকারী সফলভাবে তৈরি হয়েছে' : 'New user created successfully.');
+    }
     
-    showToast(msg);
     closeModal();
+  };
+
+  // Keyboard support for modal
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && (isModalOpen || isArchiveModalOpen)) {
+        closeModal();
+        setIsArchiveModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [isModalOpen, isArchiveModalOpen]);
+
+  const handleModalKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      const target = e.target as HTMLElement;
+      // If it's an input or select, move to next or save
+      if (target.tagName === 'INPUT' || target.tagName === 'SELECT') {
+        const modal = target.closest('.admin-modal-card');
+        const allInputs = Array.from(modal?.querySelectorAll('input:not([readOnly]), select') || []) as HTMLElement[];
+        const index = allInputs.indexOf(target);
+        
+        if (index > -1 && index < allInputs.length - 1) {
+          e.preventDefault();
+          allInputs[index + 1].focus();
+        } else if (index === allInputs.length - 1) {
+          e.preventDefault();
+          handleSave();
+        }
+      }
+    }
   };
 
   const handleArchiveClick = (user: MockUser) => {
@@ -189,7 +252,7 @@ export const UsersManagement = () => {
 
       {isModalOpen && (
         <div className="admin-modal-overlay" onClick={closeModal}>
-          <div className="admin-modal-card" onClick={(e) => e.stopPropagation()}>
+          <div className="admin-modal-card" onClick={(e) => e.stopPropagation()} onKeyDown={handleModalKeyDown}>
             <div className="admin-modal-header">
               <div>
                 <h3 style={{ marginBottom: '4px' }}>
@@ -215,7 +278,8 @@ export const UsersManagement = () => {
                   <input 
                     type="text" 
                     className="admin-input" 
-                    defaultValue={selectedUser?.name || ""}
+                    value={modalName}
+                    onChange={(e) => setModalName(e.target.value)}
                     placeholder={language === 'bn' ? 'নাম লিখুন' : 'Enter name'}
                   />
                 </div>
@@ -345,6 +409,8 @@ export const UsersManagement = () => {
               className="admin-modal-card" 
               style={{ maxWidth: '400px', textAlign: 'center' }}
               onClick={e => e.stopPropagation()}
+              onKeyDown={(e) => { if (e.key === 'Enter') confirmArchive(); }}
+              tabIndex={0}
             >
               <div className="admin-modal-body" style={{ padding: '40px 32px' }}>
                 <div style={{ 

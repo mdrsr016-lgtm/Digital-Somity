@@ -7,6 +7,7 @@ export interface MockUser {
   lastLoginEn: string;
   lastLoginBn: string;
   initial: string;
+  workspaceId: string;
 }
 
 export const mockUsers: MockUser[] = [
@@ -18,7 +19,8 @@ export const mockUsers: MockUser[] = [
     status: 'active',
     lastLoginEn: 'Today, 10:30 AM',
     lastLoginBn: 'আজ, সকাল ১০:৩০',
-    initial: 'R'
+    initial: 'R',
+    workspaceId: '1'
   },
   {
     id: '2',
@@ -28,7 +30,8 @@ export const mockUsers: MockUser[] = [
     status: 'active',
     lastLoginEn: 'Yesterday, 4:15 PM',
     lastLoginBn: 'গতকাল, বিকাল ৪:১৫',
-    initial: 'N'
+    initial: 'N',
+    workspaceId: '2'
   },
   {
     id: '3',
@@ -38,6 +41,7 @@ export const mockUsers: MockUser[] = [
     status: 'inactive',
     lastLoginEn: 'Oct 12, 2023',
     lastLoginBn: '১২ অক্টো, ২০২৩',
-    initial: 'A'
+    initial: 'A',
+    workspaceId: '3'
   }
 ];

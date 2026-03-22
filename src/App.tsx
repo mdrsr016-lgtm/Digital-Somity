@@ -13,6 +13,9 @@ import { AdminSettings } from "./pages/admin/AdminSettings";
 import { WorkspaceList } from "./pages/admin/WorkspaceList";
 import { UserFridge } from "./pages/admin/UserFridge";
 
+import { WorkspaceLayout } from "./pages/workspace/WorkspaceLayout";
+import { WorkspaceOverview } from "./pages/workspace/WorkspaceOverview";
+
 function App() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -51,6 +54,10 @@ function App() {
           <Route path="roles" element={<RolesManagement />} />
           <Route path="fridge" element={<UserFridge />} />
           <Route path="settings" element={<AdminSettings />} />
+        </Route>
+
+        <Route path="/workspace" element={<WorkspaceLayout theme={theme} toggleTheme={toggleTheme} />}>
+          <Route index element={<WorkspaceOverview />} />
         </Route>
       </Routes>
     </LanguageProvider>

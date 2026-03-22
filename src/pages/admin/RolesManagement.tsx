@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { Shield, Users, Plus, Trash2, AlertTriangle, X } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
@@ -43,6 +43,37 @@ export const RolesManagement = () => {
       updateRoleStatus(roleToDelete.id, 'archived');
       showToast(language === 'bn' ? 'ভূমিকা ফ্রিজে পাঠানো হয়েছে!' : 'Role moved to Fridge!');
       setRoleToDelete(null);
+    }
+  };
+
+  // Keyboard support for modal
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && (isModalOpen || roleToDelete)) {
+        closeModal();
+        setRoleToDelete(null);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [isModalOpen, roleToDelete]);
+
+  const handleModalKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'SELECT') {
+        const modal = target.closest('.admin-modal-card');
+        const allInputs = Array.from(modal?.querySelectorAll('input:not([readOnly]), select') || []) as HTMLElement[];
+        const index = allInputs.indexOf(target);
+        
+        if (index > -1 && index < allInputs.length - 1) {
+          e.preventDefault();
+          allInputs[index + 1].focus();
+        } else if (index === allInputs.length - 1) {
+          e.preventDefault();
+          handleSave();
+        }
+      }
     }
   };
 
@@ -111,7 +142,7 @@ export const RolesManagement = () => {
 
       {isModalOpen && editingRole && (
         <div className="admin-modal-overlay" onClick={closeModal}>
-          <div className="admin-modal-card" onClick={e => e.stopPropagation()}>
+          <div className="admin-modal-card" onClick={e => e.stopPropagation()} onKeyDown={handleModalKeyDown}>
             <div className="admin-modal-header">
               <h3>{editingRole.id ? (language === 'bn' ? 'ভূমিকা সম্পাদনা' : 'Edit Role') : (language === 'bn' ? 'নতুন ভূমিকা' : 'New Role')}</h3>
               <button className="admin-modal-close" onClick={closeModal}><X size={20} /></button>
@@ -157,6 +188,8 @@ export const RolesManagement = () => {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="admin-modal-card" 
               style={{ maxWidth: '400px', textAlign: 'center' }}
+              onKeyDown={(e) => { if (e.key === 'Enter') confirmDelete(); }}
+              tabIndex={0}
             >
               <div className="admin-modal-body" style={{ padding: '40px 32px' }}>
                 <div style={{ 

@@ -1,4 +1,4 @@
-import { Outlet, NavLink } from "react-router-dom";
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { LayoutDashboard, Users, Settings, LogOut, Sun, Moon, Clock, Menu, X, HelpCircle, Languages, ChevronDown, Snowflake, CheckCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,7 +12,8 @@ interface AdminLayoutProps {
 }
 
 export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
-  const { t, setLanguage } = useLanguage();
+  const { t, setLanguage, language } = useLanguage();
+  const navigate = useNavigate();
   const [time, setTime] = useState(new Date());
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
@@ -98,6 +99,11 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
 
   const updateRoleStatus = (roleId: string, status: 'active' | 'archived') => {
     setRoles(prev => prev.map(r => r.id === roleId ? { ...r, status } : r));
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("ds_logged_in_user");
+    navigate("/");
   };
 
   const deleteRolePermanently = (roleId: string) => {
@@ -192,9 +198,10 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
         </nav>
 
         <div className="admin-sidebar-footer">
-          <div className="admin-footer-copyright">
-            &copy; 2026 Digital Somiti
-          </div>
+          <button className="admin-nav-item logout-item" onClick={handleLogout} style={{ border: 'none', background: 'none', width: '100%', cursor: 'pointer' }}>
+            <LogOut size={20} />
+            <span>{language === 'bn' ? 'লগ আউট' : 'Log Out'}</span>
+          </button>
         </div>
       </aside>
 

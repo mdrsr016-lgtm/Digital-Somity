@@ -49,11 +49,21 @@ export const AdminSettings = () => {
           <div className="settings-form">
             <div className="form-group">
               <label>{language === 'bn' ? 'অ্যাপ্লিকেশনের নাম' : 'Application Name'}</label>
-              <input type="text" defaultValue={t.login?.logoText || "Digital Somiti"} className="admin-input" />
+              <input 
+                type="text" 
+                defaultValue={t.login?.logoText || "Digital Somiti"} 
+                className="admin-input"
+                onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+              />
             </div>
-            <div className="form-group">
+            <div className="form-group" style={{ marginBottom: '24px' }}>
               <label>{language === 'bn' ? 'সাপোর্ট ইমেইল' : 'Support Email'}</label>
-              <input type="email" defaultValue="support@digitalsomiti.com" className="admin-input" />
+              <input 
+                type="email" 
+                defaultValue="support@digitalsomiti.com" 
+                className="admin-input"
+                onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+              />
             </div>
             <button 
               className={`admin-btn-primary ${saveStatus === 'saved' ? 'success' : ''}`}
@@ -95,7 +105,12 @@ export const AdminSettings = () => {
             </div>
             <div className="settings-toggle-row">
               <label>{language === 'bn' ? 'সেশন শেষ (মিনিট)' : 'Session Timeout (mins)'}</label>
-              <input type="number" defaultValue="30" className="admin-input-small" />
+              <input 
+                type="number" 
+                defaultValue="30" 
+                className="admin-input-small"
+                onKeyDown={(e) => e.key === 'Enter' && handleSecurityUpdate()}
+              />
             </div>
             <button 
               className={`admin-btn-primary ${securityStatus === 'updated' ? 'success' : ''}`}

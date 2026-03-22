@@ -25,7 +25,8 @@ export const translations = {
       darkMode: "Dark Mode",
       lightMode: "Light Mode",
       langUS: "US",
-      langBD: "BD"
+      langBD: "BD",
+      logout: "Log Out"
     },
     help: {
       title: "How to Log In?",
@@ -127,7 +128,8 @@ export const translations = {
       darkMode: "ডার্ক মোড",
       lightMode: "লাইট মোড",
       langUS: "ইউএস",
-      langBD: "বিডি"
+      langBD: "বিডি",
+      logout: "লগ আউট"
     },
     help: {
       title: "কিভাবে লগ ইন করবেন?",
