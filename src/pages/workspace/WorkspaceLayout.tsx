@@ -11,7 +11,7 @@ interface WorkspaceLayoutProps {
   toggleTheme?: () => void;
 }
 
-export const WorkspaceLayout = (_props: WorkspaceLayoutProps) => {
+export const WorkspaceLayout = ({ theme, toggleTheme }: WorkspaceLayoutProps) => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
@@ -116,7 +116,6 @@ export const WorkspaceLayout = (_props: WorkspaceLayoutProps) => {
           <button 
             className="ws-mobile-close" 
             onClick={() => setIsMobileMenuOpen(false)}
-            style={{ display: 'none' }} // Visible only in CSS media query
           >
             <XIcon size={24} />
           </button>
@@ -175,7 +174,6 @@ export const WorkspaceLayout = (_props: WorkspaceLayoutProps) => {
             <button 
               className="ws-mobile-menu-btn" 
               onClick={() => setIsMobileMenuOpen(true)}
-              style={{ display: 'none', background: 'none', border: 'none', color: 'var(--ws-text)', cursor: 'pointer', marginRight: '1rem' }}
             >
               <Menu size={24} />
             </button>
@@ -198,7 +196,7 @@ export const WorkspaceLayout = (_props: WorkspaceLayoutProps) => {
         </header>
 
         <div className="ws-content">
-          <Outlet context={{ activeUser, users, workspaces }} />
+          <Outlet context={{ activeUser, users, workspaces, theme, toggleTheme }} />
         </div>
       </main>
     </div>

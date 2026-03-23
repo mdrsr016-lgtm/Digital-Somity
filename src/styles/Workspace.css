@@ -29,7 +29,7 @@
 .workspace-layout {
   display: flex;
   height: 100vh;
-  width: 100vw;
+  width: 100%;
   background-color: var(--ws-bg);
   color: var(--ws-text);
   overflow: hidden;
@@ -217,6 +217,25 @@
 }
 
 /* Main Content area */
+.ws-mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--ws-text);
+  cursor: pointer;
+  margin-right: 0.75rem;
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.ws-mobile-close {
+  display: none;
+}
+
+.ws-sidebar-overlay {
+  display: none;
+}
+
 .workspace-main {
   flex: 1;
   display: flex;
@@ -293,9 +312,11 @@
 .ws-content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 0 3rem 3rem 3rem;
   scrollbar-width: thin;
   scrollbar-color: var(--ws-violet) transparent;
+  position: relative;
 }
 
 .ws-header {
@@ -706,123 +727,355 @@
   }
 }
 
-/* Settings Page Styling */
-.ws-settings-container {
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
+/* --- Pro Minimalist Settings Page --- */
+.ws-settings-pro {
   max-width: 800px;
-}
-
-.ws-settings-section {
+  padding: 1rem 0 4rem 3rem;
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 3rem;
 }
 
-.ws-settings-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--ws-violet);
-}
-
-.ws-settings-header h3 {
-  font-size: 1.2rem;
+.ws-settings-pro-header h1 {
+  font-size: 2rem;
   font-weight: 700;
-  margin: 0;
   color: var(--ws-text);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem 0;
 }
 
-.ws-settings-card {
-  background: var(--ws-glass);
-  border: 1px solid var(--ws-border);
-  border-radius: 24px;
-  padding: 1.5rem;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+.ws-settings-pro-header p {
+  font-size: 1rem;
+  color: var(--ws-text-muted);
+  margin: 0;
 }
 
-.ws-setting-item {
+.ws-settings-pro-content {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+}
+
+.ws-settings-pro-row {
+  display: flex;
   justify-content: space-between;
+  align-items: flex-start;
+  padding: 2.5rem 0;
   gap: 2rem;
 }
 
-.ws-setting-info h4 {
-  margin: 0;
-  font-size: 1.1rem;
+.ws-settings-pro-info {
+  flex: 1;
+  max-width: 480px;
+}
+
+.ws-settings-pro-info h3 {
+  font-size: 1.05rem;
   font-weight: 600;
   color: var(--ws-text);
+  margin: 0 0 0.5rem 0;
 }
 
-.ws-setting-info p {
-  margin: 4px 0 0;
-  font-size: 0.9rem;
+.ws-settings-pro-info p {
+  font-size: 0.95rem;
   color: var(--ws-text-muted);
+  line-height: 1.5;
+  margin: 0;
 }
 
-.ws-toggle-btn {
+.ws-settings-pro-action {
+  flex-shrink: 0;
+}
+
+.ws-settings-divider {
+  height: 1px;
+  background: var(--ws-border);
+  width: 100%;
+}
+
+/* UI Elements */
+.ws-theme-segmented {
+  display: inline-flex;
+  background: var(--ws-glass);
+  padding: 5px;
+  border-radius: 10px;
+  border: 1px solid var(--ws-border);
+}
+
+.ws-theme-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--ws-border);
-  border-radius: 12px;
-  color: var(--ws-text);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.ws-toggle-btn.active {
-  background: var(--ws-violet);
-  border-color: var(--ws-violet);
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
-}
-
-.ws-lang-switch {
-  display: flex;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 4px;
-  border-radius: 12px;
-  border: 1px solid var(--ws-border);
-}
-
-.ws-lang-btn {
-  padding: 8px 20px;
-  border-radius: 8px;
+  gap: 8px;
+  padding: 8px 18px;
   border: none;
   background: transparent;
   color: var(--ws-text-muted);
+  font-size: 0.9rem;
   font-weight: 600;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.ws-lang-btn.active {
-  background: var(--ws-lime);
-  color: #000;
-  box-shadow: 0 4px 12px rgba(235, 255, 30, 0.2);
+.ws-theme-btn:hover {
+  color: var(--ws-text);
 }
 
-@media (max-width: 600px) {
-  .ws-setting-item {
+.ws-theme-btn.active {
+  background: var(--ws-card);
+  color: var(--ws-text);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  border: 1px solid var(--ws-border);
+}
+
+.ws-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ws-card);
+  border: 1px solid var(--ws-border);
+  color: var(--ws-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.ws-action-btn:hover {
+  background: var(--ws-glass);
+  border-color: rgba(128, 128, 128, 0.4);
+}
+
+.ws-action-btn.danger-btn {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.ws-action-btn.danger-btn:hover {
+  background: #ef4444;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .ws-settings-pro-row {
+    flex-direction: column;
+    padding: 1.5rem 0;
+  }
+}
+
+/* --- GitHub-style Delete Modal --- */
+.ws-delete-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.ws-delete-modal {
+  background: var(--ws-bg);
+  border: 1px solid var(--ws-border);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.ws-delete-modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  padding: 1.25rem 1.5rem;
+  margin: 0;
+  border-bottom: 1px solid var(--ws-border);
+  color: var(--ws-text);
+  background: rgba(239, 68, 68, 0.05);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.ws-delete-modal-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ws-delete-modal-content p {
+  color: var(--ws-text-muted);
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.ws-delete-modal-content strong {
+  color: var(--ws-text);
+  background: rgba(128, 128, 128, 0.1);
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  user-select: all;
+  font-family: inherit;
+}
+
+.ws-delete-input {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--ws-card);
+  border: 1px solid var(--ws-border);
+  border-radius: 6px;
+  color: var(--ws-text);
+  font-size: 1rem;
+  font-family: monospace;
+}
+
+.ws-delete-input:focus {
+  outline: 2px solid #ef4444;
+  border-color: transparent;
+}
+
+.ws-delete-modal-actions {
+  padding: 1.25rem 1.5rem;
+  background: var(--ws-glass);
+  border-top: 1px solid var(--ws-border);
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.ws-delete-modal-actions .danger-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ws-delete-modal-actions .ws-action-btn:disabled:hover {
+  background: rgba(239, 68, 68, 0.05); /* keep it faded, no hover effect */
+  color: #ef4444;
+}
+
+
+
+/* ============================================
+   MOBILE RESPONSIVE - 768px and below
+   ============================================ */
+@media (max-width: 768px) {
+  /* Root layout: must not overflow at all */
+  .workspace-layout {
+    overflow: hidden;
+    width: 100vw;
+    max-width: 100vw;
+  }
+
+  /* Kill ambient glow orbs — they cause content bleed */
+  .ws-bg-glow,
+  .ws-bg-glow-bottom {
+    display: none;
+  }
+
+  .workspace-sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    height: 100vh;
+    z-index: 200;
+    transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+  }
+  .workspace-sidebar.mobile-open {
+    left: 0;
+    box-shadow: 4px 0 40px rgba(0, 0, 0, 0.5);
+  }
+  .ws-sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 150;
+  }
+  .ws-mobile-menu-btn {
+    display: flex !important;
+  }
+  .ws-mobile-close {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 8px;
+    background: var(--ws-glass);
+    color: var(--ws-text);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .workspace-main {
+    width: 100vw;
+    max-width: 100vw;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .workspace-topbar {
+    padding: 0 1.25rem;
+    height: 64px;
+  }
+  .ws-content,
+  .ws-overview {
+    padding: 0 1.25rem 2rem 1.25rem;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+  .ws-settings-pro {
+    padding: 1rem 0 3rem 0;
+  }
+  .ws-settings-pro-row {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
+    padding: 1.5rem 0;
   }
-  
-  .ws-lang-switch {
+  .ws-settings-pro-info {
+    max-width: 100%;
+  }
+  .ws-theme-segmented {
     width: 100%;
+    justify-content: center;
   }
-  
-  .ws-lang-btn {
+  .ws-theme-btn {
     flex: 1;
+    justify-content: center;
+  }
+  .ws-action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .ws-delete-modal {
+    width: 95%;
+    max-width: 95%;
+  }
+  .ws-delete-modal-actions {
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+  }
+  .ws-delete-modal-actions .ws-action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .ws-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .ws-header h1 {
+    font-size: 1.75rem;
   }
 }
-
-
