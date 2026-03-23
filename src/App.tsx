@@ -12,13 +12,13 @@ import { RolesManagement } from "./pages/admin/RolesManagement";
 import { AdminSettings } from "./pages/admin/AdminSettings";
 import { WorkspaceList } from "./pages/admin/WorkspaceList";
 import { UserFridge } from "./pages/admin/UserFridge";
-
 import { WorkspaceLayout } from "./pages/workspace/WorkspaceLayout";
 import { WorkspaceOverview } from "./pages/workspace/WorkspaceOverview";
 import { WorkspaceProfile } from "./pages/workspace/WorkspaceProfile";
 import { WorkspaceUsers } from "./pages/workspace/WorkspaceUsers";
 import { WorkspaceSettings } from "./pages/workspace/WorkspaceSettings";
 import { WorkspaceNotifications } from "./pages/workspace/WorkspaceNotifications";
+import { WorkspaceMessages } from "./pages/workspace/WorkspaceMessages";
 
 function App() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -60,9 +60,10 @@ function App() {
           <Route path="settings" element={<AdminSettings />} />
         </Route>
 
-        <Route path="/workspace" element={<WorkspaceLayout theme={theme} toggleTheme={toggleTheme} />}>
+        <Route path="/workspace" element={<WorkspaceLayout />}>
           <Route index element={<WorkspaceOverview />} />
           <Route path="notifications" element={<WorkspaceNotifications />} />
+          <Route path="messages" element={<WorkspaceMessages />} />
           <Route path="profile" element={<WorkspaceProfile />} />
           <Route path="members" element={<WorkspaceUsers />} />
           <Route path="settings" element={<WorkspaceSettings />} />
