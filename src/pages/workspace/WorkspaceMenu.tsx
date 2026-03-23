@@ -99,10 +99,10 @@ export const WorkspaceMenu = () => {
             <div className="ws-submenu-icon"><HelpCircle size={24} /></div>
             <span>{language === 'bn' ? 'সমস্যা রিপোর্ট করুন' : 'Report a problem'}</span>
           </NavLink>
-          <button className="ws-submenu-item">
+          <NavLink to="about" className="ws-submenu-item">
             <div className="ws-submenu-icon"><Info size={24} /></div>
             <span>{language === 'bn' ? 'সম্পর্কে' : 'About'}</span>
-          </button>
+          </NavLink>
         </div>
 
         {/* Separate Logout Section */}

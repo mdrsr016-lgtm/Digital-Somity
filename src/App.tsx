@@ -22,6 +22,7 @@ import { WorkspaceMessages } from "./pages/workspace/WorkspaceMessages";
 import { WorkspaceDetails } from "./pages/workspace/WorkspaceDetails";
 import { WorkspaceMenu } from "./pages/workspace/WorkspaceMenu";
 import { WorkspaceReport } from "./pages/workspace/WorkspaceReport";
+import { WorkspaceAbout } from "./pages/workspace/WorkspaceAbout";
 
 function App() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -73,6 +74,7 @@ function App() {
           <Route path="settings" element={<WorkspaceSettings />} />
           <Route path="menu" element={<WorkspaceMenu />}>
             <Route path="report" element={<WorkspaceReport />} />
+            <Route path="about" element={<WorkspaceAbout />} />
           </Route>
         </Route>
       </Routes>
