@@ -10,6 +10,7 @@ import {
   UserPlus,
   Briefcase,
   HelpCircle,
+  Languages,
   ShieldCheck,
   MessageSquare,
   Palette,
@@ -18,7 +19,8 @@ import {
 } from "lucide-react";
 
 export const WorkspaceMenu = () => {
-  const { activeUser } = useOutletContext<any>();
+  const context = useOutletContext<any>();
+  const { activeUser } = context;
   const { language } = useLanguage();
   const navigate = useNavigate();
   const [isClosing, setIsClosing] = useState(false);
@@ -83,18 +85,22 @@ export const WorkspaceMenu = () => {
 
         {/* Flattened Settings & Help Items */}
         <div className="ws-menu-flat-list">
-          <button className="ws-submenu-item">
+          <NavLink to="appearance" className="ws-submenu-item">
             <div className="ws-submenu-icon"><Palette size={24} /></div>
             <span>{language === 'bn' ? 'চেহারা' : 'Appearance'}</span>
-          </button>
-          <button className="ws-submenu-item">
+          </NavLink>
+          <NavLink to="notifications" className="ws-submenu-item">
             <div className="ws-submenu-icon"><Bell size={24} /></div>
             <span>{language === 'bn' ? 'নোটিফিকেশন সেটিং' : 'Notification settings'}</span>
-          </button>
-          <button className="ws-submenu-item">
+          </NavLink>
+          <NavLink to="language" className="ws-submenu-item">
+            <div className="ws-submenu-icon"><Languages size={24} /></div>
+            <span>{language === 'bn' ? 'ভাষা' : 'Language'}</span>
+          </NavLink>
+          <NavLink to="support" className="ws-submenu-item">
             <div className="ws-submenu-icon"><Inbox size={24} /></div>
             <span>{language === 'bn' ? 'সাপোর্ট ইনবক্স' : 'Support Inbox'}</span>
-          </button>
+          </NavLink>
           <NavLink to="report" className="ws-submenu-item">
             <div className="ws-submenu-icon"><HelpCircle size={24} /></div>
             <span>{language === 'bn' ? 'সমস্যা রিপোর্ট করুন' : 'Report a problem'}</span>
@@ -113,7 +119,7 @@ export const WorkspaceMenu = () => {
           </button>
         </div>
       </div>
-      <Outlet />
+      <Outlet context={context} />
     </div>
   );
 };
