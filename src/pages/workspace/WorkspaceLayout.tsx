@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, LogOut, Bell, Users, Settings, Wallet, Menu, X, MessageCircle, Briefcase } from "lucide-react";
+import { LayoutDashboard, LogOut, Bell, Users, Wallet, Menu, X, MessageCircle, Briefcase, UserPlus } from "lucide-react";
 import { useState, useEffect } from "react";
 import "../../styles/Workspace.css";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -92,6 +92,14 @@ export const WorkspaceLayout = () => {
             <LayoutDashboard size={22} />
             <span>{language === 'bn' ? 'ওভারভিউ' : 'Overview'}</span>
           </NavLink>
+          <NavLink to="/workspace/members" className={({ isActive }) => `ws-nav-item ${isActive ? 'active' : ''}`}>
+            <Users size={22} />
+            <span>{language === 'bn' ? 'সদস্য তালিকা' : 'Members Database'}</span>
+          </NavLink>
+          <NavLink to="/workspace/settings" className={({ isActive }) => `ws-nav-item ${isActive ? 'active' : ''}`}>
+            <UserPlus size={22} />
+            <span>{language === 'bn' ? 'সদস্য যোগ' : 'Add Member'}</span>
+          </NavLink>
           <NavLink to="/workspace/details" className={({ isActive }) => `ws-nav-item ${isActive ? 'active' : ''}`}>
             <Briefcase size={22} />
             <span>{language === 'bn' ? 'ওয়ার্কস্পেস' : 'Workspace'}</span>
@@ -99,14 +107,6 @@ export const WorkspaceLayout = () => {
           <NavLink to="/workspace/notifications" className={({ isActive }) => `ws-nav-item ${isActive ? 'active' : ''}`}>
             <Bell size={22} />
             <span>{language === 'bn' ? 'নোটিফিকেশন' : 'Notifications'}</span>
-          </NavLink>
-          <NavLink to="/workspace/members" className={({ isActive }) => `ws-nav-item ${isActive ? 'active' : ''}`}>
-            <Users size={22} />
-            <span>{language === 'bn' ? 'সদস্য তালিকা' : 'Members Database'}</span>
-          </NavLink>
-          <NavLink to="/workspace/settings" className={({ isActive }) => `ws-nav-item ${isActive ? 'active' : ''}`}>
-            <Settings size={22} />
-            <span>{language === 'bn' ? 'সেটিংস' : 'Settings'}</span>
           </NavLink>
         </nav>
 
@@ -174,19 +174,18 @@ export const WorkspaceLayout = () => {
         <NavLink to="/workspace" end className={({ isActive }) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
           <LayoutDashboard size={24} />
         </NavLink>
-        <NavLink to="/workspace/details" className={({ isActive }) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
-          <Briefcase size={24} />
-        </NavLink>
-
         <NavLink to="/workspace/members" className={({ isActive }) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
           <Users size={24} />
         </NavLink>
         <NavLink to="/workspace/settings" className={({ isActive }) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
-          <Settings size={24} />
+          <UserPlus size={24} />
         </NavLink>
-        <button className="ws-bottom-avatar" onClick={() => navigate('/workspace/profile')} title={activeUser?.name}>
-          {activeUser?.initial}
-        </button>
+        <NavLink to="/workspace/details" className={({ isActive }) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
+          <Briefcase size={24} />
+        </NavLink>
+        <NavLink to="/workspace/menu" className={({ isActive }) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
+          <Menu size={24} />
+        </NavLink>
       </nav>
     </div>
   );
