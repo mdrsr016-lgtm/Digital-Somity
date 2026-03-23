@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, LogOut, Bell, Users, Settings, Wallet, Menu, X, MessageCircle } from "lucide-react";
+import { LayoutDashboard, LogOut, Bell, Users, Settings, Wallet, Menu, X, MessageCircle, Briefcase } from "lucide-react";
 import { useState, useEffect } from "react";
 import "../../styles/Workspace.css";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -92,6 +92,10 @@ export const WorkspaceLayout = () => {
             <LayoutDashboard size={22} />
             <span>{language === 'bn' ? 'ওভারভিউ' : 'Overview'}</span>
           </NavLink>
+          <NavLink to="/workspace/details" className={({ isActive }) => `ws-nav-item ${isActive ? 'active' : ''}`}>
+            <Briefcase size={22} />
+            <span>{language === 'bn' ? 'ওয়ার্কস্পেস' : 'Workspace'}</span>
+          </NavLink>
           <NavLink to="/workspace/notifications" className={({ isActive }) => `ws-nav-item ${isActive ? 'active' : ''}`}>
             <Bell size={22} />
             <span>{language === 'bn' ? 'নোটিফিকেশন' : 'Notifications'}</span>
@@ -144,12 +148,12 @@ export const WorkspaceLayout = () => {
             </div>
           </div>
           <div className="ws-topbar-right" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-            <button className="topbar-btn" style={{ background: 'none', border: 'none', color: 'var(--ws-text-muted)', cursor: 'pointer' }} onClick={() => navigate('/workspace/messages')}>
+            <NavLink to="/workspace/messages" className={({ isActive }) => `topbar-btn ${isActive ? 'active' : ''}`}>
               <MessageCircle size={20} />
-            </button>
-            <button className="topbar-btn" style={{ background: 'none', border: 'none', color: 'var(--ws-text-muted)', cursor: 'pointer' }} onClick={() => navigate('/workspace/notifications')}>
+            </NavLink>
+            <NavLink to="/workspace/notifications" className={({ isActive }) => `topbar-btn ${isActive ? 'active' : ''}`}>
               <Bell size={20} />
-            </button>
+            </NavLink>
 
             <button 
               className="ws-mobile-menu-btn" 
@@ -169,6 +173,9 @@ export const WorkspaceLayout = () => {
       <nav className="ws-bottom-nav">
         <NavLink to="/workspace" end className={({ isActive }) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
           <LayoutDashboard size={24} />
+        </NavLink>
+        <NavLink to="/workspace/details" className={({ isActive }) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
+          <Briefcase size={24} />
         </NavLink>
 
         <NavLink to="/workspace/members" className={({ isActive }) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
