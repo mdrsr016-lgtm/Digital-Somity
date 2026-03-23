@@ -18,7 +18,7 @@ interface MockWorkspace {
 export const WorkspaceList = () => {
   const { t, language } = useLanguage();
   const adminT: any = t.admin || {};
-  const { workspaces, setWorkspaces, updateWorkspaceStatus, showToast, saveWorkspace } = useOutletContext<any>();
+  const { workspaces, updateWorkspaceStatus, showToast, saveWorkspace } = useOutletContext<any>();
   const [selectedWs, setSelectedWs] = useState<MockWorkspace | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);

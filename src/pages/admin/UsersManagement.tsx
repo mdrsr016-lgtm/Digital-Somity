@@ -1,9 +1,21 @@
 import { useState, useMemo, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { X, Trash2, ShieldAlert, Power, UserPlus, AlertTriangle, Lock, Unlock } from "lucide-react";
+import { X, Trash2, ShieldAlert, Power, UserPlus, AlertTriangle, Lock, Unlock, Eye, EyeOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+interface MockUser {
+  id: string;
+  name: string;
+  roleEn: string;
+  roleBn: string;
+  status: 'active' | 'inactive' | 'removed' | 'suspended' | 'disabled';
+  workspaceId?: string;
+  password?: string;
+  initial: string;
+  lastLoginEn: string;
+  lastLoginBn: string;
+}
 const generateRandomPassword = () => {
   const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#$!';
   return Array.from({ length: 10 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
@@ -12,7 +24,7 @@ const generateRandomPassword = () => {
 export const UsersManagement = () => {
   const { t, language } = useLanguage();
   const adminT = t.admin || {} as any;
-  const { users, workspaces, updateStatus: globalUpdateStatus, generateUserId, showToast, searchQuery, saveUser } = useOutletContext<any>();
+  const { users, roles, workspaces, updateStatus: globalUpdateStatus, generateUserId, showToast, searchQuery, saveUser } = useOutletContext<any>();
 
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,19 +38,13 @@ export const UsersManagement = () => {
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [isIdEditable, setIsIdEditable] = useState(false);
   const [userToArchive, setUserToArchive] = useState<MockUser | null>(null);
+  const [showModalPassword, setShowModalPassword] = useState(false);
 
   const uniqueRoles = useMemo(() => {
-    const rolesMap = new Map();
-    const rolesList = JSON.parse(localStorage.getItem("ds_roles") || '[]');
-    if (rolesList.length > 0) {
-      rolesList.forEach((r: any) => rolesMap.set(r.nameEn, r.nameBn));
-    } else {
-      users.forEach((u: any) =>
- rolesMap.set(u.roleEn, u.roleBn));
-      users.forEach((u: any) => rolesMap.set(u.roleEn, u.roleBn));
-    }
-    return Array.from(rolesMap.entries()).map(([en, bn]) => ({ en, bn }));
-  }, [users]);
+    return (roles || [])
+      .filter((r: any) => r.status !== 'disabled' && r.status !== 'archived')
+      .map((r: any) => ({ en: r.nameEn, bn: r.nameBn }));
+  }, [roles]);
 
   const displayedUsers = (users || [])
     .filter((u: any) => {
@@ -68,6 +74,7 @@ export const UsersManagement = () => {
     setModalWorkspace("");
     setModalUserId("");
     setModalPassword("");
+    setShowModalPassword(false);
     setIsModalOpen(true);
   };
 
@@ -96,7 +103,7 @@ export const UsersManagement = () => {
       showToast(language === 'bn' ? 'দয়া করে নাম লিখুন' : 'Please enter a name');
       return;
     }
-    if (modalRole && !modalWorkspace) {
+    if (modalRole && !modalWorkspace && modalRole !== 'System Admin / Owner') {
       setWorkspaceError(true);
       return;
     }
@@ -116,7 +123,7 @@ export const UsersManagement = () => {
       lastLoginBn: selectedUser?.lastLoginBn || 'কখনো না'
     };
 
-    const success = await saveUser(userData, !selectedUser);
+    const success = await saveUser(userData, !selectedUser, selectedUser?.id);
     
     if (success) {
       showToast(language === 'bn' 
@@ -296,12 +303,14 @@ export const UsersManagement = () => {
                       const newRole = e.target.value;
                       setModalRole(newRole);
                       
-                      if (newRole) {
-                        setModalUserId(generateUserId(newRole));
-                        setModalPassword(generateRandomPassword());
-                      } else {
-                        setModalUserId("");
-                        setModalPassword("");
+                      if (!selectedUser) {
+                        if (newRole) {
+                          setModalUserId(generateUserId(newRole).toLowerCase());
+                          setModalPassword(generateRandomPassword());
+                        } else {
+                          setModalUserId("");
+                          setModalPassword("");
+                        }
                       }
                     }}
                   >
@@ -311,7 +320,7 @@ export const UsersManagement = () => {
                     ))}
                   </select>
                 </div>
-                {modalRole && (
+                {modalRole && modalRole !== 'System Admin / Owner' && (
                   <div className="modal-input-group" style={{ marginTop: '24px' }}>
                     <label>{language === 'bn' ? 'ওয়ার্কস্পেস' : 'Workspace'}</label>
                     <select 
@@ -337,7 +346,7 @@ export const UsersManagement = () => {
                     )}
                   </div>
                 )}
-                {modalWorkspace && (
+                {(modalWorkspace || modalRole === 'System Admin / Owner') && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '24px' }}>
                     <div className="modal-input-group" style={{ marginBottom: 0 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
@@ -367,7 +376,7 @@ export const UsersManagement = () => {
                         type="text" 
                         className="admin-input" 
                         value={modalUserId} 
-                        onChange={(e) => setModalUserId(e.target.value)}
+                        onChange={(e) => setModalUserId(e.target.value.toLowerCase())}
                         readOnly={!isIdEditable}
                         placeholder="e.g. adm123"
                         style={{ 
@@ -380,13 +389,35 @@ export const UsersManagement = () => {
                     </div>
                     <div className="modal-input-group" style={{ marginBottom: 0 }}>
                       <label>{language === 'bn' ? 'পাসওয়ার্ড' : 'Password'}</label>
-                      <input 
-                        type="password" 
-                        className="admin-input" 
-                        value={modalPassword} 
-                        onChange={e => setModalPassword(e.target.value)}
-                        placeholder="Enter password"
-                      />
+                      <div style={{ position: 'relative' }}>
+                        <input 
+                          type={showModalPassword ? "text" : "password"} 
+                          className="admin-input" 
+                          value={modalPassword} 
+                          onChange={e => setModalPassword(e.target.value)}
+                          placeholder="Enter password"
+                          style={{ paddingRight: '40px' }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowModalPassword(!showModalPassword)}
+                          style={{
+                            position: 'absolute',
+                            right: '12px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--text-sub)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: 0
+                          }}
+                        >
+                          {showModalPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}

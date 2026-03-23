@@ -231,7 +231,7 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
     }
   };
 
-  const saveUser = async (user: any, isNew: boolean) => {
+  const saveUser = async (user: any, isNew: boolean, originalId?: string) => {
     // Map MockUser to DB structure
     const dbUser = {
       login_id: user.id,
@@ -239,7 +239,7 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
       email: user.email,
       phone: user.phone,
       role_id: (await supabase.from('roles').select('id').eq('name_en', user.roleEn).single()).data?.id,
-      workspace_id: user.workspaceId,
+      workspace_id: user.workspaceId || null,
       status: user.status,
       initial: user.initial,
       password_hash: user.password // Note: Should be hashed in production
@@ -252,9 +252,10 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
         return true;
       }
     } else {
-      const { error } = await supabase.from('users').update(dbUser).eq('login_id', user.id);
+      const idToUpdate = originalId || user.id;
+      const { error } = await supabase.from('users').update(dbUser).eq('login_id', idToUpdate);
       if (!error) {
-        setUsers(prev => prev.map(u => u.id === user.id ? user : u));
+        setUsers(prev => prev.map(u => u.id === idToUpdate ? user : u));
         return true;
       }
     }

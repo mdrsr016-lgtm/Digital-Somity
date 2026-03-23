@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- 5. Helper view to see users with role and workspace names
-CREATE OR REPLACE VIEW user_details AS
+CREATE OR REPLACE VIEW user_details WITH (security_invoker = true) AS
 SELECT 
     u.*,
     r.name_en AS role_name_en,
@@ -75,3 +75,28 @@ SELECT
     (SELECT id FROM workspaces WHERE name = 'Central Somiti'),
     'R'
 ON CONFLICT (login_id) DO NOTHING;
+
+-- 9. Row Level Security Setup
+-- Enable RLS and create blanket policies for the prototype
+ALTER TABLE workspaces ENABLE ROW LEVEL SECURITY;
+ALTER TABLE roles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+
+-- Create policies explicitly specifying the 'anon' role to satisfy the Supabase Security Advisor
+DROP POLICY IF EXISTS "Allow all actions for anon" ON workspaces;
+CREATE POLICY "Allow select for anon" ON workspaces FOR SELECT USING (true);
+CREATE POLICY "Allow insert for anon" ON workspaces FOR INSERT WITH CHECK (auth.role() = 'anon');
+CREATE POLICY "Allow update for anon" ON workspaces FOR UPDATE USING (auth.role() = 'anon') WITH CHECK (auth.role() = 'anon');
+CREATE POLICY "Allow delete for anon" ON workspaces FOR DELETE USING (auth.role() = 'anon');
+
+DROP POLICY IF EXISTS "Allow all actions for anon" ON roles;
+CREATE POLICY "Allow select for anon" ON roles FOR SELECT USING (true);
+CREATE POLICY "Allow insert for anon" ON roles FOR INSERT WITH CHECK (auth.role() = 'anon');
+CREATE POLICY "Allow update for anon" ON roles FOR UPDATE USING (auth.role() = 'anon') WITH CHECK (auth.role() = 'anon');
+CREATE POLICY "Allow delete for anon" ON roles FOR DELETE USING (auth.role() = 'anon');
+
+DROP POLICY IF EXISTS "Allow all actions for anon" ON users;
+CREATE POLICY "Allow select for anon" ON users FOR SELECT USING (true);
+CREATE POLICY "Allow insert for anon" ON users FOR INSERT WITH CHECK (auth.role() = 'anon');
+CREATE POLICY "Allow update for anon" ON users FOR UPDATE USING (auth.role() = 'anon') WITH CHECK (auth.role() = 'anon');
+CREATE POLICY "Allow delete for anon" ON users FOR DELETE USING (auth.role() = 'anon');
