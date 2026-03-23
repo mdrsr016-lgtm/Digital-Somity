@@ -13,6 +13,34 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: { theme: 'light' | 'dark
   const [workspaces, setWorkspaces] = useState<any[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const swipeRoutes = ["/workspace", "/workspace/members", "/workspace/settings", "/workspace/details", "/workspace/menu"];
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diffX = touchStartX - touchEndX;
+    const threshold = 80;
+
+    if (Math.abs(diffX) > threshold) {
+      const currentIndex = swipeRoutes.indexOf(location.pathname === "/workspace/" ? "/workspace" : location.pathname);
+      if (currentIndex === -1) return;
+
+      if (diffX > 0 && currentIndex < swipeRoutes.length - 1) {
+        // Swipe Left -> Next
+        navigate(swipeRoutes[currentIndex + 1]);
+      } else if (diffX < 0 && currentIndex > 0) {
+        // Swipe Right -> Previous
+        navigate(swipeRoutes[currentIndex - 1]);
+      }
+    }
+    setTouchStartX(null);
+  };
+
   // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -154,7 +182,7 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: { theme: 'light' | 'dark
       )}
 
       {/* Main Content Area */}
-      <main className="workspace-main">
+      <main className="workspace-main" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <header className="workspace-topbar">
           <div className="ws-topbar-left">
             <div className="ws-workspace-badge">
@@ -173,7 +201,7 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: { theme: 'light' | 'dark
             <NavLink to="/workspace/notifications" className={({ isActive }) => `topbar-btn ${isActive ? 'active' : ''}`}>
               <Bell size={20} />
             </NavLink>
-
+ 
             <button 
               className="ws-mobile-menu-btn" 
               onClick={() => setIsMobileMenuOpen(true)}
@@ -188,16 +216,14 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: { theme: 'light' | 'dark
         </div>
       </main>
 
-      {/* Persistent Bottom Nav for Mobile */}
+      {/* Persistent Bottom Nav for Mobile — hidden on Add Member page */}
+      {location.pathname !== '/workspace/settings' && (
       <nav className="ws-bottom-nav">
         <NavLink to="/workspace" end className={({ isActive }) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
           <LayoutDashboard size={24} />
         </NavLink>
         <NavLink to="/workspace/members" className={({ isActive }) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
           <Users size={24} />
-        </NavLink>
-        <NavLink to="/workspace/settings" className={({ isActive }) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
-          <UserPlus size={24} />
         </NavLink>
         <NavLink to="/workspace/details" className={({ isActive }) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
           <Briefcase size={24} />
@@ -206,6 +232,7 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: { theme: 'light' | 'dark
           <Menu size={24} />
         </NavLink>
       </nav>
+      )}
     </div>
   );
 };
