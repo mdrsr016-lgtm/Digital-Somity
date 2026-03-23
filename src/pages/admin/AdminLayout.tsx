@@ -52,7 +52,12 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
           phone: dbUser.phone
         };
         
-        if (mappedUser.roleEn !== 'System Administrator' && mappedUser.roleEn !== 'System Admin / Owner') {
+        const isAdminRole = (r: string) => {
+          const lower = (r || '').toLowerCase();
+          return lower.includes('admin') || lower.includes('owner') || lower.includes('founder') || lower.includes('system');
+        };
+        
+        if (!isAdminRole(mappedUser.roleEn)) {
           navigate("/workspace");
         } else {
           setActiveUser(mappedUser);
@@ -143,14 +148,14 @@ export const AdminLayout = ({ theme, toggleTheme }: AdminLayoutProps) => {
   const generateUserId = (role: string) => {
     let prefix = 'USR';
     const r = role.toLowerCase();
-    if (r.includes('admin')) prefix = 'ADM';
+    if (r.includes('admin') || r.includes('owner') || r.includes('founder') || r.includes('system')) prefix = 'ADM';
     else if (r.includes('cashier')) prefix = 'CAS';
     else if (r.includes('member')) prefix = 'MEM';
     else if (r.includes('manager') || r.includes('invest')) prefix = 'INV';
     
     const count = users.filter((u: any) => {
       const ur = u.roleEn.toLowerCase();
-      if (prefix === 'ADM') return ur.includes('admin');
+      if (prefix === 'ADM') return ur.includes('admin') || ur.includes('owner') || ur.includes('founder') || ur.includes('system');
       if (prefix === 'CAS') return ur.includes('cashier');
       if (prefix === 'MEM') return ur.includes('member');
       return ur.includes('manager') || ur.includes('invest');

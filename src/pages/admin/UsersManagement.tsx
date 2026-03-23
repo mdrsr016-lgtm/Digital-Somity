@@ -103,7 +103,12 @@ export const UsersManagement = () => {
       showToast(language === 'bn' ? 'দয়া করে নাম লিখুন' : 'Please enter a name');
       return;
     }
-    if (modalRole && !modalWorkspace && modalRole !== 'System Admin / Owner') {
+    const isAdminRole = (r: string) => {
+      const lower = (r || '').toLowerCase();
+      return lower.includes('admin') || lower.includes('owner') || lower.includes('founder') || lower.includes('system');
+    };
+
+    if (modalRole && !modalWorkspace && !isAdminRole(modalRole)) {
       setWorkspaceError(true);
       return;
     }
@@ -320,7 +325,7 @@ export const UsersManagement = () => {
                     ))}
                   </select>
                 </div>
-                {modalRole && modalRole !== 'System Admin / Owner' && (
+                {modalRole && !((modalRole || '').toLowerCase().includes('admin') || (modalRole || '').toLowerCase().includes('owner') || (modalRole || '').toLowerCase().includes('founder') || (modalRole || '').toLowerCase().includes('system')) && (
                   <div className="modal-input-group" style={{ marginTop: '24px' }}>
                     <label>{language === 'bn' ? 'ওয়ার্কস্পেস' : 'Workspace'}</label>
                     <select 
@@ -346,7 +351,7 @@ export const UsersManagement = () => {
                     )}
                   </div>
                 )}
-                {(modalWorkspace || modalRole === 'System Admin / Owner') && (
+                {(modalWorkspace || ((modalRole || '').toLowerCase().includes('admin') || (modalRole || '').toLowerCase().includes('owner') || (modalRole || '').toLowerCase().includes('founder') || (modalRole || '').toLowerCase().includes('system'))) && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '24px' }}>
                     <div className="modal-input-group" style={{ marginBottom: 0 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>

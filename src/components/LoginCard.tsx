@@ -120,6 +120,33 @@ export const LoginCard = () => {
 
   useEffect(() => () => stopMatrix(), [stopMatrix]);
 
+  // Auto-login if session exists
+  useEffect(() => {
+    const checkSession = async () => {
+      const loggedInId = localStorage.getItem("ds_logged_in_user");
+      if (loggedInId) {
+        const { data: user } = await supabase
+          .from('user_details')
+          .select('role_name_en')
+          .eq('login_id', loggedInId)
+          .single();
+        if (user) {
+          const isAdminRole = (r: string) => {
+            const lower = (r || '').toLowerCase();
+            return lower.includes('admin') || lower.includes('owner') || lower.includes('founder') || lower.includes('system');
+          };
+          
+          if (isAdminRole(user.role_name_en)) {
+            navigate("/admin");
+          } else {
+            navigate("/workspace");
+          }
+        }
+      }
+    };
+    checkSession();
+  }, [navigate]);
+
   const togglePassword = () => setShowPassword(!showPassword);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -153,7 +180,12 @@ export const LoginCard = () => {
     // Persistent Session Mock - Use the canonical ID from the match
     localStorage.setItem("ds_logged_in_user", user.login_id);
     
-    if (user.role_name_en === 'System Administrator' || user.role_name_en === 'System Admin / Owner') {
+    const isAdminRole = (r: string) => {
+      const lower = (r || '').toLowerCase();
+      return lower.includes('admin') || lower.includes('owner') || lower.includes('founder') || lower.includes('system');
+    };
+    
+    if (isAdminRole(user.role_name_en)) {
       navigate("/admin");
     } else {
       navigate("/workspace");

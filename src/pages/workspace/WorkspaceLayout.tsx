@@ -46,6 +46,16 @@ export const WorkspaceLayout = (_props: WorkspaceLayoutProps) => {
         return;
       }
 
+      const isAdminRole = (r: string) => {
+        const lower = (r || '').toLowerCase();
+        return lower.includes('admin') || lower.includes('owner') || lower.includes('founder') || lower.includes('system');
+      };
+
+      if (isAdminRole(user.role_name_en)) {
+        navigate("/admin");
+        return;
+      }
+
       setActiveUser({
         id: user.login_id,
         name: user.name,

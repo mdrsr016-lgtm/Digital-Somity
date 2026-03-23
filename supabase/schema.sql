@@ -39,6 +39,9 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE INDEX IF NOT EXISTS idx_users_role_id ON users(role_id);
+CREATE INDEX IF NOT EXISTS idx_users_workspace_id ON users(workspace_id);
+
 -- 5. Helper view to see users with role and workspace names
 CREATE OR REPLACE VIEW user_details WITH (security_invoker = true) AS
 SELECT 
@@ -56,7 +59,7 @@ INSERT INTO roles (id, name_en, name_bn) VALUES
 ('f59e0b00-0000-0000-0000-000000000000', 'Cashier', 'ক্যাশিয়ার'),
 ('d946ef00-0000-0000-0000-000000000000', 'Investor', 'বিনিয়োগকারী'),
 ('a1a1aa00-0000-0000-0000-000000000000', 'Member', 'সদস্য')
-ON CONFLICT (name_en) DO NOTHING;
+ON CONFLICT (id) DO NOTHING;
 
 -- 7. Insert default workspace (matches mock 'workspaceId: 1')
 INSERT INTO workspaces (id, name, type_en, type_bn) VALUES
@@ -84,19 +87,35 @@ ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
 -- Create policies explicitly specifying the 'anon' role to satisfy the Supabase Security Advisor
 DROP POLICY IF EXISTS "Allow all actions for anon" ON workspaces;
+-- Workspaces
+DROP POLICY IF EXISTS "Allow select for anon" ON workspaces;
+DROP POLICY IF EXISTS "Allow insert for anon" ON workspaces;
+DROP POLICY IF EXISTS "Allow update for anon" ON workspaces;
+DROP POLICY IF EXISTS "Allow delete for anon" ON workspaces;
+
 CREATE POLICY "Allow select for anon" ON workspaces FOR SELECT USING (true);
-CREATE POLICY "Allow insert for anon" ON workspaces FOR INSERT WITH CHECK (auth.role() = 'anon');
-CREATE POLICY "Allow update for anon" ON workspaces FOR UPDATE USING (auth.role() = 'anon') WITH CHECK (auth.role() = 'anon');
-CREATE POLICY "Allow delete for anon" ON workspaces FOR DELETE USING (auth.role() = 'anon');
+CREATE POLICY "Allow insert for anon" ON workspaces FOR INSERT WITH CHECK ((select auth.role()) = 'anon');
+CREATE POLICY "Allow update for anon" ON workspaces FOR UPDATE USING ((select auth.role()) = 'anon') WITH CHECK ((select auth.role()) = 'anon');
+CREATE POLICY "Allow delete for anon" ON workspaces FOR DELETE USING ((select auth.role()) = 'anon');
 
-DROP POLICY IF EXISTS "Allow all actions for anon" ON roles;
+-- Roles
+DROP POLICY IF EXISTS "Allow select for anon" ON roles;
+DROP POLICY IF EXISTS "Allow insert for anon" ON roles;
+DROP POLICY IF EXISTS "Allow update for anon" ON roles;
+DROP POLICY IF EXISTS "Allow delete for anon" ON roles;
+
 CREATE POLICY "Allow select for anon" ON roles FOR SELECT USING (true);
-CREATE POLICY "Allow insert for anon" ON roles FOR INSERT WITH CHECK (auth.role() = 'anon');
-CREATE POLICY "Allow update for anon" ON roles FOR UPDATE USING (auth.role() = 'anon') WITH CHECK (auth.role() = 'anon');
-CREATE POLICY "Allow delete for anon" ON roles FOR DELETE USING (auth.role() = 'anon');
+CREATE POLICY "Allow insert for anon" ON roles FOR INSERT WITH CHECK ((select auth.role()) = 'anon');
+CREATE POLICY "Allow update for anon" ON roles FOR UPDATE USING ((select auth.role()) = 'anon') WITH CHECK ((select auth.role()) = 'anon');
+CREATE POLICY "Allow delete for anon" ON roles FOR DELETE USING ((select auth.role()) = 'anon');
 
-DROP POLICY IF EXISTS "Allow all actions for anon" ON users;
+-- Users
+DROP POLICY IF EXISTS "Allow select for anon" ON users;
+DROP POLICY IF EXISTS "Allow insert for anon" ON users;
+DROP POLICY IF EXISTS "Allow update for anon" ON users;
+DROP POLICY IF EXISTS "Allow delete for anon" ON users;
+
 CREATE POLICY "Allow select for anon" ON users FOR SELECT USING (true);
-CREATE POLICY "Allow insert for anon" ON users FOR INSERT WITH CHECK (auth.role() = 'anon');
-CREATE POLICY "Allow update for anon" ON users FOR UPDATE USING (auth.role() = 'anon') WITH CHECK (auth.role() = 'anon');
-CREATE POLICY "Allow delete for anon" ON users FOR DELETE USING (auth.role() = 'anon');
+CREATE POLICY "Allow insert for anon" ON users FOR INSERT WITH CHECK ((select auth.role()) = 'anon');
+CREATE POLICY "Allow update for anon" ON users FOR UPDATE USING ((select auth.role()) = 'anon') WITH CHECK ((select auth.role()) = 'anon');
+CREATE POLICY "Allow delete for anon" ON users FOR DELETE USING ((select auth.role()) = 'anon');
