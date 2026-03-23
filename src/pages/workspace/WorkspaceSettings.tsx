@@ -26,6 +26,14 @@ export const WorkspaceSettings = () => {
     navigate('/');
   };
 
+  const getInputBorder = () => {
+    if (deleteInput === '') return '1px solid var(--ws-border)';
+    // If what they've typed so far matches the start of the workspace name, show green
+    if (activeWorkspaceName.startsWith(deleteInput)) return '2px solid #22c55e'; 
+    // Otherwise, they made a mistake
+    return '2px solid #ef4444'; 
+  };
+
   return (
     <div className="ws-settings-pro">
       <div className="ws-settings-pro-header">
@@ -132,8 +140,8 @@ export const WorkspaceSettings = () => {
             <div className="ws-delete-modal-content">
               <p>
                 {language === 'bn' 
-                  ? 'এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না। এটি স্থায়ীভাবে আপনার ওয়ার্কস্পেস এবং সমস্ত ডেটা মুছে ফেলবে।' 
-                  : 'This action cannot be undone. This will permanently delete your workspace.'}
+                  ? <>এই ওয়ার্কস্পেসের সবকিছু চিরতরে মুছে যাবে। এটি আর ফেরত পাওয়া যাবে না। পরে যদি ডাটা ফিরে পেতে চান, তবে আপনাকে আলাদাভাবে <span style={{ textDecoration: 'underline', textDecorationColor: '#ef4444' }}>অনেক ফি</span> দিতে হতে পারে।</>
+                  : <>Everything in this workspace will be deleted forever. You cannot undo this. If you want us to try and get your data back later, it will cost you <span style={{ textDecoration: 'underline', textDecorationColor: '#ef4444' }}>extra money</span>.</>}
               </p>
               <p>
                 {language === 'bn' ? 'নিশ্চিত করতে টাইপ করুন:' : 'Please type'} <strong>{activeWorkspaceName}</strong> {language === 'bn' ? '' : 'to confirm.'}
@@ -143,6 +151,8 @@ export const WorkspaceSettings = () => {
                 value={deleteInput}
                 onChange={(e) => setDeleteInput(e.target.value)}
                 className="ws-delete-input"
+                style={{ border: getInputBorder() }}
+                placeholder={language === 'bn' ? 'এখানে টাইপ করুন' : 'Type here...'}
               />
             </div>
 

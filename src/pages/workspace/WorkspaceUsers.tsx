@@ -35,7 +35,7 @@ export const WorkspaceUsers = () => {
   return (
     <div className="ws-overview">
       <div className="ws-header">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%' }}>
+        <div className="ws-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h1>{language === 'bn' ? 'সদস্য ডেটাবেস' : 'Member Database'}</h1>
             <p>{language === 'bn' ? 'আপনার বর্তমান ওয়ার্কস্পেসের সকল সদস্যদের তালিকা।' : 'Full list of members registered in your current workspace.'}</p>
@@ -47,22 +47,21 @@ export const WorkspaceUsers = () => {
       </div>
 
       {/* Search & Filters */}
-      <div className="ws-stat-card" style={{ marginBottom: '2rem', padding: '1rem 1.5rem' }}>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+      <div className="ws-search-bar" style={{ marginBottom: '1.5rem' }}>
+        <div className="ws-search-row" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <div style={{ position: 'relative', flex: 1 }}>
-            <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ws-text-muted)' }} />
+            <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ws-text-muted)' }} />
             <input 
               type="text" 
-              placeholder={language === 'bn' ? 'সদস্যের নাম বা আইডি দিয়ে খুঁজুন...' : 'Search by name or member ID...'}
-              className="admin-input-dark"
-              style={{ paddingLeft: '40px', width: '100%', background: 'rgba(255,255,255,0.03)' }}
+              placeholder={language === 'bn' ? 'খুঁজুন...' : 'Search...'}
+              className="ws-search-input"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button className="ws-badge" style={{ height: '44px', padding: '0 16px', background: 'rgba(255,255,255,0.05)', border: 'none', cursor: 'cursor' }}>
-            <Filter size={16} />
-            <span>{language === 'bn' ? 'ফিল্টার' : 'Filter'}</span>
+          <button className="ws-badge ws-filter-btn" style={{ padding: '0 12px', background: 'rgba(255,255,255,0.05)', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            <Filter size={14} />
+            <span style={{ fontSize: '0.8rem' }}>{language === 'bn' ? 'ফিল্টার' : 'Filter'}</span>
           </button>
         </div>
       </div>

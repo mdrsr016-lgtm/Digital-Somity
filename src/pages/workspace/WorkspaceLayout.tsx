@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import "../../styles/Workspace.css";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { supabase } from "../../utils/supabaseClient";
+import logoSvg from "../../assets/images/logo.svg";
 
 interface WorkspaceLayoutProps {
   // theme and toggleTheme reserved for future workspace theme support
@@ -110,7 +111,7 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: WorkspaceLayoutProps) =>
       <aside className={`workspace-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
         <div className="ws-brand">
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1 }}>
-            <div className="ws-logo">DS</div>
+            <img src={logoSvg} alt="Digital Somiti Logo" className="ws-logo" />
             <span className="ws-brand-name">Digital Somiti</span>
           </div>
           <button 
