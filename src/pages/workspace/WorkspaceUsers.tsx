@@ -9,11 +9,36 @@ export const WorkspaceUsers = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const workspaceId = activeUser?.workspaceId;
+
   useEffect(() => {
-    if (activeUser?.workspaceId) {
+    if (workspaceId) {
       fetchWorkspaceMembers();
+
+      // Real-time: Subscribe to member changes for this workspace
+      const membersSubscription = supabase
+        .channel(`members-realtime-${workspaceId}`)
+        .on('postgres_changes', 
+          { 
+            event: '*', 
+            schema: 'public',
+            table: 'users'
+          }, 
+          (payload) => {
+            console.log('Real-time Members RECEIVED:', payload);
+            fetchWorkspaceMembers();
+          }
+        )
+        .subscribe((status, err) => {
+          console.log('Members subscription status:', status);
+          if (err) console.error('Members subscription error:', err);
+        });
+
+      return () => {
+        supabase.removeChannel(membersSubscription);
+      };
     }
-  }, [activeUser]);
+  }, [workspaceId]);
 
   const fetchWorkspaceMembers = async () => {
     setLoading(true);

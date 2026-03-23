@@ -5,7 +5,7 @@ import "../../styles/Workspace.css";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { supabase } from "../../utils/supabaseClient";
 
-export const WorkspaceLayout = () => {
+export const WorkspaceLayout = ({ theme, toggleTheme }: { theme: 'light' | 'dark', toggleTheme: () => void }) => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
@@ -56,6 +56,25 @@ export const WorkspaceLayout = () => {
     };
 
     fetchWorkspaceData();
+
+    // Real-time: Multi-table subscription in a single channel
+    const workspaceChannel = supabase.channel('workspace-realtime-channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workspaces' }, (payload) => {
+        console.log('Real-time Workspace RECEIVED:', payload);
+        fetchWorkspaceData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, (payload) => {
+        console.log('Real-time User RECEIVED:', payload);
+        fetchWorkspaceData();
+      })
+      .subscribe((status, err) => {
+        console.log('Workspace realtime status:', status);
+        if (err) console.error('Workspace realtime error:', err);
+      });
+
+    return () => {
+      supabase.removeChannel(workspaceChannel);
+    };
   }, [navigate]);
 
   const handleLogout = () => {
@@ -165,7 +184,7 @@ export const WorkspaceLayout = () => {
         </header>
 
         <div className="ws-content-wrapper">
-          <Outlet context={{ activeUser, workspaces }} />
+          <Outlet context={{ activeUser, workspaces, theme, toggleTheme }} />
         </div>
       </main>
 

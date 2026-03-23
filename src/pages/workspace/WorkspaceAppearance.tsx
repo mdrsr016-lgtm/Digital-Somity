@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { ChevronLeft, Sun, Moon, Monitor, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, Sun, Moon, CheckCircle2 } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 
 export const WorkspaceAppearance = () => {
@@ -19,19 +19,13 @@ export const WorkspaceAppearance = () => {
       id: 'light', 
       name: language === 'bn' ? 'লাইট' : 'Light', 
       icon: <Sun size={24} />,
-      desc: language === 'bn' ? 'উজ্বল ইন্টারফেস' : 'Classic bright interface'
+      desc: language === 'bn' ? ' উজ্বল ইন্টারফেস' : 'Classic bright interface'
     },
     { 
       id: 'dark', 
       name: language === 'bn' ? 'ডার্ক' : 'Dark', 
       icon: <Moon size={24} />,
       desc: language === 'bn' ? 'চোখের জন্য আরামদায়ক' : 'Easier on the eyes'
-    },
-    { 
-      id: 'system', 
-      name: language === 'bn' ? 'সিস্টেম' : 'System', 
-      icon: <Monitor size={24} />,
-      desc: language === 'bn' ? 'ডিভাইসের সাথে মিলবে' : 'Match device settings'
     }
   ];
 
@@ -62,13 +56,14 @@ export const WorkspaceAppearance = () => {
                   <div className={`ws-theme-mockup ${t.id}`}>
                     <div className="ws-mock-header"></div>
                     <div className="ws-mock-content">
+                      <div className="ws-mock-line accent"></div>
                       <div className="ws-mock-line"></div>
                       <div className="ws-mock-line short"></div>
                     </div>
                   </div>
                   {theme === t.id && (
                     <div className="ws-theme-check">
-                      <CheckCircle2 size={20} />
+                      <CheckCircle2 size={18} />
                     </div>
                   )}
                 </div>
@@ -83,15 +78,56 @@ export const WorkspaceAppearance = () => {
             ))}
           </div>
 
-          <div className="ws-settings-group" style={{ marginTop: '2rem' }}>
-            <div className="ws-settings-item">
-              <div className="ws-settings-info">
+          <div className="ws-settings-group" style={{ marginTop: '1.5rem' }}>
+            <div className="ws-settings-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '1.25rem' }}>
+              <div className="ws-settings-info" style={{ width: '100%', justifyContent: 'space-between' }}>
                 <div className="ws-settings-text">
-                  <h3>{language === 'bn' ? 'ফন্ট সাইজ' : 'Font Size'}</h3>
-                  <p>{language === 'bn' ? 'পরবর্তীতে ফিচারটি যোগ করা হবে' : 'Coming soon in future updates'}</p>
+                  <h3 style={{ fontSize: '1.1rem' }}>{language === 'bn' ? 'ফন্ট সাইজ' : 'Font Size'}</h3>
+                  <p>{language === 'bn' ? 'লেখার আকার পরিবর্তন করুন' : 'Adjust the text size for the interface'}</p>
+                </div>
+                <span className="ws-badge-small" style={{ opacity: 0.6 }}>{language === 'bn' ? 'শীঘ্রই' : 'Soon'}</span>
+              </div>
+              
+              <div style={{ width: '100%', padding: '0 0.5rem' }}>
+                <div style={{ 
+                  height: '6px', 
+                  background: 'rgba(255, 255, 255, 0.05)', 
+                  borderRadius: '100px', 
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}>
+                  <div style={{ 
+                    width: '40%', 
+                    height: '100%', 
+                    background: 'var(--ws-violet)', 
+                    borderRadius: '100px',
+                    opacity: 0.3
+                  }}></div>
+                  <div style={{ 
+                    width: '18px', 
+                    height: '18px', 
+                    background: '#fff', 
+                    borderRadius: '50%', 
+                    position: 'absolute',
+                    left: '40%',
+                    transform: 'translateX(-50%)',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+                    cursor: 'not-allowed'
+                  }}></div>
+                </div>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  marginTop: '0.75rem',
+                  fontSize: '0.75rem',
+                  color: 'var(--ws-text-muted)',
+                  fontWeight: 600
+                }}>
+                  <span>A</span>
+                  <span style={{ fontSize: '1rem' }}>A</span>
                 </div>
               </div>
-              <span className="ws-badge-small">{language === 'bn' ? 'শীঘ্রই' : 'Soon'}</span>
             </div>
           </div>
         </div>

@@ -40,8 +40,12 @@ function App() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  const toggleTheme = (newTheme?: 'light' | 'dark') => {
+    if (newTheme) {
+      setTheme(newTheme);
+    } else {
+      setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    }
   };
 
   return (
@@ -68,7 +72,7 @@ function App() {
           <Route path="settings" element={<AdminSettings />} />
         </Route>
 
-        <Route path="/workspace" element={<WorkspaceLayout />}>
+        <Route path="/workspace" element={<WorkspaceLayout theme={theme} toggleTheme={toggleTheme} />}>
           <Route index element={<WorkspaceOverview />} />
           <Route path="details" element={<WorkspaceDetails />} />
           <Route path="notifications" element={<WorkspaceNotifications />} />
