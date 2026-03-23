@@ -41,29 +41,27 @@ export const WorkspaceUsers = () => {
             <p>{language === 'bn' ? 'আপনার বর্তমান ওয়ার্কস্পেসের সকল সদস্যদের তালিকা।' : 'Full list of members registered in your current workspace.'}</p>
           </div>
           <div className="ws-badge" style={{ marginBottom: '10px' }}>
-            {workspaceMembers.length} {language === 'bn' ? 'সদস্য পাওয়া গেছে' : 'Members Found'}
+            {workspaceMembers.length} {language === 'bn' ? (workspaceMembers.length === 1 ? 'জন সদস্য' : 'জন সদস্য') : (workspaceMembers.length === 1 ? 'Member' : 'Members')}
           </div>
         </div>
       </div>
 
       {/* Search & Filters */}
-      <div className="ws-search-bar" style={{ marginBottom: '1.5rem' }}>
-        <div className="ws-search-row" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <div style={{ position: 'relative', flex: 1 }}>
-            <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ws-text-muted)' }} />
-            <input 
-              type="text" 
-              placeholder={language === 'bn' ? 'খুঁজুন...' : 'Search...'}
-              className="ws-search-input"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <button className="ws-badge ws-filter-btn" style={{ padding: '0 12px', background: 'rgba(255,255,255,0.05)', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-            <Filter size={14} />
-            <span style={{ fontSize: '0.8rem' }}>{language === 'bn' ? 'ফিল্টার' : 'Filter'}</span>
-          </button>
+      <div className="ws-search-row" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <div className="ws-search-bar" style={{ position: 'relative', flex: 1 }}>
+          <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ws-text-muted)' }} />
+          <input 
+            type="text" 
+            placeholder={language === 'bn' ? 'খুঁজুন...' : 'Search...'}
+            className="ws-search-input"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
+        <button className="ws-badge ws-filter-btn" style={{ padding: '0 12px', background: 'rgba(255,255,255,0.05)', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+          <Filter size={14} />
+          <span style={{ fontSize: '0.8rem' }}>{language === 'bn' ? 'ফিল্টার' : 'Filter'}</span>
+        </button>
       </div>
 
       {/* Members Grid/List */}
@@ -71,7 +69,7 @@ export const WorkspaceUsers = () => {
         variants={container}
         initial="hidden"
         animate="show"
-        style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}
+        className="ws-members-grid"
       >
         {workspaceMembers.map((member: any) => (
           <motion.div 
@@ -80,44 +78,44 @@ export const WorkspaceUsers = () => {
             className="ws-stat-card"
             style={{ padding: '1.5rem', position: 'relative' }}
           >
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-              <div className="ws-avatar" style={{ width: '56px', height: '56px', fontSize: '1.25rem', flexShrink: 0 }}>
+            <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
+              <div className="ws-avatar">
                 {member.initial}
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <h3 style={{ margin: '0 0 4px 0', fontSize: '1.1rem' }}>{member.name}</h3>
-                  <button style={{ background: 'none', border: 'none', color: 'var(--ws-text-muted)', cursor: 'pointer' }}>
+                  <h3 style={{ margin: '0 0 4px 0', fontSize: '1.05rem', fontWeight: '700' }}>{member.name}</h3>
+                  <button style={{ background: 'none', border: 'none', color: 'var(--ws-text-muted)', cursor: 'pointer', padding: '4px' }}>
                     <MoreVertical size={18} />
                   </button>
                 </div>
-                <p style={{ margin: '0 0 12px 0', color: 'var(--ws-violet)', fontWeight: '600', fontSize: '0.85rem' }}>
+                <p style={{ margin: '0 0 12px 0', color: 'var(--ws-violet)', fontWeight: '700', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
                   {language === 'bn' ? member.roleBn : member.roleEn}
                 </p>
                 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--ws-text-muted)' }}>
-                    <Shield size={14} />
-                    <span>ID: {member.id}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.8rem', color: 'var(--ws-text-muted)' }}>
+                    <Shield size={14} style={{ color: 'var(--ws-violet)', opacity: 0.8 }} />
+                    <span style={{ fontFamily: 'Questrial, sans-serif' }}>ID: {member.id}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--ws-text-muted)' }}>
-                    <Mail size={14} />
-                    <span>{member.email || (member.name.toLowerCase().replace(/\s+/g, '.') + "@somiti.com")}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.8rem', color: 'var(--ws-text-muted)' }}>
+                    <Mail size={14} style={{ color: 'var(--ws-violet)', opacity: 0.8 }} />
+                    <span style={{ fontFamily: 'Questrial, sans-serif' }}>{member.email || (member.name.toLowerCase().replace(/\s+/g, '.') + "@somiti.com")}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--ws-text-muted)' }}>
-                    <Phone size={14} />
-                    <span>{member.phone || "+880 1XXX-XXXXXX"}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.8rem', color: 'var(--ws-text-muted)' }}>
+                    <Phone size={14} style={{ color: 'var(--ws-violet)', opacity: 0.8 }} />
+                    <span style={{ fontFamily: 'Questrial, sans-serif' }}>{member.phone || "+880 1XXX-XXXXXX"}</span>
                   </div>
                 </div>
               </div>
             </div>
             
-            <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div className={`ws-stat-trend ${member.status?.toLowerCase() === 'active' ? 'up' : 'neutral'}`} style={{ margin: 0 }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: member.status?.toLowerCase() === 'active' ? 'var(--ws-lime)' : '#666', marginRight: '6px' }}></span>
-                {member.status ? (member.status.charAt(0).toUpperCase() + member.status.slice(1)) : 'Unknown'}
+            <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--ws-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className={`ws-status-badge ${member.status?.toLowerCase() === 'active' ? 'active' : 'offline'}`}>
+                <span className="dot"></span>
+                {member.status?.toLowerCase() === 'active' ? (language === 'bn' ? 'অনলাইন' : 'Online') : (language === 'bn' ? 'অফলাইন' : 'Offline')}
               </div>
-              <button className="admin-btn-text" style={{ fontSize: '0.8rem', color: 'var(--ws-lime)' }}>
+              <button className="admin-btn-text" style={{ fontSize: '0.85rem', color: 'var(--ws-lime)', fontWeight: '700', padding: '4px 8px' }}>
                 {language === 'bn' ? 'বিস্তারিত' : 'View Details'}
               </button>
             </div>
