@@ -319,20 +319,11 @@
   100% { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes wsFadeDown {
-  0% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(20px); }
-}
-
 @keyframes wsSlideUpFade {
   0% { opacity: 0; transform: translateY(30px); }
   100% { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes wsSlideDownFade {
-  0% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(30px); }
-}
 
 @keyframes wsSlideInRight {
   0% { opacity: 0; transform: translateX(100%); }
@@ -463,34 +454,6 @@
   animation: wsFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
 }
 
-/* Exiting Animations */
-.ws-overview-page.is-exiting .ws-hero-date {
-  animation: wsFadeDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.ws-overview-page.is-exiting .ws-hero-greeting {
-  animation: wsFadeDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
-}
-
-.ws-overview-page.is-exiting .ws-hero-desc {
-  animation: wsFadeDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
-}
-
-.ws-overview-page.is-exiting .ws-hero-clock-container {
-  animation: wsFadeDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
-}
-
-.ws-overview-page.is-exiting .ws-hero-version {
-  animation: wsFadeDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
-}
-
-.ws-overview-page.is-exiting .ws-stat-card:nth-child(1) {
-  animation: wsFadeDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards;
-}
-
-.ws-overview-page.is-exiting .ws-stat-card:nth-child(2) {
-  animation: wsFadeDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
-}
 
 .ws-stat-card:hover {
   transform: translateY(-4px);
@@ -606,19 +569,6 @@
 .ws-users-page .ws-member-cards-grid {
   opacity: 0;
   animation: wsSlideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
-}
-
-/* Members Page Exiting Animations */
-.ws-users-page.is-exiting .ws-controls-top {
-  animation: wsSlideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.ws-users-page.is-exiting .ws-search-bar-row {
-  animation: wsSlideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
-}
-
-.ws-users-page.is-exiting .ws-member-cards-grid {
-  animation: wsSlideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
 }
 
 .ws-members-grid {

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Users, Wallet, TrendingUp } from "lucide-react";
 
 export const WorkspaceOverview = () => {
-  const { activeUser, workspaces, isExiting } = useOutletContext<any>();
+  const { activeUser, workspaces } = useOutletContext<any>();
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export const WorkspaceOverview = () => {
   const activeWorkspaceName = workspaces?.find((w: any) => w.id === activeUser?.workspaceId)?.name || 'workspace';
 
   return (
-    <div className={`ws-page-width ws-overview-page ${isExiting ? 'is-exiting' : ''}`}>
+    <div className="ws-page-width ws-overview-page">
       <div className="ws-overview-hero">
         <div className="ws-hero-date">{formatDate(time)}</div>
         <h1 className="ws-hero-greeting">

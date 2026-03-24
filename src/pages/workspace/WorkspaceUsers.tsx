@@ -4,7 +4,7 @@ import { Search, Filter, ArrowUpDown, SortAsc, SortDesc, UserPlus, Phone, Calend
 import { supabase } from "../../utils/supabaseClient";
 
 export const WorkspaceUsers = () => {
-  const { activeUser, isExiting } = useOutletContext<any>();
+  const { activeUser } = useOutletContext<any>();
   const [users, setUsers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -78,7 +78,7 @@ export const WorkspaceUsers = () => {
   };
 
   return (
-    <div className={`ws-page-width ws-users-page ${isExiting ? 'is-exiting' : ''}`}>
+    <div className="ws-page-width ws-users-page">
 
       <div className="ws-controls-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', width: '100%' }}>
         <div className="ws-member-badge-wrapper">
