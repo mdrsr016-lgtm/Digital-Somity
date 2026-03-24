@@ -2404,6 +2404,38 @@
   outline: none !important;
 }
 
+.ws-custom-select {
+  width: 100%;
+  padding: 12px 14px 12px 44px;
+  background: var(--ws-input-bg, rgba(255,255,255,0.06));
+  border: 1px solid var(--ws-border);
+  border-radius: 12px;
+  color: var(--ws-text);
+  font-size: var(--fs-body);
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  cursor: pointer;
+  min-height: 45px;
+  box-sizing: border-box;
+}
+
+.ws-custom-select.active {
+  border-color: var(--ws-violet) !important;
+  box-shadow: 0 0 0 1px var(--ws-violet) !important;
+}
+
+/* Chrome Autofill Consistency Fix */
+.ws-input-wrapper > input:-webkit-autofill,
+.ws-input-wrapper > input:-webkit-autofill:hover, 
+.ws-input-wrapper > input:-webkit-autofill:focus, 
+.ws-input-wrapper > input:-webkit-autofill:active {
+  transition: background-color 5000s ease-in-out 0s;
+  -webkit-text-fill-color: var(--ws-text) !important;
+}
+
 /* ── Form Row Responsive Grid ─────────────────────────────── */
 .ws-form-row {
   display: grid;

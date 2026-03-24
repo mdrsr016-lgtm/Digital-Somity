@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
-import { UserPlus, Phone, Shield, Loader2, CheckCircle2, ArrowLeft, Eye, EyeOff, Info, Lock, ChevronDown, Copy, Download, Share2 } from "lucide-react";
+import { UserPlus, Phone, Loader2, CheckCircle2, ArrowLeft, Eye, EyeOff, Info, Lock, ChevronDown, Copy, Download, Share2, Briefcase, Hash } from "lucide-react";
 import { supabase } from "../../utils/supabaseClient";
+import html2canvas from "html2canvas";
 
 export const WorkspaceSettings = () => {
   const { activeUser, workspaces } = useOutletContext<any>();
@@ -9,6 +10,7 @@ export const WorkspaceSettings = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const activeWorkspaceName = workspaces?.find((w: any) => w.id === activeUser?.workspaceId)?.name || 'General Workspace';
 
@@ -23,6 +25,19 @@ export const WorkspaceSettings = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const [showRoleInfo, setShowRoleInfo] = useState(false);
+  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
+  const roleDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Click away for custom dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (roleDropdownRef.current && !roleDropdownRef.current.contains(event.target as Node)) {
+        setShowRoleDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const roleInfo: Record<string, string> = {
     'Member': 'Standard user with access to workspace tools and their own records.',
@@ -129,41 +144,75 @@ export const WorkspaceSettings = () => {
     }
   };
 
-  const downloadCredentials = () => {
-    const content = `Workspace: ${activeWorkspaceName}\nMember: ${formData.name}\nID: ${formData.login_id}\nTemporary Password: ${formData.password}\n\nPlease change your password after your first login.`;
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${formData.name.replace(/\s+/g, '_')}_credentials.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const downloadCredentials = async () => {
+    if (!cardRef.current) return;
+    try {
+      const canvas = await html2canvas(cardRef.current, {
+        backgroundColor: '#0e0e12',
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+
+      const fileName = `${formData.name.replace(/\s+/g, '_') || 'credentials'}.png`;
+      const url = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+    } catch (err) {
+      console.error('Error generating image:', err);
+    }
   };
 
   const shareCredentials = async () => {
-    const text = `Member ID: ${formData.login_id}\nPassword: ${formData.password}\nWorkspace: ${activeWorkspaceName}`;
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Member Credentials',
-          text: text,
-        });
-      } catch (err) {
-        console.error("Error sharing:", err);
-      }
-    } else {
-      copyToClipboard(text, 'share-toast');
+    if (!cardRef.current) return;
+    try {
+      const canvas = await html2canvas(cardRef.current, {
+        backgroundColor: '#0e0e12',
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+
+      const fileName = `${formData.name.replace(/\s+/g, '_') || 'credentials'}.png`;
+
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const file = new File([blob], fileName, { type: 'image/png' });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              title: 'Member Credentials',
+              files: [file],
+            });
+          } catch (err) {
+            console.error('Error sharing:', err);
+          }
+        } else {
+          // Fallback: trigger download if share-with-files not supported
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          a.click();
+          URL.revokeObjectURL(url);
+        }
+      }, 'image/png');
+    } catch (err) {
+      console.error('Error generating image:', err);
     }
   };
 
   if (success) {
     return (
-      <div className="ws-page-width ws-users-page ws-animate-slide-down" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '65vh', padding: '1rem' }}>
-        <div className="ws-form-card" style={{ maxWidth: '480px', width: '100%', textAlign: 'center', padding: '4rem 2.5rem', position: 'relative' }}>
+      <div className="ws-page-width ws-users-page ws-animate-slide-down" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '65vh', padding: '1.5rem 1rem' }}>
+        <div ref={cardRef} className="ws-form-card" style={{ maxWidth: '480px', width: '100%', textAlign: 'center', padding: '3rem 2.5rem', position: 'relative' }}>
           
           <div className="ws-brand-tag" style={{ marginBottom: '0.75rem', display: 'flex', justifyContent: 'center' }}>
             <div className="ws-workspace-badge">
-              <span className="ws-workspace-name" style={{ fontSize: '1.9rem', fontWeight: 900, letterSpacing: '-0.03em' }}>
+              <span className="ws-workspace-name" style={{ fontSize: '2.1rem', fontWeight: 900, letterSpacing: '-0.04em' }}>
                 <span className="ws-name-first" style={{ color: '#10b981' }}>{activeWorkspaceName.split(' ')[0]}</span>
                 {activeWorkspaceName.includes(' ') && ( activeWorkspaceName.split(' ').slice(1).join(' ') !== '' && (
                   <span className="ws-name-rest" style={{ color: '#fff' }}>{' ' + activeWorkspaceName.split(' ').slice(1).join(' ')}</span>
@@ -172,32 +221,35 @@ export const WorkspaceSettings = () => {
             </div>
           </div>
 
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.25rem', color: '#fff', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <h2 style={{ fontSize: '1.65rem', fontWeight: 800, marginBottom: '0.35rem', color: '#fff', letterSpacing: '-0.025em', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
             User Created!
-            <CheckCircle2 size={22} color="var(--ws-violet)" strokeWidth={2.5} />
+            <CheckCircle2 size={24} color="var(--ws-violet)" strokeWidth={2.5} />
           </h2>
-          <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.85rem', marginBottom: '2rem', fontWeight: 500 }}>
-            <strong style={{ color: 'var(--ws-violet)' }}>{formData.name}</strong> is now a member of <strong style={{ color: '#fff' }}>{activeWorkspaceName}</strong>.
+          <p style={{ color: 'rgba(255, 255, 255, 0.65)', fontSize: '0.9rem', marginBottom: '1.75rem', fontWeight: 500, lineHeight: '1.5' }}>
+            <strong style={{ color: 'var(--ws-violet)' }}>{formData.name}</strong> is now a <strong style={{ color: 'var(--ws-violet)' }}>{formData.role}</strong> of <strong style={{ color: '#fff' }}>{activeWorkspaceName}</strong>.
           </p>
 
-          <div className="ws-credentials-box" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--ws-border)', borderRadius: '28px', padding: '1.75rem', marginBottom: '1.5rem', textAlign: 'left', position: 'relative' }}>
-            <div className="ws-cred-item" style={{ marginBottom: '1.5rem' }}>
+          <div className="ws-credentials-box" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--ws-border)', borderRadius: '20px', padding: '1.5rem 1.75rem', marginBottom: '1.25rem', textAlign: 'left', position: 'relative' }}>
+            <div className="ws-cred-item" style={{ marginBottom: '1.25rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--ws-violet)', letterSpacing: '0.1em', opacity: 0.8 }}>Member ID</label>
+                <label style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--ws-violet)', letterSpacing: '0.12em', opacity: 0.7 }}>User ID</label>
               </div>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: '#0a0a0a', padding: '14px 18px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <input readOnly value={formData.login_id} style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: '1.2rem', fontWeight: 800, padding: 0, fontFamily: 'monospace' }} />
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: '#0a0a0a', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <input readOnly value={formData.login_id} style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: '1.3rem', fontWeight: 900, padding: 0, fontFamily: 'monospace', letterSpacing: '0.05em' }} />
               </div>
             </div>
 
             <div className="ws-cred-item">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--ws-violet)', letterSpacing: '0.1em', opacity: 0.8 }}>Temporary Password</label>
+                <label style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--ws-violet)', letterSpacing: '0.12em', opacity: 0.7 }}>User Password</label>
               </div>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: '#0a0a0a', padding: '14px 18px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <input readOnly value={formData.password} style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: '1.2rem', fontWeight: 800, padding: 0, fontFamily: 'monospace' }} />
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: '#0a0a0a', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <input readOnly value={formData.password} style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: '1.3rem', fontWeight: 900, padding: 0, fontFamily: 'monospace', letterSpacing: '0.04em' }} />
               </div>
             </div>
+          </div>
+          <div style={{ marginTop: '0.1rem', opacity: 0.4, fontSize: '0.75rem', fontWeight: 600, color: '#fff', letterSpacing: '0.02em' }}>
+            Thank you for being with us!
           </div>
         </div>
 
@@ -238,7 +290,7 @@ export const WorkspaceSettings = () => {
           </button>
 
           <button 
-            onClick={() => copyToClipboard(`ID: ${formData.login_id}\nPassword: ${formData.password}`, 'card-copy-toast')}
+            onClick={() => copyToClipboard(`User Id       : ${formData.login_id}\nUser Password : ${formData.password}`, 'card-copy-toast')}
             style={{ width: '50px', height: '50px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--ws-border)', borderRadius: '16px', color: 'var(--ws-violet)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' }}
           >
             <Copy size={20} />
@@ -265,14 +317,14 @@ export const WorkspaceSettings = () => {
   }
 
   return (
-    <div className="ws-page-width ws-users-page ws-overview-page ws-animate-slide-down">
+    <div className="ws-page-width ws-users-page ws-overview-page ws-animate-slide-down" style={{ marginTop: '-0.75rem' }}>
       {/* Header Section: Perfectly Symmetrical 3-Col Grid */}
       <div style={{ 
         display: 'grid', 
         gridTemplateColumns: 'minmax(42px, 1fr) auto minmax(42px, 1fr)', 
         alignItems: 'center', 
-        marginBottom: '2rem',
-        paddingTop: '0.5rem',
+        marginBottom: '0.75rem',
+        paddingTop: '0rem',
         width: '100%',
         position: 'relative'
       }}>
@@ -306,12 +358,12 @@ export const WorkspaceSettings = () => {
 
         <h1 style={{ 
           fontWeight: 900, 
-          fontSize: 'var(--fs-h2)', 
+          fontSize: '1.6rem', 
           margin: 0, 
           background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
-          letterSpacing: '-0.02em',
+          letterSpacing: '-0.03em',
           textAlign: 'center',
           whiteSpace: 'nowrap'
         }}>
@@ -321,14 +373,14 @@ export const WorkspaceSettings = () => {
         <div aria-hidden="true" /> {/* Balancing Spacer */}
       </div>
 
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <p style={{ 
           color: 'var(--ws-text-muted)', 
-          fontSize: 'var(--fs-body)', 
-          maxWidth: '540px', 
+          fontSize: '0.88rem', 
+          maxWidth: '480px', 
           margin: '0 auto',
-          lineHeight: '1.6',
-          opacity: 0.8
+          lineHeight: '1.65',
+          opacity: 0.9
         }}>
           Completely fill out the details below to securely register a new member or investor into your workspace database.
         </p>
@@ -343,11 +395,11 @@ export const WorkspaceSettings = () => {
           <div className="ws-input-group">
             <label style={{ 
               fontWeight: 700, 
-              fontSize: '11px', 
+              fontSize: '10.5px', 
               color: 'var(--ws-text-muted)', 
               textTransform: 'uppercase', 
-              letterSpacing: '0.1em', 
-              marginBottom: '10px', 
+              letterSpacing: '0.12em', 
+              marginBottom: '2px', 
               display: 'block'
             }}>
               Full Name <span style={{ color: '#ef4444' }}>*</span>
@@ -369,11 +421,11 @@ export const WorkspaceSettings = () => {
           <div className="ws-input-group">
             <label style={{ 
               fontWeight: 700, 
-              fontSize: '11px', 
+              fontSize: '10.5px', 
               color: 'var(--ws-text-muted)', 
               textTransform: 'uppercase', 
-              letterSpacing: '0.1em', 
-              marginBottom: '10px', 
+              letterSpacing: '0.12em', 
+              marginBottom: '2px', 
               display: 'flex',
               alignItems: 'center',
               gap: '6px'
@@ -425,33 +477,79 @@ export const WorkspaceSettings = () => {
                 )}
               </div>
             </label>
-            <div className="ws-input-wrapper">
-              <Shield size={17} style={{ color: 'var(--ws-violet)' }} />
-              <select 
-                name="role" 
-                value={formData.role} 
-                onChange={handleChange}
-                style={{ cursor: 'pointer', paddingRight: '32px', colorScheme: 'dark' }}
+            <div className="ws-input-wrapper" ref={roleDropdownRef}>
+              <Briefcase size={17} style={{ color: 'var(--ws-violet)', zIndex: 1 }} />
+              <div 
+                className={`ws-custom-select ${showRoleDropdown ? 'active' : ''}`}
+                onClick={() => setShowRoleDropdown(!showRoleDropdown)}
+                style={{ paddingRight: '14px' }}
               >
-                {roles.map(role => (
-                  <option 
-                    key={role.id} 
-                    value={role.name}
-                    style={{ background: '#0a0a0a', color: '#fff' }}
-                  >
-                    {role.name}
-                  </option>
-                ))}
-              </select>
+                {formData.role}
+              </div>
+              
               <ChevronDown 
                 size={16} 
                 style={{ 
-                  position: 'absolute', 
-                  right: '14px', 
                   color: 'var(--ws-text-muted)',
-                  pointerEvents: 'none' 
+                  transform: showRoleDropdown ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.2s ease'
                 }} 
               />
+
+              {/* Custom Dropdown Menu */}
+              {showRoleDropdown && (
+                <div style={{
+                  position: 'absolute',
+                  top: 'calc(100% + 8px)',
+                  left: 0,
+                  width: '100%',
+                  background: 'rgba(15,15,20,0.98)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '12px',
+                  padding: '8px',
+                  zIndex: 200,
+                  boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+                  animation: 'ws-fade-in 0.15s ease-out',
+                  overflow: 'hidden'
+                }}>
+                  {roles.map(role => (
+                    <div
+                      key={role.id}
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, role: role.name }));
+                        setShowRoleDropdown(false);
+                      }}
+                      style={{
+                        padding: '12px 16px',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        fontSize: '0.9rem',
+                        color: formData.role === role.name ? 'var(--ws-violet)' : '#fff',
+                        background: formData.role === role.name ? 'rgba(124, 58, 237, 0.1)' : 'transparent',
+                        transition: 'all 0.2s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        fontWeight: formData.role === role.name ? 700 : 500
+                      }}
+                      onMouseOver={(e) => {
+                        if (formData.role !== role.name) {
+                          e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                        }
+                      }}
+                      onMouseOut={(e) => {
+                        if (formData.role !== role.name) {
+                          e.currentTarget.style.background = 'transparent';
+                        }
+                      }}
+                    >
+                      {role.name}
+                      {formData.role === role.name && <CheckCircle2 size={14} />}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -459,11 +557,11 @@ export const WorkspaceSettings = () => {
           <div className="ws-input-group">
             <label style={{ 
               fontWeight: 700, 
-              fontSize: '11px', 
+              fontSize: '10.5px', 
               color: 'var(--ws-text-muted)', 
               textTransform: 'uppercase', 
-              letterSpacing: '0.1em', 
-              marginBottom: '10px', 
+              letterSpacing: '0.12em', 
+              marginBottom: '2px', 
               display: 'block'
             }}>
               Phone <span style={{ color: '#ef4444' }}>*</span>
@@ -485,17 +583,17 @@ export const WorkspaceSettings = () => {
           <div className="ws-input-group" style={{ opacity: isOwner ? 1 : 0.7 }}>
             <label style={{ 
               fontWeight: 700, 
-              fontSize: '11px', 
+              fontSize: '10.5px', 
               color: 'var(--ws-text-muted)', 
               textTransform: 'uppercase', 
-              letterSpacing: '0.1em', 
-              marginBottom: '10px', 
+              letterSpacing: '0.12em', 
+              marginBottom: '2px', 
               display: 'block'
             }}>
               User ID <span style={{ color: '#ef4444' }}>*</span> {!isOwner && <span style={{ fontSize: '9px', textTransform: 'none', marginLeft: '4px', background: 'rgba(124,58,237,0.1)', padding: '2px 6px', borderRadius: '4px' }}>Locked</span>}
             </label>
             <div className="ws-input-wrapper">
-              <Shield size={17} style={{ color: 'var(--ws-violet)' }} />
+              <Hash size={17} style={{ color: 'var(--ws-violet)' }} />
               <input
                 type="text"
                 name="login_id"
@@ -513,11 +611,11 @@ export const WorkspaceSettings = () => {
           <div className="ws-input-group">
             <label style={{ 
               fontWeight: 700, 
-              fontSize: '11px', 
+              fontSize: '10.5px', 
               color: 'var(--ws-text-muted)', 
               textTransform: 'uppercase', 
-              letterSpacing: '0.1em', 
-              marginBottom: '10px', 
+              letterSpacing: '0.12em', 
+              marginBottom: '2px', 
               display: 'block'
             }}>
               Password <span style={{ color: '#ef4444' }}>*</span>
@@ -575,40 +673,35 @@ export const WorkspaceSettings = () => {
         )}
 
         {/* Submit */}
-        <div style={{ marginTop: '1rem' }}>
+        <div style={{ marginTop: '1.25rem' }}>
           <button
             type="submit"
             disabled={loading}
             style={{
               width: '100%',
-              height: '56px',
-              borderRadius: '16px',
-              fontSize: '1.05rem',
-              fontWeight: 800,
+              height: '52px',
+              borderRadius: '12px',
+              fontSize: '0.95rem',
+              fontWeight: 700,
               border: 'none',
               cursor: loading ? 'not-allowed' : 'pointer',
-              background: loading
-                ? 'rgba(124,58,237,0.4)'
-                : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #4f46e5 100%)',
+              background: loading ? 'rgba(124,58,237,0.4)' : 'var(--ws-violet)',
               color: '#fff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '12px',
-              letterSpacing: '-0.01em',
-              boxShadow: loading ? 'none' : '0 10px 30px rgba(124,58,237,0.4)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              gap: '10px',
+              letterSpacing: '0.01em',
+              transition: 'all 0.2s ease',
               opacity: loading ? 0.7 : 1,
             }}
             onMouseEnter={e => {
               if (!loading) {
-                (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-3px) scale(1.02)';
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 15px 40px rgba(124,58,237,0.5)';
+                (e.currentTarget as HTMLButtonElement).style.filter = 'brightness(1.1)';
               }
             }}
             onMouseLeave={e => {
-              (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0) scale(1)';
-              (e.currentTarget as HTMLButtonElement).style.boxShadow = loading ? 'none' : '0 10px 30px rgba(124,58,237,0.4)';
+              (e.currentTarget as HTMLButtonElement).style.filter = 'brightness(1)';
             }}
           >
             {loading ? (
