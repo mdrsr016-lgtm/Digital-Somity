@@ -2068,8 +2068,8 @@
 /* ─── Member Cards Based on p card.dio ─── */
 .ws-member-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
   width: 100%;
 }
 
@@ -2077,10 +2077,10 @@
   background: var(--ws-card);
   border: 1px solid var(--ws-border);
   border-radius: 12px;
-  padding: 16px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   transition: all 0.2s ease;
 }
 
@@ -2093,22 +2093,22 @@
 .ws-member-top {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 10px;
   position: relative;
 }
 
 .ws-member-avatar-v2 {
-  width: 64px;
-  height: 64px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.15rem;
   font-weight: 800;
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
   flex-shrink: 0;
 }
 
@@ -2123,11 +2123,11 @@
 .ws-member-name-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .ws-member-name-v2 {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--ws-text);
   line-height: 1.2;
@@ -2162,20 +2162,20 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .ws-member-details-col {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .ws-detail-line {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.8rem;
+  gap: 6px;
+  font-size: 0.75rem;
   color: var(--ws-text-muted);
 }
 
@@ -2183,8 +2183,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--ws-border);
   border-radius: 4px;
@@ -2194,16 +2194,16 @@
 .ws-member-actions-col {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .ws-action-btn-main {
   background: transparent;
   border: 1px solid var(--ws-border);
   color: var(--ws-text);
-  padding: 6px 16px;
+  padding: 4px 12px;
   border-radius: 6px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -2220,9 +2220,9 @@
   background: transparent;
   border: 1px solid var(--ws-border);
   color: var(--ws-text);
-  padding: 6px 16px;
+  padding: 4px 12px;
   border-radius: 6px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -2236,11 +2236,11 @@
 /* Response Grid Adjustments for Mobile */
 @media (max-width: 600px) {
   .ws-member-cards-grid {
-    grid-template-columns: 1fr; /* Switch to 1 column on mobile to preserve diagram layout perfectly */
+    grid-template-columns: 1fr;
   }
 
   .ws-member-card-v2 {
-    padding: 14px;
-    gap: 12px;
+    padding: 12px;
+    gap: 10px;
   }
 }
