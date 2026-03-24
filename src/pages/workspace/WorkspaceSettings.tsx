@@ -98,7 +98,7 @@ export const WorkspaceSettings = () => {
           }}
         >
           <ArrowLeft size={16} />
-          <span>Back</span>
+          <span>back</span>
         </button>
       </div>
 
