@@ -221,12 +221,14 @@ export const WorkspaceUsers = () => {
                 
                 <div className="ws-member-info-col">
                   <div className="ws-member-name-v2">{user.name}</div>
-                  <div className="ws-member-role-v2">{user.role || 'Member'}</div>
+                  <div className="ws-member-role-row">
+                    <div className="ws-member-role-v2">{user.role || 'Member'}</div>
+                    <div className="ws-member-handle-v2">@{user.login_id || user.id?.slice(0, 8)}</div>
+                  </div>
                 </div>
 
                 <div className="ws-member-corner">
                   <div className="ws-status-indicator" />
-                  <div className="ws-member-handle-v2">@{user.login_id || user.id?.slice(0, 8)}</div>
                 </div>
               </div>
 

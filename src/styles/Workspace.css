@@ -2127,6 +2127,13 @@
   line-height: 1.2;
 }
 
+.ws-member-role-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
 .ws-member-role-v2 {
   font-size: 0.75rem;
   color: var(--ws-text);
@@ -2135,7 +2142,6 @@
   padding: 2px 8px;
   border-radius: 4px;
   width: fit-content;
-  margin-top: 2px;
   font-weight: 600;
 }
 
