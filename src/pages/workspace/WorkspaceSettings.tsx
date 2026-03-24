@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
-import { UserPlus, Phone, Loader2, CheckCircle2, ArrowLeft, Eye, EyeOff, Info, Lock, ChevronDown, Copy, Download, Share2, Briefcase, Hash } from "lucide-react";
+import { UserPlus, Phone, Loader2, CheckCircle2, ArrowLeft, Eye, EyeOff, Info, Lock, Copy, Download, Share2 } from "lucide-react";
 import { supabase } from "../../utils/supabaseClient";
 import html2canvas from "html2canvas";
 
@@ -114,7 +114,7 @@ export const WorkspaceSettings = () => {
         .insert([{
           login_id: formData.login_id,
           name: formData.name,
-          email: formData.email,
+          email: formData.email || null,
           phone: formData.phone,
           password_hash: formData.password,
           role_id: selectedRole?.id,
@@ -207,7 +207,7 @@ export const WorkspaceSettings = () => {
 
   if (success) {
     return (
-      <div className="ws-page-width ws-users-page ws-animate-slide-down" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '65vh', padding: '1.5rem 1rem' }}>
+      <div className="ws-page-width ws-users-page ws-animate-slide-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '65vh', padding: '1.5rem 1rem' }}>
         <div ref={cardRef} className="ws-form-card" style={{ maxWidth: '480px', width: '100%', textAlign: 'center', padding: '3rem 2.5rem', position: 'relative' }}>
           
           <div className="ws-brand-tag" style={{ marginBottom: '0.75rem', display: 'flex', justifyContent: 'center' }}>
@@ -235,7 +235,7 @@ export const WorkspaceSettings = () => {
                 <label style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--ws-violet)', letterSpacing: '0.12em', opacity: 0.7 }}>User ID</label>
               </div>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: '#0a0a0a', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <input readOnly value={formData.login_id} style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: '1.3rem', fontWeight: 900, padding: 0, fontFamily: 'monospace', letterSpacing: '0.05em' }} />
+                <input readOnly tabIndex={-1} value={formData.login_id} style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: '1.3rem', fontWeight: 900, padding: 0, fontFamily: 'monospace', letterSpacing: '0.05em', userSelect: 'none', pointerEvents: 'none', outline: 'none' }} />
               </div>
             </div>
 
@@ -244,7 +244,7 @@ export const WorkspaceSettings = () => {
                 <label style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--ws-violet)', letterSpacing: '0.12em', opacity: 0.7 }}>User Password</label>
               </div>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: '#0a0a0a', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <input readOnly value={formData.password} style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: '1.3rem', fontWeight: 900, padding: 0, fontFamily: 'monospace', letterSpacing: '0.04em' }} />
+                <input readOnly tabIndex={-1} value={formData.password} style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: '1.3rem', fontWeight: 900, padding: 0, fontFamily: 'monospace', letterSpacing: '0.04em', userSelect: 'none', pointerEvents: 'none', outline: 'none' }} />
               </div>
             </div>
           </div>
@@ -272,8 +272,8 @@ export const WorkspaceSettings = () => {
             style={{ 
               flex: '1.5',
               height: '50px',
-              background: 'rgba(124, 58, 237, 0.1)',
-              border: '1px solid rgba(124, 58, 237, 0.2)',
+              background: 'rgba(139, 92, 246, 0.1)',
+              border: '1px solid rgba(139, 92, 246, 0.2)',
               borderRadius: '16px',
               color: '#fff',
               fontSize: '0.95rem',
@@ -317,7 +317,7 @@ export const WorkspaceSettings = () => {
   }
 
   return (
-    <div className="ws-page-width ws-users-page ws-overview-page ws-animate-slide-down" style={{ marginTop: '-0.75rem' }}>
+    <div className="ws-page-width ws-users-page ws-overview-page ws-animate-slide-up" style={{ marginTop: '-0.75rem' }}>
       {/* Header Section: Perfectly Symmetrical 3-Col Grid */}
       <div style={{ 
         display: 'grid', 
@@ -448,7 +448,7 @@ export const WorkspaceSettings = () => {
                     width: '240px',
                     background: 'rgba(20, 20, 25, 0.98)',
                     backdropFilter: 'blur(12px)',
-                    border: '1px solid rgba(124, 58, 237, 0.2)',
+                    border: '1px solid rgba(139, 92, 246, 0.2)',
                     borderRadius: '10px',
                     padding: '12px',
                     boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
@@ -471,14 +471,23 @@ export const WorkspaceSettings = () => {
                       height: '0',
                       borderLeft: '6px solid transparent',
                       borderRight: '6px solid transparent',
-                      borderTop: '6px solid rgba(124, 58, 237, 0.2)'
+                      borderTop: '6px solid rgba(139, 92, 246, 0.2)'
                     }} />
                   </div>
                 )}
               </div>
             </label>
             <div className="ws-input-wrapper" ref={roleDropdownRef}>
-              <Briefcase size={17} style={{ color: 'var(--ws-violet)', zIndex: 1 }} />
+              <svg 
+                width="26" 
+                height="26" 
+                viewBox="0 0 100 100" 
+                xmlns="http://www.w3.org/2000/svg"
+                style={{ color: 'var(--ws-violet)', zIndex: 1, marginLeft: '-4px' }}
+              >
+                <path fill="currentColor" d="M64.9 47.4c-8.2 0-15 6.7-15 15 0 8.2 6.7 15 15 15s15-6.7 15-15-6.8-15-15-15m7.3 13.1-2.8 2.8c-.3.3-.4.6-.4.8l.7 4.2c.2 1.2-.9.5-.9.5L65.4 67c-.5-.3-1 0-1 0l-3.5 1.8c-.9.5-.9 0-.9-.4l.7-3.9c.1-.8-.3-1.1-.3-1.2l-2.5-2.4-.3-.3c-.3-.3-.5-.8.6-1l3.5-.5c.5-.1.8-.3.9-.5l1.9-3.9c.1-.3.5-.6.9.2l1.9 3.8c.1.2.4.3.6.4h.3l3.7.5h.1c.2.1.9.3.2.9"/>
+                <path fill="currentColor" d="M48.9 77.2c1 0 1.6-1.2 1-2-3.2-3.6-5-8.2-5-13 0-3.4 1.1-7.2 2.9-10.2 2.1-3.6 4.5-5.1 6.4-7.9 3.1-4.6 3.7-11.2 1.7-16.2-2-5.1-6.7-8.1-12.2-8s-10 3.5-11.7 8.6c-2 5.6-1.1 12.4 3.4 16.6 1.9 1.7 3.5 4.4 2.6 7-.2.5-.8 1.3-2.2 1.9-5.7 2.5-11.5 5.5-14.1 9.7-.5.8-1.5 2.8-1.6 5.6 0 .7 0 1.3.1 2.2 0 .4 0 .4.1.8.3 1.7 1.3 3.2 2.8 4.1.6.3 2 .8 4.7.8z"/>
+              </svg>
               <div 
                 className={`ws-custom-select ${showRoleDropdown ? 'active' : ''}`}
                 onClick={() => setShowRoleDropdown(!showRoleDropdown)}
@@ -486,15 +495,6 @@ export const WorkspaceSettings = () => {
               >
                 {formData.role}
               </div>
-              
-              <ChevronDown 
-                size={16} 
-                style={{ 
-                  color: 'var(--ws-text-muted)',
-                  transform: showRoleDropdown ? 'rotate(180deg)' : 'rotate(0deg)',
-                  transition: 'transform 0.2s ease'
-                }} 
-              />
 
               {/* Custom Dropdown Menu */}
               {showRoleDropdown && (
@@ -526,7 +526,7 @@ export const WorkspaceSettings = () => {
                         cursor: 'pointer',
                         fontSize: '0.9rem',
                         color: formData.role === role.name ? 'var(--ws-violet)' : '#fff',
-                        background: formData.role === role.name ? 'rgba(124, 58, 237, 0.1)' : 'transparent',
+                        background: formData.role === role.name ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
                         transition: 'all 0.2s ease',
                         display: 'flex',
                         alignItems: 'center',
@@ -590,10 +590,19 @@ export const WorkspaceSettings = () => {
               marginBottom: '2px', 
               display: 'block'
             }}>
-              User ID <span style={{ color: '#ef4444' }}>*</span> {!isOwner && <span style={{ fontSize: '9px', textTransform: 'none', marginLeft: '4px', background: 'rgba(124,58,237,0.1)', padding: '2px 6px', borderRadius: '4px' }}>Locked</span>}
+              User ID <span style={{ color: '#ef4444' }}>*</span> {!isOwner && <span style={{ fontSize: '9px', textTransform: 'none', marginLeft: '4px', background: 'rgba(139,92,246,0.1)', padding: '2px 6px', borderRadius: '4px' }}>Locked</span>}
             </label>
             <div className="ws-input-wrapper">
-              <Hash size={17} style={{ color: 'var(--ws-violet)' }} />
+              <svg 
+                width="20" 
+                height="20" 
+                viewBox="0 0 16 16" 
+                xmlns="http://www.w3.org/2000/svg"
+                style={{ color: 'var(--ws-violet)', zIndex: 1, marginLeft: '-1px' }}
+              >
+                <path fill="none" d="M0 0h16v16H0z"/>
+                <path fill="currentColor" d="M0 14.462h2.518V4.963H0zM0 3.83h2.518V1.538H0zm15.756 1.769a5.7 5.7 0 0 0-.916-2.074 4.24 4.24 0 0 0-2.189-1.629q-.794-.261-1.988-.279H5.124v12.845h5.538q2.913 0 4.308-2.396Q16 10.288 16 7.725q0-1.01-.244-2.126m-2.894 4.758q-.75 1.874-2.653 1.874H7.73V3.847h2.479q1.833 0 2.448 1.05t.615 3.011q0 1.422-.41 2.449"/>
+              </svg>
               <input
                 type="text"
                 name="login_id"
@@ -673,46 +682,47 @@ export const WorkspaceSettings = () => {
         )}
 
         {/* Submit */}
-        <div style={{ marginTop: '1.25rem' }}>
+        <div style={{ marginTop: '1.25rem', display: 'flex', justifyItems: 'center', justifyContent: 'center' }}>
           <button
             type="submit"
             disabled={loading}
             style={{
-              width: '100%',
+              width: '50%',
               height: '52px',
               borderRadius: '12px',
               fontSize: '0.95rem',
               fontWeight: 700,
-              border: 'none',
+              border: '1px solid var(--ws-violet)',
               cursor: loading ? 'not-allowed' : 'pointer',
-              background: loading ? 'rgba(124,58,237,0.4)' : 'var(--ws-violet)',
-              color: '#fff',
+              background: loading ? 'rgba(139,92,246,0.1)' : 'rgba(139,92,246,0.06)',
+              backdropFilter: 'blur(10px)',
+              color: 'var(--ws-violet)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '10px',
               letterSpacing: '0.01em',
               transition: 'all 0.2s ease',
-              opacity: loading ? 0.7 : 1,
+              opacity: loading ? 0.5 : 1,
             }}
             onMouseEnter={e => {
               if (!loading) {
-                (e.currentTarget as HTMLButtonElement).style.filter = 'brightness(1.1)';
+                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(139,92,246,0.15)';
               }
             }}
             onMouseLeave={e => {
-              (e.currentTarget as HTMLButtonElement).style.filter = 'brightness(1)';
+              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(139,92,246,0.06)';
             }}
           >
             {loading ? (
               <>
                 <Loader2 size={20} className="ws-spinner" />
-                <span>Adding Member…</span>
+                <span>Adding User...</span>
               </>
             ) : (
               <>
                 <UserPlus size={20} strokeWidth={2.5} />
-                <span>Add Member to Workspace</span>
+                <span>Add User</span>
               </>
             )}
           </button>

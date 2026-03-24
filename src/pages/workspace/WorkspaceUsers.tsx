@@ -1,7 +1,14 @@
 import { useState, useEffect } from "react";
 import { useOutletContext, NavLink } from "react-router-dom";
-import { Search, Filter, ArrowUpDown, SortAsc, SortDesc, UserPlus, Phone, Calendar, MessageSquare } from "lucide-react";
+import { Search, Filter, ArrowUpDown, SortAsc, SortDesc, UserPlus, Phone, Calendar, MessageSquare, Users, Briefcase } from "lucide-react";
 import { supabase } from "../../utils/supabaseClient";
+
+const ROLE_MAP: Record<string, string> = {
+  'a1a1aa00-0000-0000-0000-000000000000': 'Member',
+  'f59e0b00-0000-0000-0000-000000000000': 'Cashier',
+  'd946ef00-0000-0000-0000-000000000000': 'Investor',
+  '8b5cf600-0000-0000-0000-000000000000': 'System Admin',
+};
 
 export const WorkspaceUsers = () => {
   const { activeUser } = useOutletContext<any>();
@@ -9,6 +16,7 @@ export const WorkspaceUsers = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<'name-asc' | 'name-desc' | 'newest' | 'oldest'>('name-asc');
+  const [filterRole, setFilterRole] = useState<'all' | 'Member' | 'Investor'>('all');
   const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
 
   const workspaceId = activeUser?.workspaceId;
@@ -58,10 +66,17 @@ export const WorkspaceUsers = () => {
   };
 
   const filteredUsers = users
-    .filter(user => 
-      user.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      user.email?.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    .filter(user => {
+      const matchesSearch = 
+        user.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.phone?.includes(searchQuery);
+      
+      const displayRole = user.role_id ? ROLE_MAP[user.role_id] || 'Member' : (user.role || 'Member');
+      const matchesRole = filterRole === 'all' || displayRole === filterRole;
+      
+      return matchesSearch && matchesRole;
+    })
     .sort((a, b) => {
       if (sortOption === 'name-asc') return (a.name || '').localeCompare(b.name || '');
       if (sortOption === 'name-desc') return (b.name || '').localeCompare(a.name || '');
@@ -70,15 +85,13 @@ export const WorkspaceUsers = () => {
       return 0;
     });
 
-  const ROLE_MAP: Record<string, string> = {
-    'a1a1aa00-0000-0000-0000-000000000000': 'Member',
-    'f59e0b00-0000-0000-0000-000000000000': 'Cashier',
-    'd946ef00-0000-0000-0000-000000000000': 'Investor',
-    '8b5cf600-0000-0000-0000-000000000000': 'System Admin',
-  };
-
   return (
-    <div className="ws-page-width ws-users-page ws-overview-page">
+    <div className="ws-page-width ws-users-page ws-overview-page ws-animate-slide-up" style={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      minHeight: 'calc(100vh - 120px)',
+      marginTop: '-0.75rem' 
+    }}>
 
       <div className="ws-controls-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', width: '100%', position: 'relative', zIndex: 10 }}>
         <div className="ws-member-badge-wrapper">
@@ -153,9 +166,9 @@ export const WorkspaceUsers = () => {
                 style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 90 }} 
                 onClick={() => setIsSortMenuOpen(false)} 
               />
-              <div className="ws-sort-dropdown">
-                <div style={{ padding: '8px 12px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--ws-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Sort By
+              <div className="ws-sort-dropdown" style={{ width: '200px' }}>
+                <div style={{ padding: '8px 12px', fontSize: '0.7rem', fontWeight: 800, color: 'var(--ws-violet)', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.8 }}>
+                   Sort By
                 </div>
                 {[
                   { id: 'name-asc', label: 'Name (A to Z)', icon: <SortAsc size={16} /> },
@@ -168,7 +181,6 @@ export const WorkspaceUsers = () => {
                     className="ws-sort-option"
                     onClick={() => {
                       setSortOption(option.id as any);
-                      setIsSortMenuOpen(false);
                     }}
                     style={{
                       width: '100%',
@@ -176,7 +188,7 @@ export const WorkspaceUsers = () => {
                       alignItems: 'center',
                       gap: '10px',
                       padding: '10px 12px',
-                      background: sortOption === option.id ? 'var(--ws-input-bg)' : 'none',
+                      background: sortOption === option.id ? 'rgba(139, 92, 246, 0.08)' : 'none',
                       border: 'none',
                       borderRadius: '10px',
                       color: sortOption === option.id ? 'var(--ws-violet)' : 'var(--ws-text)',
@@ -189,6 +201,45 @@ export const WorkspaceUsers = () => {
                   >
                     {option.icon}
                     {option.label}
+                  </button>
+                ))}
+
+                <div style={{ height: '1px', background: 'var(--ws-border)', margin: '8px 4px' }} />
+
+                <div style={{ padding: '8px 12px', fontSize: '0.7rem', fontWeight: 800, color: 'var(--ws-violet)', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.8 }}>
+                   Filter By Role
+                </div>
+                {[
+                  { id: 'all', label: 'All Positions', icon: <Filter size={14} /> },
+                  { id: 'Member', label: 'Members', icon: <Users size={14} /> },
+                  { id: 'Investor', label: 'Investors', icon: <Briefcase size={14} /> },
+                ].map((option) => (
+                  <button
+                    key={option.id}
+                    className="ws-sort-option"
+                    onClick={() => {
+                      setFilterRole(option.id as any);
+                    }}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      padding: '10px 12px',
+                      background: filterRole === option.id ? 'rgba(139, 92, 246, 0.08)' : 'none',
+                      border: 'none',
+                      borderRadius: '10px',
+                      color: filterRole === option.id ? 'var(--ws-violet)' : 'var(--ws-text)',
+                      fontSize: 'var(--fs-small)',
+                      fontWeight: filterRole === option.id ? 700 : 500,
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    {option.icon}
+                    <span style={{ flex: 1 }}>{option.label}</span>
+                    {filterRole === option.id && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--ws-violet)' }} />}
                   </button>
                 ))}
               </div>
@@ -210,12 +261,28 @@ export const WorkspaceUsers = () => {
       </div>
 
       {loading ? (
-        <div style={{ color: 'var(--ws-text-muted)', paddingTop: '4rem', textAlign: 'center' }}>
-          <div className="ws-spinner-small" style={{ margin: '0 auto 1rem' }}></div>
+        <div style={{ 
+          flex: 1, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          color: 'var(--ws-text-muted)',
+          paddingBottom: '20vh'
+        }}>
+          <div className="ws-spinner-small" style={{ marginBottom: '1.25rem' }}></div>
           Loading workspace members...
         </div>
       ) : filteredUsers.length === 0 ? (
-        <div style={{ color: 'var(--ws-text-muted)', paddingTop: '4rem', textAlign: 'center' }}>
+        <div style={{ 
+          flex: 1, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          color: 'var(--ws-text-muted)',
+          paddingBottom: '20vh'
+        }}>
           No members found in this workspace.
         </div>
       ) : (
