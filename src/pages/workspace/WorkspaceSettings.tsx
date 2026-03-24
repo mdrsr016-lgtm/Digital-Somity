@@ -79,7 +79,7 @@ export const WorkspaceSettings = () => {
   }
 
   return (
-    <div className="ws-page-width ws-overview-page">
+    <div className="ws-page-width ws-users-page">
       {/* Back Button */}
       <div style={{ marginBottom: '1.5rem' }}>
         <button
@@ -119,7 +119,7 @@ export const WorkspaceSettings = () => {
       </div>
 
       {/* Form Card */}
-      <div className="ws-form-card" style={{ borderRadius: '24px', padding: '1.75rem 1.5rem' }}>
+      <div className="ws-form-card">
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
           {/* Login ID */}
