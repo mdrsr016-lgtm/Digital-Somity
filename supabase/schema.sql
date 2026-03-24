@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS workspaces (
     type_en TEXT,
     type_bn TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'disabled', 'removed'))
+    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'disabled', 'removed', 'fridge'))
 );
 
 -- 3. Roles table
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS roles (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name_en TEXT NOT NULL UNIQUE,
     name_bn TEXT,
-    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'disabled'))
+    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'disabled', 'fridge'))
 );
 
 -- 4. Users table (Matches MockUser structure)
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT, -- Use bcrypt to hash passwords before storing
     role_id UUID REFERENCES roles(id),
     workspace_id UUID REFERENCES workspaces(id),
-    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'disabled', 'removed')),
+    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'disabled', 'removed', 'fridge')),
     initial TEXT, -- For avatar (e.g., 'R' for Rashid)
     last_login_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW()
@@ -43,11 +43,13 @@ CREATE INDEX IF NOT EXISTS idx_users_role_id ON users(role_id);
 CREATE INDEX IF NOT EXISTS idx_users_workspace_id ON users(workspace_id);
 
 -- 5. Helper view to see users with role and workspace names
+DROP VIEW IF EXISTS user_details;
 CREATE OR REPLACE VIEW user_details WITH (security_invoker = true) AS
 SELECT 
     u.*,
     r.name_en AS role_name_en,
     r.name_bn AS role_name_bn,
+    r.status AS role_status,
     w.name AS workspace_name
 FROM users u
 LEFT JOIN roles r ON u.role_id = r.id

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import "../../styles/Workspace.css";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { supabase } from "../../utils/supabaseClient";
+import { FridgedScreen } from "../../components/workspace/FridgedScreen";
 
 export const WorkspaceLayout = ({ theme, toggleTheme }: { theme: 'light' | 'dark', toggleTheme: () => void }) => {
   const { language } = useLanguage();
@@ -12,6 +13,12 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: { theme: 'light' | 'dark
   const [activeUser, setActiveUser] = useState<any>(null);
   const [workspaces, setWorkspaces] = useState<any[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [fridgedState, setFridgedState] = useState<{ isFridged: boolean, type: 'user' | 'workspace' | 'role' }>({ 
+    isFridged: false, 
+    type: 'user' 
+  });
+
+  const RESTRICTED_STATUSES = ['fridge', 'removed', 'suspended', 'disabled'];
 
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const swipeRoutes = ["/workspace", "/workspace/members", "/workspace/settings", "/workspace/details", "/workspace/menu"];
@@ -54,14 +61,53 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: { theme: 'light' | 'dark
         return;
       }
 
-      // Fetch active user details
+      // 1. Fetch user details from view (Used for UI display)
       const { data: user, error: userError } = await supabase
         .from('user_details')
         .select('*')
         .eq('login_id', loggedInId)
         .single();
 
+      // 2. Fetch direct user status (Most reliable)
+      const { data: userData } = await supabase
+        .from('users')
+        .select('status, role_id, workspace_id')
+        .eq('login_id', loggedInId)
+        .single();
+
       if (user || !userError) {
+        // --- COMPREHENSIVE STATUS CHECK ---
+        const userStatusLC = (userData?.status || user?.status || '').toLowerCase();
+        const roleStatusLC = (user.role_status || '').toLowerCase();
+        
+        console.log("FRIDGE DEBUG: [UserStatus]:", userStatusLC, "[RoleStatus]:", roleStatusLC);
+
+        if (RESTRICTED_STATUSES.includes(userStatusLC)) {
+          return setFridgedState({ isFridged: true, type: 'user' });
+        } else if (RESTRICTED_STATUSES.includes(roleStatusLC)) {
+          return setFridgedState({ isFridged: true, type: 'role' });
+        } else {
+          // If user/role is okay, Check Workspace
+          const wsId = userData?.workspace_id || user?.workspace_id;
+          if (wsId) {
+            const { data: currentWs } = await supabase
+              .from('workspaces')
+              .select('status')
+              .eq('id', wsId)
+              .single();
+
+            const wsStatusLC = currentWs?.status?.toLowerCase() || '';
+            console.log("FRIDGE DEBUG: [WorkspaceStatus]:", wsStatusLC);
+            if (RESTRICTED_STATUSES.includes(wsStatusLC)) {
+              return setFridgedState({ isFridged: true, type: 'workspace' });
+            } else {
+              setFridgedState(prev => ({ ...prev, isFridged: false }));
+            }
+          } else {
+            setFridgedState(prev => ({ ...prev, isFridged: false }));
+          }
+        }
+
         setActiveUser({
           id: user.login_id,
           name: user.name,
@@ -72,7 +118,7 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: { theme: 'light' | 'dark
         });
       }
 
-      // Fetch workspaces
+      // Fetch all active workspaces for general navigation
       const { data: wsData } = await supabase
         .from('workspaces')
         .select('*')
@@ -85,17 +131,21 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: { theme: 'light' | 'dark
 
     fetchWorkspaceData();
 
-    // Real-time: Multi-table subscription in a single channel
+    // Real-time: Multi-table subscription
     const workspaceChannel = supabase.channel('workspace-realtime-channel')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'workspaces' }, (payload) => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workspaces' }, (payload: any) => {
         console.log('Real-time Workspace RECEIVED:', payload);
         fetchWorkspaceData();
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, (payload) => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, (payload: any) => {
         console.log('Real-time User RECEIVED:', payload);
         fetchWorkspaceData();
       })
-      .subscribe((status, err) => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'roles' }, (payload: any) => {
+        console.log('Real-time Role RECEIVED:', payload);
+        fetchWorkspaceData();
+      })
+      .subscribe((status: string, err: any) => {
         console.log('Workspace realtime status:', status);
         if (err) console.error('Workspace realtime error:', err);
       });
@@ -111,6 +161,10 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: { theme: 'light' | 'dark
   };
 
   const activeWorkspaceName = workspaces.find(w => w.id === activeUser?.workspaceId)?.name || 'General Workspace';
+
+  if (fridgedState.isFridged) {
+    return <FridgedScreen onLogout={handleLogout} type={fridgedState.type} />;
+  }
 
   return (
     <div className="workspace-layout">

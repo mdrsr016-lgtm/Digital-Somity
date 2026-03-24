@@ -89,7 +89,7 @@ export const WorkspaceUsers = () => {
     <div className="ws-page-width ws-users-page ws-overview-page ws-animate-slide-up" style={{ 
       display: 'flex', 
       flexDirection: 'column', 
-      minHeight: 'calc(100vh - 120px)',
+      minHeight: 'calc(100dvh - 180px)',
       marginTop: '-0.75rem' 
     }}>
 
@@ -268,7 +268,7 @@ export const WorkspaceUsers = () => {
           alignItems: 'center', 
           justifyContent: 'center',
           color: 'var(--ws-text-muted)',
-          paddingBottom: '20vh'
+          minHeight: '50vh'
         }}>
           <div className="ws-spinner-small" style={{ marginBottom: '1.25rem' }}></div>
           Loading workspace members...
@@ -281,7 +281,7 @@ export const WorkspaceUsers = () => {
           alignItems: 'center', 
           justifyContent: 'center',
           color: 'var(--ws-text-muted)',
-          paddingBottom: '20vh'
+          minHeight: '50vh'
         }}>
           No members found in this workspace.
         </div>
