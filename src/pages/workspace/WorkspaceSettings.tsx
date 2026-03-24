@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
-import { UserPlus, Mail, Phone, Shield, User, Loader2, CheckCircle2, ArrowLeft } from "lucide-react";
+import { UserPlus, Phone, Shield, User, Loader2, CheckCircle2, ArrowLeft, ChevronDown } from "lucide-react";
 import { supabase } from "../../utils/supabaseClient";
 
 export const WorkspaceSettings = () => {
@@ -18,12 +18,16 @@ export const WorkspaceSettings = () => {
     role: "Member",
   });
 
-  const roles = [
+  const allRoles = [
     { id: 'a1a1aa00-0000-0000-0000-000000000000', name: 'Member' },
     { id: 'f59e0b00-0000-0000-0000-000000000000', name: 'Cashier' },
     { id: 'd946ef00-0000-0000-0000-000000000000', name: 'Investor' },
     { id: '8b5cf600-0000-0000-0000-000000000000', name: 'System Admin / Owner' },
   ];
+
+  // Restrict the dropdown based on user permission (Cashiers can only create Members & Investors)
+  const isOwner = activeUser?.role === 'System Admin / Owner' || activeUser?.role_id === '8b5cf600-0000-0000-0000-000000000000';
+  const roles = isOwner ? allRoles : allRoles.filter(r => r.name === 'Member' || r.name === 'Investor');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -80,65 +84,39 @@ export const WorkspaceSettings = () => {
 
   return (
     <div className="ws-page-width ws-users-page ws-overview-page">
-      {/* Back Button */}
-      <div style={{ marginBottom: '1.5rem' }}>
-        <button
-          onClick={() => navigate('/workspace/members')}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            background: 'none',
-            border: 'none',
-            color: 'var(--ws-text-muted)',
-            fontSize: 'var(--fs-small)',
-            fontWeight: 600,
-            cursor: 'pointer',
-            padding: '6px 0',
-          }}
-        >
-          <ArrowLeft size={16} />
-          <span>Back</span>
-        </button>
-      </div>
-
-      <div style={{ marginBottom: '2.5rem' }}>
-        <div style={{
-          width: '56px', height: '56px', borderRadius: '16px',
-          background: 'linear-gradient(135deg, var(--ws-violet), #a78bfa)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          margin: '0 0 1.25rem',
-          boxShadow: '0 8px 24px rgba(139,92,246,0.35)'
-        }}>
-          <UserPlus size={26} color="#fff" />
+      {/* Header Row: Back + Title */}
+      <div style={{ marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', position: 'relative', marginBottom: '0.4rem' }}>
+          <button
+            onClick={() => navigate('/workspace/members')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: 'none',
+              border: 'none',
+              color: 'var(--ws-text-muted)',
+              fontSize: 'var(--fs-small)',
+              fontWeight: 600,
+              cursor: 'pointer',
+              padding: '6px 0',
+              flexShrink: 0,
+            }}
+          >
+            <ArrowLeft size={16} />
+            <span>Back</span>
+          </button>
+          <h1 style={{ fontWeight: 800, fontSize: 'var(--fs-h2)', margin: 0, position: 'absolute', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap', color: 'var(--ws-violet)' }}>Add New User</h1>
         </div>
-        <h1 style={{ fontWeight: 800, fontSize: 'var(--fs-h2)', marginBottom: '0.4rem' }}>Add New Member</h1>
-        <p style={{ color: 'var(--ws-text-muted)', fontSize: 'var(--fs-body)', maxWidth: '400px' }}>
+        <p style={{ color: 'var(--ws-text-muted)', fontSize: 'var(--fs-body)', maxWidth: '400px', margin: 0 }}>
           Fill out the details below to add someone to your workspace.
         </p>
       </div>
 
-      {/* Form Card */}
-      <div className="ws-form-card">
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-
-          {/* Login ID */}
-          <div className="ws-input-group">
-            <label style={{ fontWeight: 700, fontSize: 'var(--fs-small)', color: 'var(--ws-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px', display: 'block' }}>
-              Login ID <span style={{ color: '#ef4444' }}>*</span>
-            </label>
-            <div className="ws-input-wrapper">
-              <User size={17} />
-              <input
-                type="text"
-                name="login_id"
-                placeholder="e.g. user01, staff12"
-                value={formData.login_id}
-                onChange={handleChange}
-                required
-              />
-            </div>
-          </div>
+      {/* Form — flat, no card */}
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+        {/* 2-col grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem', marginBottom: '1.5rem' }}>
 
           {/* Full Name */}
           <div className="ws-input-group">
@@ -150,7 +128,7 @@ export const WorkspaceSettings = () => {
               <input
                 type="text"
                 name="name"
-                placeholder="Enter member's full name"
+                placeholder="Enter full name"
                 value={formData.name}
                 onChange={handleChange}
                 required
@@ -158,19 +136,55 @@ export const WorkspaceSettings = () => {
             </div>
           </div>
 
-          {/* Email */}
+          {/* Role */}
           <div className="ws-input-group">
             <label style={{ fontWeight: 700, fontSize: 'var(--fs-small)', color: 'var(--ws-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px', display: 'block' }}>
-              Email Address
+              Role
             </label>
             <div className="ws-input-wrapper">
-              <Mail size={17} />
-              <input
-                type="email"
-                name="email"
-                placeholder="member@example.com"
-                value={formData.email}
+              <Shield size={17} />
+              <select 
+                name="role" 
+                value={formData.role} 
                 onChange={handleChange}
+                style={{ cursor: 'pointer', paddingRight: '40px', colorScheme: 'dark' }}
+              >
+                {roles.map(role => (
+                  <option 
+                    key={role.id} 
+                    value={role.name}
+                    style={{ background: '#0a0a0a', color: '#fff' }}
+                  >
+                    {role.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown 
+                size={16} 
+                style={{ 
+                  position: 'absolute', 
+                  right: '14px', 
+                  color: 'var(--ws-text-muted)',
+                  pointerEvents: 'none' 
+                }} 
+              />
+            </div>
+          </div>
+
+          {/* User ID */}
+          <div className="ws-input-group">
+            <label style={{ fontWeight: 700, fontSize: 'var(--fs-small)', color: 'var(--ws-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px', display: 'block' }}>
+              User ID <span style={{ color: '#ef4444' }}>*</span>
+            </label>
+            <div className="ws-input-wrapper">
+              <User size={17} />
+              <input
+                type="text"
+                name="login_id"
+                placeholder="e.g. user01"
+                value={formData.login_id}
+                onChange={handleChange}
+                required
               />
             </div>
           </div>
@@ -178,7 +192,7 @@ export const WorkspaceSettings = () => {
           {/* Phone */}
           <div className="ws-input-group">
             <label style={{ fontWeight: 700, fontSize: 'var(--fs-small)', color: 'var(--ws-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px', display: 'block' }}>
-              Phone Number
+              Phone
             </label>
             <div className="ws-input-wrapper">
               <Phone size={17} />
@@ -192,57 +206,73 @@ export const WorkspaceSettings = () => {
             </div>
           </div>
 
-          {/* Role */}
-          <div className="ws-input-group">
-            <label style={{ fontWeight: 700, fontSize: 'var(--fs-small)', color: 'var(--ws-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px', display: 'block' }}>
-              Workspace Role
-            </label>
-            <div className="ws-input-wrapper">
-              <Shield size={17} />
-              <select name="role" value={formData.role} onChange={handleChange}>
-                {roles.map(role => (
-                  <option key={role.id} value={role.name}>{role.name}</option>
-                ))}
-              </select>
-            </div>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div style={{
+            background: 'rgba(239,68,68,0.08)',
+            border: '1px solid rgba(239,68,68,0.2)',
+            borderRadius: '12px',
+            padding: '12px 16px',
+            color: '#ef4444',
+            fontSize: 'var(--fs-small)',
+            marginBottom: '1rem'
+          }}>
+            {error}
           </div>
+        )}
 
-          {/* Error */}
-          {error && (
-            <div style={{
-              background: 'rgba(239,68,68,0.08)',
-              border: '1px solid rgba(239,68,68,0.2)',
-              borderRadius: '12px',
-              padding: '12px 16px',
-              color: '#ef4444',
-              fontSize: 'var(--fs-small)'
-            }}>
-              {error}
-            </div>
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            width: '100%',
+            height: '54px',
+            borderRadius: '14px',
+            fontSize: '1rem',
+            fontWeight: 700,
+            border: 'none',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            background: loading
+              ? 'rgba(124,58,237,0.4)'
+              : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #4f46e5 100%)',
+            color: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            letterSpacing: '-0.01em',
+            boxShadow: loading ? 'none' : '0 4px 20px rgba(124,58,237,0.35)',
+            transition: 'all 0.2s ease',
+            opacity: loading ? 0.7 : 1,
+          }}
+          onMouseEnter={e => {
+            if (!loading) {
+              (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)';
+              (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 28px rgba(124,58,237,0.45)';
+            }
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
+            (e.currentTarget as HTMLButtonElement).style.boxShadow = loading ? 'none' : '0 4px 20px rgba(124,58,237,0.35)';
+          }}
+        >
+          {loading ? (
+            <>
+              <Loader2 size={18} className="ws-spinner" />
+              <span>Adding Member…</span>
+            </>
+          ) : (
+            <>
+              <UserPlus size={18} strokeWidth={2.5} />
+              <span>Add Member to Workspace</span>
+            </>
           )}
+        </button>
 
-          {/* Submit */}
-          <button
-            type="submit"
-            className="ws-btn-primary"
-            disabled={loading}
-            style={{ width: '100%', height: '52px', borderRadius: '14px', fontSize: 'var(--fs-body)', fontWeight: 700, marginTop: '0.25rem' }}
-          >
-            {loading ? (
-              <>
-                <Loader2 size={18} className="ws-spinner" />
-                <span>Adding Member…</span>
-              </>
-            ) : (
-              <>
-                <UserPlus size={18} />
-                <span>Add Member to Workspace</span>
-              </>
-            )}
-          </button>
-
-        </form>
-      </div>
+      </form>
     </div>
   );
 };

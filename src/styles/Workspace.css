@@ -2288,3 +2288,45 @@
     gap: 10px;
   }
 }
+
+/* ── Input With Icon ──────────────────────────────────────── */
+.ws-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ws-input-wrapper > svg {
+  position: absolute;
+  left: 14px;
+  color: var(--ws-text-muted);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.ws-input-wrapper > input,
+.ws-input-wrapper > select {
+  width: 100%;
+  padding: 12px 14px 12px 44px;
+  background: var(--ws-input-bg, rgba(255,255,255,0.06));
+  border: 1px solid var(--ws-border);
+  border-radius: 12px;
+  color: var(--ws-text);
+  font-size: var(--fs-body);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  appearance: none;
+}
+
+.ws-input-wrapper > input::placeholder,
+.ws-input-wrapper > select::placeholder {
+  color: var(--ws-text-muted);
+}
+
+.ws-input-wrapper > input:focus,
+.ws-input-wrapper > select:focus {
+  border-color: var(--ws-violet) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
