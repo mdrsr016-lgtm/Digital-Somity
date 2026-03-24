@@ -46,3 +46,24 @@
   0% { opacity: 0; transform: translate(-50%, 20px); }
   100% { opacity: 1; transform: translate(-50%, 0); }
 }
+
+@media (max-width: 600px) {
+  .update-notification {
+    bottom: 16px;
+    width: calc(100% - 32px);
+    max-width: 400px;
+    padding: 10px 16px;
+    gap: 12px;
+    border-radius: 16px;
+  }
+
+  .update-notification span {
+    font-size: 0.8rem;
+  }
+
+  .update-btn {
+    padding: 5px 12px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+}
