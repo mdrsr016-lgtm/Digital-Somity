@@ -1,4 +1,4 @@
-import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
+import { Outlet, NavLink, useNavigate, useLocation, To } from "react-router-dom";
 import { LayoutDashboard, LogOut, Bell, Users, Wallet, Menu, X, MessageCircle, Briefcase, UserPlus } from "lucide-react";
 import { useState, useEffect } from "react";
 import "../../styles/Workspace.css";
@@ -12,9 +12,23 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: { theme: 'light' | 'dark
   const [activeUser, setActiveUser] = useState<any>(null);
   const [workspaces, setWorkspaces] = useState<any[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
 
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const swipeRoutes = ["/workspace", "/workspace/members", "/workspace/settings", "/workspace/details", "/workspace/menu"];
+
+  const handleNavigation = (to: To) => {
+    // Only animate out if we are currently on the overview page and navigating elsewhere
+    if (location.pathname === "/workspace" || location.pathname === "/workspace/") {
+      setIsExiting(true);
+      setTimeout(() => {
+        setIsExiting(false);
+        navigate(to);
+      }, 400); // Wait for the fade down animation (0.4s)
+    } else {
+      navigate(to);
+    }
+  };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStartX(e.targetTouches[0].clientX);
@@ -32,10 +46,10 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: { theme: 'light' | 'dark
 
       if (diffX > 0 && currentIndex < swipeRoutes.length - 1) {
         // Swipe Left -> Next
-        navigate(swipeRoutes[currentIndex + 1]);
+        handleNavigation(swipeRoutes[currentIndex + 1]);
       } else if (diffX < 0 && currentIndex > 0) {
         // Swipe Right -> Previous
-        navigate(swipeRoutes[currentIndex - 1]);
+        handleNavigation(swipeRoutes[currentIndex - 1]);
       }
     }
     setTouchStartX(null);
@@ -112,6 +126,25 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: { theme: 'light' | 'dark
 
   const activeWorkspaceName = workspaces.find(w => w.id === activeUser?.workspaceId)?.name || 'General Workspace';
 
+  const CustomNavLink = ({ to, children, className, end }: { to: string, children: React.ReactNode, className: any, end?: boolean }) => {
+    const handleLinkClick = (e: React.MouseEvent) => {
+      e.preventDefault();
+      handleNavigation(to);
+    };
+
+    return (
+      <NavLink
+        to={to}
+        end={end}
+        className={className}
+        onClick={handleLinkClick}
+      >
+        {children}
+      </NavLink>
+    );
+  };
+
+
   return (
     <div className="workspace-layout">
       {/* Premium Sidebar */}
@@ -135,26 +168,26 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: { theme: 'light' | 'dark
         </div>
 
         <nav className="ws-nav">
-          <NavLink to="/workspace" end className={({ isActive }) => `ws-nav-item ${isActive ? 'active' : ''}`}>
+          <CustomNavLink to="/workspace" end className={({ isActive }: any) => `ws-nav-item ${isActive ? 'active' : ''}`}>
             <LayoutDashboard size={22} />
             <span>{language === 'bn' ? 'ওভারভিউ' : 'Overview'}</span>
-          </NavLink>
-          <NavLink to="/workspace/members" className={({ isActive }) => `ws-nav-item ${isActive ? 'active' : ''}`}>
+          </CustomNavLink>
+          <CustomNavLink to="/workspace/members" className={({ isActive }: any) => `ws-nav-item ${isActive ? 'active' : ''}`}>
             <Users size={22} />
             <span>{language === 'bn' ? 'সদস্য তালিকা' : 'Members Database'}</span>
-          </NavLink>
-          <NavLink to="/workspace/settings" className={({ isActive }) => `ws-nav-item ${isActive ? 'active' : ''}`}>
+          </CustomNavLink>
+          <CustomNavLink to="/workspace/settings" className={({ isActive }: any) => `ws-nav-item ${isActive ? 'active' : ''}`}>
             <UserPlus size={22} />
             <span>{language === 'bn' ? 'সদস্য যোগ' : 'Add Member'}</span>
-          </NavLink>
-          <NavLink to="/workspace/details" className={({ isActive }) => `ws-nav-item ${isActive ? 'active' : ''}`}>
+          </CustomNavLink>
+          <CustomNavLink to="/workspace/details" className={({ isActive }: any) => `ws-nav-item ${isActive ? 'active' : ''}`}>
             <Briefcase size={22} />
             <span>{language === 'bn' ? 'ওয়ার্কস্পেস' : 'Workspace'}</span>
-          </NavLink>
-          <NavLink to="/workspace/notifications" className={({ isActive }) => `ws-nav-item ${isActive ? 'active' : ''}`}>
+          </CustomNavLink>
+          <CustomNavLink to="/workspace/notifications" className={({ isActive }: any) => `ws-nav-item ${isActive ? 'active' : ''}`}>
             <Bell size={22} />
             <span>{language === 'bn' ? 'নোটিফিকেশন' : 'Notifications'}</span>
-          </NavLink>
+          </CustomNavLink>
         </nav>
 
         {/* User Card */}
@@ -195,12 +228,12 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: { theme: 'light' | 'dark
             </div>
           </div>
           <div className="ws-topbar-right" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-            <NavLink to="/workspace/messages" className={({ isActive }) => `topbar-btn ${isActive ? 'active' : ''}`}>
+            <CustomNavLink to="/workspace/messages" className={({ isActive }: any) => `topbar-btn ${isActive ? 'active' : ''}`}>
               <MessageCircle size={20} />
-            </NavLink>
-            <NavLink to="/workspace/notifications" className={({ isActive }) => `topbar-btn ${isActive ? 'active' : ''}`}>
+            </CustomNavLink>
+            <CustomNavLink to="/workspace/notifications" className={({ isActive }: any) => `topbar-btn ${isActive ? 'active' : ''}`}>
               <Bell size={20} />
-            </NavLink>
+            </CustomNavLink>
  
             <button 
               className="ws-mobile-menu-btn" 
@@ -212,25 +245,25 @@ export const WorkspaceLayout = ({ theme, toggleTheme }: { theme: 'light' | 'dark
         </header>
 
         <div className="ws-content-wrapper">
-          <Outlet context={{ activeUser, workspaces, theme, toggleTheme }} />
+          <Outlet context={{ activeUser, workspaces, theme, toggleTheme, isExiting }} />
         </div>
       </main>
 
       {/* Persistent Bottom Nav for Mobile — hidden on Add Member page */}
       {location.pathname !== '/workspace/settings' && (
       <nav className="ws-bottom-nav">
-        <NavLink to="/workspace" end className={({ isActive }) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
+        <CustomNavLink to="/workspace" end className={({ isActive }: any) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
           <LayoutDashboard size={24} />
-        </NavLink>
-        <NavLink to="/workspace/members" className={({ isActive }) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
+        </CustomNavLink>
+        <CustomNavLink to="/workspace/members" className={({ isActive }: any) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
           <Users size={24} />
-        </NavLink>
-        <NavLink to="/workspace/details" className={({ isActive }) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
+        </CustomNavLink>
+        <CustomNavLink to="/workspace/details" className={({ isActive }: any) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
           <Briefcase size={24} />
-        </NavLink>
-        <NavLink to="/workspace/menu" className={({ isActive }) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
+        </CustomNavLink>
+        <CustomNavLink to="/workspace/menu" className={({ isActive }: any) => `ws-bottom-item ${isActive ? 'active' : ''}`}>
           <Menu size={24} />
-        </NavLink>
+        </CustomNavLink>
       </nav>
       )}
     </div>

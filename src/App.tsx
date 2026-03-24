@@ -4,6 +4,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { Sidebar } from "./components/Sidebar";
 import { HelpModal } from "./components/HelpModal";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { useVersionCheck } from "./hooks/useVersionCheck";
 
 import { AdminLayout } from "./pages/admin/AdminLayout";
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
@@ -29,6 +30,8 @@ import { WorkspaceAppearance } from "./pages/workspace/WorkspaceAppearance";
 import { WorkspaceLanguage } from "./pages/workspace/WorkspaceLanguage";
 
 function App() {
+  useVersionCheck();
+  
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     const saved = localStorage.getItem('theme');

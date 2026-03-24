@@ -319,6 +319,21 @@
   100% { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes wsFadeDown {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(20px); }
+}
+
+@keyframes wsSlideUpFade {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes wsSlideDownFade {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(30px); }
+}
+
 @keyframes wsSlideInRight {
   0% { opacity: 0; transform: translateX(100%); }
   100% { opacity: 1; transform: translateX(0); }
@@ -448,6 +463,35 @@
   animation: wsFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
 }
 
+/* Exiting Animations */
+.ws-overview-page.is-exiting .ws-hero-date {
+  animation: wsFadeDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.ws-overview-page.is-exiting .ws-hero-greeting {
+  animation: wsFadeDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
+}
+
+.ws-overview-page.is-exiting .ws-hero-desc {
+  animation: wsFadeDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+}
+
+.ws-overview-page.is-exiting .ws-hero-clock-container {
+  animation: wsFadeDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+}
+
+.ws-overview-page.is-exiting .ws-hero-version {
+  animation: wsFadeDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+}
+
+.ws-overview-page.is-exiting .ws-stat-card:nth-child(1) {
+  animation: wsFadeDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards;
+}
+
+.ws-overview-page.is-exiting .ws-stat-card:nth-child(2) {
+  animation: wsFadeDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+}
+
 .ws-stat-card:hover {
   transform: translateY(-4px);
   background: rgba(255, 255, 255, 0.05);
@@ -546,6 +590,35 @@
   font-weight: 500;
   padding-left: 1rem;
   border-left: 1px solid var(--ws-border);
+}
+
+/* Members Page Animations */
+.ws-users-page .ws-controls-top {
+  opacity: 0;
+  animation: wsSlideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.ws-users-page .ws-search-bar-row {
+  opacity: 0;
+  animation: wsSlideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+}
+
+.ws-users-page .ws-member-cards-grid {
+  opacity: 0;
+  animation: wsSlideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+}
+
+/* Members Page Exiting Animations */
+.ws-users-page.is-exiting .ws-controls-top {
+  animation: wsSlideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.ws-users-page.is-exiting .ws-search-bar-row {
+  animation: wsSlideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
+}
+
+.ws-users-page.is-exiting .ws-member-cards-grid {
+  animation: wsSlideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
 }
 
 .ws-members-grid {
@@ -2133,13 +2206,15 @@
   line-height: 1.2;
 }
 
+/* Status Indicator */
 .ws-status-indicator {
-  width: 10px;
-  height: 10px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: #10b981;
-  box-shadow: 0 0 8px #10b981;
+  box-shadow: 0 0 5px rgba(16, 185, 129, 0.6);
   flex-shrink: 0;
+  margin-top: 1px;
 }
 
 .ws-member-role-row {
@@ -2164,8 +2239,9 @@
 .ws-member-handle-v2 {
   font-size: 0.65rem;
   color: var(--ws-text-muted);
-  border: 1px dashed var(--ws-border);
-  padding: 1px 4px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: rgba(139, 92, 246, 0.03);
+  padding: 1px 5px;
   border-radius: 4px;
   font-family: monospace;
 }
@@ -2248,51 +2324,11 @@
 /* Response Grid Adjustments for Mobile */
 @media (max-width: 600px) {
   .ws-member-cards-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    grid-template-columns: 1fr;
   }
 
   .ws-member-card-v2 {
-    padding: 10px;
-    gap: 8px;
-  }
-
-  .ws-member-top {
-    gap: 8px;
-  }
-
-  .ws-member-avatar-v2 {
-    width: 38px;
-    height: 38px;
-    font-size: 1rem;
-  }
-
-  .ws-member-name-v2 {
-    font-size: 0.85rem;
-  }
-
-  .ws-member-role-v2 {
-    font-size: 0.6rem;
-    padding: 0px 4px;
-  }
-
-  .ws-member-handle-v2 {
-    font-size: 0.6rem;
-  }
-
-  .ws-detail-line {
-    font-size: 0.65rem;
-    gap: 4px;
-  }
-
-  .ws-detail-icon {
-    width: 14px;
-    height: 14px;
-  }
-
-  .ws-action-btn-main, .ws-action-btn-sub {
-    padding: 4px 8px;
-    font-size: 0.65rem;
-    border-radius: 4px;
+    padding: 12px;
+    gap: 10px;
   }
 }
