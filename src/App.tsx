@@ -5,6 +5,7 @@ import { Sidebar } from "./components/Sidebar";
 import { HelpModal } from "./components/HelpModal";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { useVersionCheck } from "./hooks/useVersionCheck";
+import "./styles/UpdateNotification.css";
 
 import { AdminLayout } from "./pages/admin/AdminLayout";
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
@@ -30,7 +31,7 @@ import { WorkspaceAppearance } from "./pages/workspace/WorkspaceAppearance";
 import { WorkspaceLanguage } from "./pages/workspace/WorkspaceLanguage";
 
 function App() {
-  useVersionCheck();
+  const { isUpdateAvailable, reloadApp } = useVersionCheck();
   
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -93,7 +94,17 @@ function App() {
           </Route>
         </Route>
       </Routes>
+      {isUpdateAvailable && <UpdateNotification onReload={reloadApp} />}
     </LanguageProvider>
+  );
+}
+
+function UpdateNotification({ onReload }: { onReload: () => void }) {
+  return (
+    <div className="update-notification">
+      <span>New app version available!</span>
+      <button className="update-btn" onClick={onReload}>Update Now</button>
+    </div>
   );
 }
 
