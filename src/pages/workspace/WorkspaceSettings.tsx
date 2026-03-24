@@ -79,7 +79,7 @@ export const WorkspaceSettings = () => {
   }
 
   return (
-    <div className="ws-page-width ws-users-page">
+    <div className="ws-page-width ws-users-page ws-overview-page">
       {/* Back Button */}
       <div style={{ marginBottom: '1.5rem' }}>
         <button
@@ -102,18 +102,18 @@ export const WorkspaceSettings = () => {
         </button>
       </div>
 
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+      <div style={{ marginBottom: '2.5rem' }}>
         <div style={{
           width: '56px', height: '56px', borderRadius: '16px',
           background: 'linear-gradient(135deg, var(--ws-violet), #a78bfa)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          margin: '0 auto 1rem',
+          margin: '0 0 1.25rem',
           boxShadow: '0 8px 24px rgba(139,92,246,0.35)'
         }}>
           <UserPlus size={26} color="#fff" />
         </div>
         <h1 style={{ fontWeight: 800, fontSize: 'var(--fs-h2)', marginBottom: '0.4rem' }}>Add New Member</h1>
-        <p style={{ color: 'var(--ws-text-muted)', fontSize: 'var(--fs-body)', maxWidth: '280px', margin: '0 auto' }}>
+        <p style={{ color: 'var(--ws-text-muted)', fontSize: 'var(--fs-body)', maxWidth: '400px' }}>
           Fill out the details below to add someone to your workspace.
         </p>
       </div>
