@@ -78,7 +78,7 @@ export const WorkspaceUsers = () => {
   };
 
   return (
-    <div className="ws-page-width ws-users-page">
+    <div className="ws-page-width ws-users-page ws-overview-page">
 
       <div className="ws-controls-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', width: '100%' }}>
         <div className="ws-member-badge-wrapper">
