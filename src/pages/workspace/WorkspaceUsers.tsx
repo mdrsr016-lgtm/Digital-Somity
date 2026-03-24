@@ -68,6 +68,13 @@ export const WorkspaceUsers = () => {
       return 0;
     });
 
+  const ROLE_MAP: Record<string, string> = {
+    'a1a1aa00-0000-0000-0000-000000000000': 'Member',
+    'f59e0b00-0000-0000-0000-000000000000': 'Cashier',
+    'd946ef00-0000-0000-0000-000000000000': 'Investor',
+    '8b5cf600-0000-0000-0000-000000000000': 'System Admin',
+  };
+
   return (
     <div className="ws-page-width ws-overview-page">
 
@@ -211,46 +218,50 @@ export const WorkspaceUsers = () => {
         </div>
       ) : (
         <div className="ws-member-cards-grid">
-          {filteredUsers.map((user) => (
-            <div key={user.id} className="ws-member-card-v2">
-              {/* Top Section */}
-              <div className="ws-member-top">
-                <div className="ws-member-avatar-v2">
-                  {user.initial || user.name?.charAt(0) || '?'}
-                </div>
-                
-                <div className="ws-member-info-col">
-                  <div className="ws-member-name-row">
-                    <div className="ws-member-name-v2">{user.name}</div>
-                    <div className="ws-status-indicator" title="Online" />
+          {filteredUsers.map((user) => {
+            const displayRole = user.role_id ? ROLE_MAP[user.role_id] || 'Member' : (user.role || 'Member');
+            
+            return (
+              <div key={user.id} className="ws-member-card-v2">
+                {/* Top Section */}
+                <div className="ws-member-top">
+                  <div className="ws-member-avatar-v2">
+                    {user.initial || user.name?.charAt(0) || '?'}
                   </div>
-                  <div className="ws-member-role-row">
-                    <div className="ws-member-role-v2">{user.role || 'Member'}</div>
-                    <div className="ws-member-handle-v2">@{user.login_id || user.id?.slice(0, 8)}</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom Section */}
-              <div className="ws-member-bottom">
-                <div className="ws-member-details-col">
-                  <div className="ws-detail-line">
-                    <span className="ws-detail-icon"><Phone size={14} /></span>
-                    <span>{user.phone || 'No phone'}</span>
-                  </div>
-                  <div className="ws-detail-line">
-                    <span className="ws-detail-icon"><Calendar size={14} /></span>
-                    <span>Join Date</span>
+                  
+                  <div className="ws-member-info-col">
+                    <div className="ws-member-name-row">
+                      <div className="ws-member-name-v2">{user.name}</div>
+                      <div className="ws-status-indicator" title="Online" />
+                    </div>
+                    <div className="ws-member-role-row">
+                      <div className="ws-member-role-v2">{displayRole}</div>
+                      <div className="ws-member-handle-v2">@{user.login_id || user.id?.slice(0, 8)}</div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="ws-member-actions-col">
-                  <button className="ws-action-btn-main">Edit Member</button>
-                  <button className="ws-action-btn-sub">Call</button>
+                {/* Bottom Section */}
+                <div className="ws-member-bottom">
+                  <div className="ws-member-details-col">
+                    <div className="ws-detail-line">
+                      <span className="ws-detail-icon"><Phone size={14} /></span>
+                      <span>{user.phone || 'No phone'}</span>
+                    </div>
+                    <div className="ws-detail-line">
+                      <span className="ws-detail-icon"><Calendar size={14} /></span>
+                      <span>Join Date</span>
+                    </div>
+                  </div>
+
+                  <div className="ws-member-actions-col">
+                    <button className="ws-action-btn-main">Edit Member</button>
+                    <button className="ws-action-btn-sub">Call</button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
