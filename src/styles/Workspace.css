@@ -2065,120 +2065,187 @@
   height: 60%;
 }
 
-/* ─── Member Cards Grid ─── */
+/* ─── Member Cards Based on p card.dio ─── */
 .ws-member-cards-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
   width: 100%;
 }
 
-.ws-member-card {
+.ws-member-card-v2 {
   background: var(--ws-card);
   border: 1px solid var(--ws-border);
-  border-radius: 20px;
-  padding: 16px 14px 14px;
+  border-radius: 12px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 0;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s ease, border-color 0.25s ease;
+  gap: 16px;
+  transition: all 0.2s ease;
 }
 
+.ws-member-card-v2:hover {
+  border-color: rgba(139, 92, 246, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
 
-
-/* Avatar row */
-.ws-member-card-top {
+.ws-member-top {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 12px;
+  gap: 12px;
+  position: relative;
 }
 
-.ws-member-card-avatar {
-  width: 46px;
-  height: 46px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, var(--ws-violet), #a78bfa);
-  color: #fff;
-  font-weight: 800;
-  font-size: 1.15rem;
+.ws-member-avatar-v2 {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(139,92,246,0.35);
 }
 
-.ws-member-card-actions {
-  display: flex;
-  gap: 2px;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  margin-top: 2px;
-}
-
-.ws-member-card:hover .ws-member-card-actions {
-  opacity: 1;
-}
-
-/* Identity */
-.ws-member-card-name {
-  font-weight: 700;
-  font-size: 0.88rem;
-  color: var(--ws-text);
-  line-height: 1.3;
-  letter-spacing: -0.01em;
-}
-
-.ws-member-card-id {
-  font-size: 0.72rem;
-  color: var(--ws-text-muted);
-  margin-top: 2px;
-  margin-bottom: 10px;
-  font-family: monospace;
-  opacity: 0.7;
-}
-
-.ws-member-card-divider {
-  height: 1px;
-  background: var(--ws-border);
-  margin-bottom: 10px;
-}
-
-/* Contact */
-.ws-member-card-info {
+.ws-member-info-col {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  margin-bottom: 12px;
+  gap: 4px;
+  padding-top: 4px;
 }
 
-.ws-member-card-info span {
-  font-size: 0.73rem;
-  color: var(--ws-text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.ws-member-card-info span:first-child {
+.ws-member-name-v2 {
+  font-size: 1.1rem;
+  font-weight: 700;
   color: var(--ws-text);
-  font-weight: 500;
+  line-height: 1.2;
 }
 
-/* Footer */
-.ws-member-card-footer {
+.ws-member-role-v2 {
+  font-size: 0.75rem;
+  color: var(--ws-text);
+  background: transparent;
+  border: 1px solid var(--ws-border);
+  padding: 2px 8px;
+  border-radius: 4px;
+  width: fit-content;
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+.ws-member-corner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.ws-status-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.ws-member-handle-v2 {
+  font-size: 0.7rem;
+  color: var(--ws-text-muted);
+  border: 1px dashed var(--ws-border);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.ws-member-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 4px;
+}
+
+.ws-member-details-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ws-detail-line {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 4px;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--ws-text-muted);
 }
 
-@media (max-width: 480px) {
+.ws-detail-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--ws-border);
+  border-radius: 4px;
+  color: var(--ws-text-muted);
+}
+
+.ws-member-actions-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ws-action-btn-main {
+  background: transparent;
+  border: 1px solid var(--ws-border);
+  color: var(--ws-text);
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.ws-action-btn-main:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.3);
+  color: var(--ws-violet);
+}
+
+.ws-action-btn-sub {
+  background: transparent;
+  border: 1px solid var(--ws-border);
+  color: var(--ws-text);
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.ws-action-btn-sub:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Response Grid Adjustments for Mobile */
+@media (max-width: 600px) {
   .ws-member-cards-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr; /* Switch to 1 column on mobile to preserve diagram layout perfectly */
+  }
+
+  .ws-member-card-v2 {
+    padding: 14px;
+    gap: 12px;
   }
 }

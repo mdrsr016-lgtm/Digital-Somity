@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useOutletContext, NavLink } from "react-router-dom";
-import { Search, Edit, Trash2, Filter, ArrowUpDown, SortAsc, SortDesc, UserPlus } from "lucide-react";
+import { Search, Filter, ArrowUpDown, SortAsc, SortDesc, UserPlus, Phone, Calendar } from "lucide-react";
 import { supabase } from "../../utils/supabaseClient";
 
 export const WorkspaceUsers = () => {
@@ -212,31 +212,41 @@ export const WorkspaceUsers = () => {
       ) : (
         <div className="ws-member-cards-grid">
           {filteredUsers.map((user) => (
-            <div key={user.id} className="ws-member-card">
-              <div className="ws-member-card-top">
-                <div className="ws-member-card-avatar">
+            <div key={user.id} className="ws-member-card-v2">
+              {/* Top Section */}
+              <div className="ws-member-top">
+                <div className="ws-member-avatar-v2">
                   {user.initial || user.name?.charAt(0) || '?'}
                 </div>
-                <div className="ws-member-card-actions">
-                  <button className="ws-action-btn" title="Edit"><Edit size={13} /></button>
-                  <button className="ws-action-btn" title="Delete"><Trash2 size={13} /></button>
+                
+                <div className="ws-member-info-col">
+                  <div className="ws-member-name-v2">{user.name}</div>
+                  <div className="ws-member-role-v2">{user.role || 'Member'}</div>
+                </div>
+
+                <div className="ws-member-corner">
+                  <div className="ws-status-indicator" />
+                  <div className="ws-member-handle-v2">@{user.login_id || user.id?.slice(0, 8)}</div>
                 </div>
               </div>
-              <div className="ws-member-card-name">{user.name}</div>
-              <div className="ws-member-card-id">{user.login_id || user.id?.slice(0, 8)}</div>
-              <div className="ws-member-card-divider" />
-              <div className="ws-member-card-info">
-                <span>{user.email || 'No email'}</span>
-                <span>{user.phone || 'No phone'}</span>
-              </div>
-              <div className="ws-member-card-footer">
-                <span className={`ws-role-badge ${user.role === 'admin' ? 'admin' : ''}`}>
-                  {user.role || 'Member'}
-                </span>
-                <span className="ws-status-badge active">
-                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }} />
-                  Active
-                </span>
+
+              {/* Bottom Section */}
+              <div className="ws-member-bottom">
+                <div className="ws-member-details-col">
+                  <div className="ws-detail-line">
+                    <span className="ws-detail-icon"><Phone size={14} /></span>
+                    <span>{user.phone || 'No phone'}</span>
+                  </div>
+                  <div className="ws-detail-line">
+                    <span className="ws-detail-icon"><Calendar size={14} /></span>
+                    <span>Join Date</span>
+                  </div>
+                </div>
+
+                <div className="ws-member-actions-col">
+                  <button className="ws-action-btn-main">Edit Member</button>
+                  <button className="ws-action-btn-sub">Call</button>
+                </div>
               </div>
             </div>
           ))}
