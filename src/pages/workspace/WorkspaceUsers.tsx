@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useOutletContext, NavLink } from "react-router-dom";
-import { Search, Filter, ArrowUpDown, SortAsc, SortDesc, UserPlus, Phone, Calendar } from "lucide-react";
+import { Search, Filter, ArrowUpDown, SortAsc, SortDesc, UserPlus, Phone, Calendar, MessageSquare } from "lucide-react";
 import { supabase } from "../../utils/supabaseClient";
 
 export const WorkspaceUsers = () => {
@@ -28,12 +28,12 @@ export const WorkspaceUsers = () => {
             schema: 'public',
             table: 'users'
           }, 
-          (payload) => {
+          (payload: any) => {
             console.log('Real-time Members RECEIVED:', payload);
             fetchWorkspaceMembers();
           }
         )
-        .subscribe((status, err) => {
+        .subscribe((status: string, err: any) => {
           console.log('Members subscription status:', status);
           if (err) console.error('Members subscription error:', err);
         });
@@ -80,7 +80,7 @@ export const WorkspaceUsers = () => {
   return (
     <div className="ws-page-width ws-users-page ws-overview-page">
 
-      <div className="ws-controls-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', width: '100%' }}>
+      <div className="ws-controls-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', width: '100%', position: 'relative', zIndex: 10 }}>
         <div className="ws-member-badge-wrapper">
           {!loading && (
             <div 
@@ -247,18 +247,39 @@ export const WorkspaceUsers = () => {
                 <div className="ws-member-bottom">
                   <div className="ws-member-details-col">
                     <div className="ws-detail-line">
-                      <span className="ws-detail-icon"><Phone size={14} /></span>
-                      <span>{user.phone || 'No phone'}</span>
+                      <span className="ws-detail-icon"><Phone size={12} strokeWidth={2.5} /></span>
+                      <span style={{ fontWeight: 600 }}>{user.phone || 'No phone'}</span>
                     </div>
                     <div className="ws-detail-line">
-                      <span className="ws-detail-icon"><Calendar size={14} /></span>
-                      <span>Join Date</span>
+                      <span className="ws-detail-icon"><Calendar size={12} strokeWidth={2.5} /></span>
+                      <span style={{ opacity: 0.8 }}>Joined</span>
+                      <span style={{ fontWeight: 600 }}>{new Date(user.created_at).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}</span>
                     </div>
                   </div>
 
                   <div className="ws-member-actions-col">
                     <button className="ws-action-btn-main">Edit Member</button>
-                    <button className="ws-action-btn-sub">Call</button>
+                    {(() => {
+                      const isOwnProfile = user.id === activeUser?.id;
+                      return (
+                        <div className="ws-action-icons-row">
+                          <button 
+                            className="ws-action-icon-btn" 
+                            disabled={isOwnProfile}
+                            title={isOwnProfile ? "Cannot call yourself" : "Call Member"}
+                          >
+                            <Phone size={14} strokeWidth={2.5} />
+                          </button>
+                          <button 
+                            className="ws-action-icon-btn" 
+                            disabled={isOwnProfile}
+                            title={isOwnProfile ? "Cannot message yourself" : "Message Member"}
+                          >
+                            <MessageSquare size={14} strokeWidth={2.5} />
+                          </button>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
