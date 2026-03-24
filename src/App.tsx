@@ -91,10 +91,11 @@ function App() {
             <Route path="notifications" element={<WorkspaceNotificationSettings />} />
             <Route path="appearance" element={<WorkspaceAppearance />} />
             <Route path="language" element={<WorkspaceLanguage />} />
+          </Route>
+        </Route>
       </Routes>
       {isUpdateAvailable && <UpdateNotification onReload={reloadApp} />}
     </LanguageProvider>
-  );
   );
 }
 
