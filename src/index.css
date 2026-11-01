@@ -324,3 +324,19 @@ select:-webkit-autofill:focus {
   background: var(--color-text-secondary);
 }
 
+/* Toast Notification Animation */
+@keyframes toastSlideIn {
+  0% {
+    transform: translateY(28px) scale(0.92);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.toast-animate-in {
+  animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+

@@ -4,45 +4,61 @@ import { Logo } from "../components/common/Logo";
 import { useTheme } from "../contexts/ThemeContext";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth, DEMO_USERS } from "../contexts/AuthContext";
+import { useToast } from "../contexts/ToastContext";
+import { NotificationShowcaseModal } from "../components/common/NotificationShowcaseModal";
 
 export const LoginPage: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const { language, toggleLanguage, t } = useLanguage();
   const { login, isLoading } = useAuth();
+  const { success, warning, info, error } = useToast();
 
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
   const [successUser, setSuccessUser] = useState<string | null>(null);
 
-  // Modals state
+  // Modals & Gallery state
   const [activeModal, setActiveModal] = useState<"forgot" | "privacy" | "policy" | "terms" | "conditions" | null>(null);
+  const [showGallery, setShowGallery] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (!userId.trim()) {
-      setError(language === "bn" ? "অনুগ্রহ করে আপনার ইউজার আইডি দিন" : "Please enter your User ID");
+      warning(
+        language === "bn" ? "সতর্কতা" : "Warning",
+        language === "bn" ? "অনুগ্রহ করে আপনার ইউজার আইডি প্রদান করুন" : "Please enter your User ID to proceed"
+      );
       return;
     }
 
     const res = await login(userId, password);
     if (res.success) {
-      setSuccessUser(userId.trim().toLowerCase());
+      const userStr = userId.trim().toLowerCase();
+      setSuccessUser(userStr);
+      success(
+        language === "bn" ? "সফল হয়েছে!" : "Success",
+        language === "bn" ? `${userStr} হিসেবে সফলভাবে লগইন সম্পন্ন হয়েছে।` : `Authenticated successfully as ${userStr}!`
+      );
     } else {
-      setError(t.auth.invalidCredentials);
+      error(
+        language === "bn" ? "ত্রুটি!" : "Error",
+        language === "bn" ? "ভুল ইউজার আইডি বা পাসওয়ার্ড। পুনরায় চেষ্টা করুন।" : "Invalid User ID or password. Please try again."
+      );
     }
   };
 
   const handleQuickFill = (id: string) => {
     setUserId(id);
     setPassword("password123");
-    setError("");
     login(id).then((res) => {
       if (res.success) {
         setSuccessUser(id);
+        success(
+          language === "bn" ? "সফল হয়েছে!" : "Success",
+          language === "bn" ? `${id} হিসেবে ডেমো অ্যাকাউন্টে প্রবেশ করা হয়েছে।` : `Logged in successfully as #${id.toUpperCase()}`
+        );
       }
     });
   };
@@ -126,42 +142,6 @@ export const LoginPage: React.FC = () => {
                 {t.auth.loginSubtitle}
               </p>
             </div>
-
-            {/* Error Message */}
-            {error && (
-              <div
-                style={{
-                  padding: "8px 12px",
-                  backgroundColor: "var(--color-error-soft)",
-                  border: "1px solid rgba(239, 68, 68, 0.25)",
-                  color: "var(--color-error)",
-                  borderRadius: "var(--radius-md)",
-                  fontSize: "12px",
-                  marginBottom: "12px",
-                }}
-              >
-                {error}
-              </div>
-            )}
-
-            {/* Logged in success preview */}
-            {successUser && (
-              <div
-                style={{
-                  padding: "10px 12px",
-                  backgroundColor: "var(--color-success-soft)",
-                  border: "1px solid rgba(16, 185, 129, 0.3)",
-                  color: "var(--color-success)",
-                  borderRadius: "var(--radius-md)",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  marginBottom: "12px",
-                  textAlign: "center",
-                }}
-              >
-                ✓ Authenticated as <span style={{ fontFamily: "monospace" }}>{successUser}</span>!
-              </div>
-            )}
 
             {/* Login Form */}
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -344,6 +324,122 @@ export const LoginPage: React.FC = () => {
                     </button>
                   );
                 })}
+              </div>
+
+              {/* Notification Card Previews (Explicit Success, Error, Warning, Info + Full 30-Card Gallery) */}
+              <div
+                style={{
+                  marginTop: "10px",
+                  paddingTop: "8px",
+                  borderTop: "1px dashed var(--color-border)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "4px",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setShowGallery(true)}
+                  style={{
+                    background: "rgba(15, 91, 228, 0.1)",
+                    border: "1px solid rgba(15, 91, 228, 0.3)",
+                    color: "var(--color-brand)",
+                    fontSize: "10px",
+                    fontWeight: 700,
+                    padding: "2px 7px",
+                    borderRadius: "var(--radius-full)",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "3px",
+                  }}
+                  title="Open All Possible Notification Cards Gallery (30 patterns)"
+                >
+                  <Sparkles size={10} />
+                  <span>All Cards (30)</span>
+                </button>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+                  <button
+                    type="button"
+                    onClick={() => success("Success", "Your changes have been saved successfully.")}
+                    style={{
+                      background: "transparent",
+                      border: "1px solid rgba(22, 163, 74, 0.3)",
+                      color: "#16A34A",
+                      fontSize: "10px",
+                      fontWeight: 600,
+                      padding: "2px 5px",
+                      borderRadius: "var(--radius-full)",
+                      cursor: "pointer",
+                    }}
+                    title="Test Canonical Success Notification"
+                  >
+                    ✓ Success
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => error("Error", "An unexpected error occurred. Please try again.")}
+                    style={{
+                      background: "transparent",
+                      border: "1px solid rgba(220, 38, 38, 0.3)",
+                      color: "#DC2626",
+                      fontSize: "10px",
+                      fontWeight: 600,
+                      padding: "2px 5px",
+                      borderRadius: "var(--radius-full)",
+                      cursor: "pointer",
+                    }}
+                    title="Test Canonical Error Notification"
+                  >
+                    🛑 Error
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      warning("Warning", "Unsaved changes will be lost if you navigate away.", {
+                        label: "Stay",
+                        onClick: () => success("Saved", "Changes kept safe"),
+                      })
+                    }
+                    style={{
+                      background: "transparent",
+                      border: "1px solid rgba(245, 158, 11, 0.3)",
+                      color: "#D97706",
+                      fontSize: "10px",
+                      fontWeight: 600,
+                      padding: "2px 5px",
+                      borderRadius: "var(--radius-full)",
+                      cursor: "pointer",
+                    }}
+                    title="Test Canonical Warning Notification"
+                  >
+                    ⚠ Warning
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      info("Info", "Scheduled maintenance will occur tonight at 02:00 AM.", {
+                        label: "Details",
+                        onClick: () => alert("Maintenance window: 02:00 AM - 02:30 AM BST"),
+                      })
+                    }
+                    style={{
+                      background: "transparent",
+                      border: "1px solid rgba(37, 99, 235, 0.3)",
+                      color: "#2563EB",
+                      fontSize: "10px",
+                      fontWeight: 600,
+                      padding: "2px 5px",
+                      borderRadius: "var(--radius-full)",
+                      cursor: "pointer",
+                    }}
+                    title="Test Canonical Info Notification"
+                  >
+                    ℹ Info
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -627,6 +723,9 @@ export const LoginPage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* All Notification Cards Gallery Modal */}
+        <NotificationShowcaseModal isOpen={showGallery} onClose={() => setShowGallery(false)} />
       </div>
     </div>
   );
