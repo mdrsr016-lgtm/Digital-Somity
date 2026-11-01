@@ -1,0 +1,287 @@
+@import './styles/theme.css';
+
+/* CSS Reset & Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-ui);
+  font-size: var(--size-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+  overflow-x: hidden;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--color-text-primary);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-size: var(--size-page-title);
+  font-weight: 600;
+}
+
+h2 {
+  font-size: var(--size-section-heading);
+  font-weight: 600;
+}
+
+h3 {
+  font-size: var(--size-card-heading);
+  font-weight: 600;
+}
+
+/* Typography Utility Classes */
+.font-logo {
+  font-family: var(--font-logo) !important;
+  letter-spacing: 0.04em;
+}
+
+.font-heading {
+  font-family: var(--font-heading) !important;
+}
+
+.font-ui {
+  font-family: var(--font-ui) !important;
+}
+
+.font-bangla {
+  font-family: var(--font-bangla) !important;
+}
+
+.text-balance {
+  font-size: var(--size-account-balance);
+  font-weight: 700;
+  font-family: var(--font-ui);
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.text-amount {
+  font-size: var(--size-financial-amount);
+  font-weight: 600;
+  font-family: var(--font-ui);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+  font-size: var(--size-secondary);
+}
+
+.text-caption {
+  color: var(--color-text-secondary);
+  font-size: var(--size-caption);
+}
+
+.text-profit,
+.text-success {
+  color: var(--color-success) !important;
+}
+
+.text-expense,
+.text-error {
+  color: var(--color-error) !important;
+}
+
+.text-brand {
+  color: var(--color-brand) !important;
+}
+
+/* Links */
+a {
+  color: var(--color-brand);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-brand-variant);
+}
+
+/* Button System */
+button {
+  font-family: var(--font-ui);
+  font-size: var(--size-button);
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.btn-primary {
+  background-color: var(--color-brand);
+  color: #FFFFFF;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 2px 10px var(--color-brand-soft);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-brand-variant);
+  box-shadow: 0 4px 16px var(--color-brand-glow);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-brand);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-ghost:hover {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+.btn-danger {
+  background-color: var(--color-error-soft);
+  color: var(--color-error);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-danger:hover {
+  background-color: var(--color-error);
+  color: #FFFFFF;
+}
+
+/* Card Container */
+.fintech-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.fintech-card:hover {
+  border-color: var(--color-border-brand);
+}
+
+/* Input Fields */
+input, select, textarea {
+  font-family: var(--font-ui);
+  font-size: var(--size-input);
+  background-color: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  outline: none;
+  width: 100%;
+  transition: all var(--transition-fast);
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px var(--color-brand-soft);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--size-caption);
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge-success {
+  background-color: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.badge-error {
+  background-color: var(--color-error-soft);
+  color: var(--color-error);
+}
+
+.badge-brand {
+  background-color: var(--color-brand-soft);
+  color: var(--color-brand);
+}
+
+.badge-neutral {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text-secondary);
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
