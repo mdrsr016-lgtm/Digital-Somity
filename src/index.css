@@ -1,15 +1,18 @@
 @import './styles/theme.css';
 
-/* CSS Reset & Base */
+/* CSS Reset & Base (Mobile-First) */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
   height: 100%;
   width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 body {
@@ -22,6 +25,23 @@ body {
   -moz-osx-font-smoothing: grayscale;
   transition: background-color var(--transition-normal), color var(--transition-normal);
   overflow-x: hidden;
+  touch-action: manipulation;
+}
+
+/* Mobile-First Shell */
+.mobile-shell {
+  width: 100%;
+  max-width: 440px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
 }
 
 /* Headings */
@@ -130,12 +150,14 @@ button {
 .btn-primary {
   background-color: var(--color-brand);
   color: #FFFFFF;
-  padding: 10px 18px;
+  padding: 13px 20px;
+  min-height: 48px;
   border-radius: var(--radius-md);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  font-size: 15px;
   box-shadow: 0 2px 10px var(--color-brand-soft);
 }
 
@@ -211,14 +233,15 @@ button {
   border-color: var(--color-border-brand);
 }
 
-/* Input Fields */
+/* Input Fields (Mobile-Optimized & Contrast Inverted) */
 input, select, textarea {
   font-family: var(--font-ui);
-  font-size: var(--size-input);
-  background-color: var(--color-surface-subtle);
-  border: 1px solid var(--color-border);
-  color: var(--color-text-primary);
-  padding: 12px 14px;
+  font-size: 16px; /* 16px prevents iOS Safari auto-zoom on mobile devices */
+  background-color: var(--color-input-bg) !important;
+  border: 1px solid var(--color-input-border) !important;
+  color: var(--color-input-text) !important;
+  padding: 13px 14px;
+  min-height: 48px;
   border-radius: var(--radius-md);
   outline: none;
   width: 100%;
@@ -226,12 +249,28 @@ input, select, textarea {
 }
 
 input:focus, select:focus, textarea:focus {
-  border-color: var(--color-brand);
+  border-color: var(--color-brand) !important;
   box-shadow: 0 0 0 3px var(--color-brand-soft);
 }
 
 input::placeholder, textarea::placeholder {
-  color: var(--color-text-muted);
+  color: var(--color-input-placeholder) !important;
+  opacity: 0.85;
+}
+
+/* Prevent browser autofill from ruining the white / black styling */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-input-text) !important;
+  -webkit-box-shadow: 0 0 0px 1000px var(--color-input-bg) inset !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 /* Badges */

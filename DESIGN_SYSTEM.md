@@ -22,6 +22,8 @@
 - **Error / Expense:** `#EF4444` — Expenses, outgoing money, debt, negative growth, errors, alerts
 - **Border / Divider:** `rgba(255, 255, 255, 0.10)` — Hairline borders on cards, subtle dividers
 - **Active Border:** `#0F5BE4` — Focus rings, active card outlines
+- **Input Background:** `#FFFFFF` — Inverted high-contrast white input box in Dark Mode
+- **Input Text:** `#000000` — Black input text before and after filled in Dark Mode
 
 ---
 
@@ -39,6 +41,8 @@
 - **Success / Profit:** `#059669` — Income, incoming money, profit, positive growth, successful transactions
 - **Error / Expense:** `#DC2626` — Expenses, outgoing money, debt, negative growth, errors, alerts
 - **Border / Divider:** `#E5E0E4` — Card borders, separators, form outlines, subtle dividers
+- **Input Background:** `#09090D` — Inverted high-contrast black input box in Light Mode
+- **Input Text:** `#FFFFFF` — White input text before and after filled in Light Mode
 
 ---
 
@@ -143,6 +147,15 @@
 | Financial Data & Balances | Inter | 600, 700 (Tabular) |
 | Buttons & Navigation | Inter | 500, 600 |
 | Bangla Text & Numerals | Hind Siliguri | 400, 500, 600, 700 |
+
+### Mobile-First Architectural Principles
+
+- **Primary Viewport:** 360px – 440px mobile phone screens with desktop centering (`.mobile-shell`).
+- **Touch Target Minimum:** 48px height on buttons and inputs for thumb ergonomics.
+- **iOS Zoom Prevention:** Strict `16px` font size on all input fields.
+- **Dynamic Viewport Height:** `100dvh` to handle mobile browser address bars without layout shift.
+- **Safe Area Insets:** Full support for `env(safe-area-inset-top)` and `env(safe-area-inset-bottom)`.
+- **Tap Highlight Reset:** `-webkit-tap-highlight-color: transparent` for a native app feel.
 
 ---
 

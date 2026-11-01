@@ -74,6 +74,13 @@
   --color-border-subtle: rgba(255, 255, 255, 0.05);
   --color-border-brand: #0F5BE4;
 
+  /* Input Boxes: White in Dark Mode */
+  --color-input-bg: #FFFFFF;
+  --color-input-text: #000000;
+  --color-input-placeholder: #64748B;
+  --color-input-icon: #475569;
+  --color-input-border: #E2E8F0;
+
   --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
   --shadow-card-hover: 0 8px 30px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(15, 91, 228, 0.4);
   --shadow-glow: 0 0 25px rgba(15, 91, 228, 0.35);
@@ -110,6 +117,13 @@
   --color-border: #E5E0E4;
   --color-border-subtle: #F1EFF0;
   --color-border-brand: rgba(15, 91, 228, 0.35);
+
+  /* Input Boxes: Black in Light Mode */
+  --color-input-bg: #09090D;
+  --color-input-text: #FFFFFF;
+  --color-input-placeholder: #A1A1AA;
+  --color-input-icon: #94A3B8;
+  --color-input-border: #27272A;
 
   --shadow-card: 0 2px 6px rgba(4, 27, 69, 0.04), 0 0 0 1px #E5E0E4;
   --shadow-card-hover: 0 10px 25px -5px rgba(4, 27, 69, 0.08), 0 0 0 1px #6BBCE9;
