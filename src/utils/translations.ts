@@ -1,5 +1,11 @@
 export type Language = "en" | "bn";
 
+type DeepStringRecord<T> = {
+  [K in keyof T]: T[K] extends string ? string : DeepStringRecord<T[K]>;
+};
+
+export type Translations = DeepStringRecord<typeof translations.en>;
+
 export const translations = {
   en: {
     brand: {

@@ -189,8 +189,8 @@ export const LoginPage: React.FC = () => {
         <div
           style={{
             position: "relative",
-            width: "32px",
-            height: "32px",
+            width: "clamp(28px, 6.5vw, 32px)",
+            height: "clamp(28px, 6.5vw, 32px)",
             borderRadius: "50%",
             background: theme === "dark" ? "#000000" : "#FFFFFF",
             border: `1.5px solid ${roleConfig.border}`,
@@ -202,6 +202,7 @@ export const LoginPage: React.FC = () => {
             justifyContent: "center",
             overflow: "hidden",
             transition: "box-shadow 0.2s ease, transform 0.15s ease",
+            flexShrink: 0,
           }}
         >
           {!avatarErrors[k] && u.avatar_url ? (
@@ -240,7 +241,7 @@ export const LoginPage: React.FC = () => {
         {/* User Name */}
         <div
           style={{
-            fontSize: "10.5px",
+            fontSize: "clamp(9.5px, 2.2vw, 10.5px)",
             fontWeight: 600,
             color: theme === "dark" ? "#F8FAFC" : "#0F172A",
             marginTop: "3px",
@@ -260,12 +261,12 @@ export const LoginPage: React.FC = () => {
             display: "inline-flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: "3px",
-            padding: "1.5px 6px",
+            gap: "2.5px",
+            padding: "1.5px clamp(4px, 1vw, 6px)",
             borderRadius: "9999px",
             backgroundColor: roleConfig.bg,
             color: roleConfig.text,
-            fontSize: "8.5px",
+            fontSize: "clamp(7.5px, 1.8vw, 8.5px)",
             fontWeight: 700,
             letterSpacing: "0.01em",
             whiteSpace: "nowrap",
@@ -282,31 +283,32 @@ export const LoginPage: React.FC = () => {
   return (
     <div
       style={{
-        height: "100dvh",
-        maxHeight: "100dvh",
+        minHeight: "100dvh",
+        width: "100%",
         display: "flex",
         flexDirection: "column",
+        alignItems: "center",
         backgroundColor: "var(--color-bg)",
         color: "var(--color-text-primary)",
         position: "relative",
-        overflow: "hidden",
+        padding: "clamp(12px, 2vh, 20px) clamp(10px, 3vw, 18px)",
+        boxSizing: "border-box",
+        overflowX: "hidden",
+        overflowY: "auto",
+        WebkitOverflowScrolling: "touch",
         transition: "background-color var(--transition-normal)",
       }}
     >
       <div
-        className="mobile-shell"
         style={{
           width: "100%",
-          maxWidth: "440px",
-          height: "100%",
-          maxHeight: "100%",
+          maxWidth: "400px",
+          minHeight: "calc(100dvh - clamp(24px, 4vh, 40px))",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          padding: "clamp(8px, 1.8vh, 14px) clamp(12px, 3vw, 18px)",
+          alignItems: "center",
           boxSizing: "border-box",
-          overflowY: "auto",
-          scrollbarWidth: "none",
         }}
       >
         {/* Top: Recently Saved Accounts (Minimal Scaled-Down Card) */}
@@ -317,9 +319,7 @@ export const LoginPage: React.FC = () => {
             alignItems: "center",
             width: "100%",
             maxWidth: "400px",
-            margin: "0 auto",
-            paddingTop: "2px",
-            marginBottom: "4px",
+            flexShrink: 0,
             position: "relative",
             zIndex: 10,
           }}
@@ -327,12 +327,12 @@ export const LoginPage: React.FC = () => {
           {/* Title: RECENTLY SAVED ACCOUNT */}
           <div
             style={{
-              fontSize: "9.5px",
+              fontSize: "clamp(8.5px, 2vw, 9.5px)",
               fontWeight: 700,
               color: theme === "dark" ? "#94A3B8" : "#64748B",
               letterSpacing: "0.08em",
               textTransform: "uppercase",
-              marginBottom: "5px",
+              marginBottom: "4px",
               textAlign: "center",
               opacity: 0.85,
             }}
@@ -352,11 +352,14 @@ export const LoginPage: React.FC = () => {
                 theme === "dark"
                   ? "0 6px 20px -2px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04)"
                   : "0 4px 16px -2px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)",
-              padding: "8px 10px 9px 10px",
+              padding: "clamp(6px, 1.2vh, 8px) clamp(6px, 1.8vw, 10px)",
               display: "flex",
               alignItems: "stretch",
               justifyContent: "space-between",
-              gap: "4px",
+              gap: "clamp(2px, 0.8vw, 4px)",
+              overflowX: "auto",
+              scrollbarWidth: "none",
+              WebkitOverflowScrolling: "touch",
             }}
           >
             {/* System Section: 2 Roles */}
@@ -500,14 +503,15 @@ export const LoginPage: React.FC = () => {
           </div>
         </header>
 
-        {/* Center Auth Card (Mobile-First) */}
+        {/* Center Auth Card (Responsive & Balanced) */}
         <main
           style={{
+            width: "100%",
             flex: 1,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: "4px 0",
+            margin: "clamp(12px, 2vh, 24px) 0",
             minHeight: 0,
           }}
         >
@@ -523,7 +527,7 @@ export const LoginPage: React.FC = () => {
                 theme === "dark"
                   ? "0 20px 50px -10px rgba(0, 0, 0, 0.95), 0 0 35px -5px rgba(15, 91, 228, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.12)"
                   : "0 16px 40px -12px rgba(4, 27, 69, 0.16), 0 0 0 1px #E5E0E4",
-              padding: "clamp(22px, 2.8vh, 26px) 24px",
+              padding: "clamp(18px, 2.6vh, 26px) clamp(16px, 4.5vw, 24px)",
               position: "relative",
               borderRadius: "var(--radius-xl)",
               transition: "box-shadow var(--transition-normal), border-color var(--transition-normal)",
@@ -531,7 +535,7 @@ export const LoginPage: React.FC = () => {
             }}
           >
             {/* Brand Group */}
-            <div style={{ textAlign: "center", marginBottom: "22px" }}>
+            <div style={{ textAlign: "center", marginBottom: "clamp(14px, 2.2vh, 22px)" }}>
               {/* Wallet SVG Logo Icon on Top */}
               <div style={{ display: "flex", justifyContent: "center", marginBottom: "6px" }}>
                 <svg
@@ -560,10 +564,10 @@ export const LoginPage: React.FC = () => {
                 </svg>
               </div>
 
-              {/* Brand Name: 24px, bold, line-height 1.2 */}
+              {/* Brand Name */}
               <div
                 style={{
-                  fontSize: "24px",
+                  fontSize: "clamp(20px, 4.8vw, 24px)",
                   fontWeight: 700,
                   color: "var(--color-text-primary)",
                   letterSpacing: language === "bn" ? "normal" : "-0.01em",
@@ -581,7 +585,7 @@ export const LoginPage: React.FC = () => {
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
-                  marginBottom: "12px",
+                  marginBottom: "clamp(8px, 1.4vh, 12px)",
                 }}
               >
                 <svg width="44" height="7" viewBox="0 0 44 7" fill="none">
@@ -600,10 +604,10 @@ export const LoginPage: React.FC = () => {
                 </svg>
               </div>
 
-              {/* Main Heading: 20px, semibold, line-height 1.3 */}
+              {/* Main Heading */}
               <h1
                 style={{
-                  fontSize: "20px",
+                  fontSize: "clamp(17px, 4vw, 20px)",
                   fontWeight: 600,
                   color: "var(--color-text-primary)",
                   marginBottom: "6px",
@@ -623,10 +627,10 @@ export const LoginPage: React.FC = () => {
                 )}
               </h1>
 
-              {/* Description: 12-13px, regular, line-height 1.5 */}
+              {/* Description */}
               <p
                 style={{
-                  fontSize: "12.5px",
+                  fontSize: "clamp(11.5px, 2.6vw, 12.5px)",
                   fontWeight: 400,
                   color: "var(--color-text-secondary)",
                   lineHeight: 1.5,
@@ -639,8 +643,8 @@ export const LoginPage: React.FC = () => {
 
             {/* Form Group */}
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
-              {/* User ID Field: 16px bottom margin */}
-              <div style={{ marginBottom: "16px" }}>
+              {/* User ID Field */}
+              <div style={{ marginBottom: "clamp(12px, 1.8vh, 16px)" }}>
                 <label
                   style={{
                     display: "inline-flex",
@@ -689,8 +693,8 @@ export const LoginPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Password Field: 16px bottom margin to options row */}
-              <div style={{ marginBottom: "16px" }}>
+              {/* Password Field */}
+              <div style={{ marginBottom: "clamp(12px, 1.8vh, 16px)" }}>
                 <label
                   style={{
                     display: "inline-flex",
@@ -760,13 +764,15 @@ export const LoginPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Remember Me & Forgot Password Row: 24px bottom margin to button */}
+              {/* Remember Me & Forgot Password Row */}
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  marginBottom: "24px",
+                  flexWrap: "wrap",
+                  gap: "8px",
+                  marginBottom: "clamp(16px, 2.4vh, 24px)",
                   userSelect: "none",
                 }}
               >
@@ -840,11 +846,11 @@ export const LoginPage: React.FC = () => {
                 {isLoading ? t.auth.loggingIn : t.auth.loginBtn}
               </button>
 
-              {/* Don't have an account? Register link: 20px top margin */}
+              {/* Don't have an account? Register link */}
               <div
                 style={{
                   textAlign: "center",
-                  marginTop: "20px",
+                  marginTop: "clamp(14px, 2vh, 20px)",
                   fontSize: "12px",
                   fontWeight: 400,
                   color: "var(--color-text-secondary)",
@@ -882,11 +888,11 @@ export const LoginPage: React.FC = () => {
               </div>
             </form>
 
-            {/* Footer Security Badge inside card: 16px top margin, 12px padding top */}
+            {/* Footer Security Badge inside card */}
             <div
               style={{
-                marginTop: "16px",
-                paddingTop: "12px",
+                marginTop: "clamp(12px, 1.8vh, 16px)",
+                paddingTop: "clamp(10px, 1.5vh, 12px)",
                 borderTop: "1px solid var(--color-border)",
                 display: "flex",
                 alignItems: "center",
@@ -912,8 +918,8 @@ export const LoginPage: React.FC = () => {
             flexWrap: "wrap",
             gap: "clamp(4px, 1.2vw, 8px)",
             rowGap: "4px",
-            paddingTop: "6px",
-            paddingBottom: "max(10px, env(safe-area-inset-bottom, 10px))",
+            paddingTop: "4px",
+            paddingBottom: "max(6px, env(safe-area-inset-bottom, 6px))",
             width: "100%",
             maxWidth: "100%",
             flexShrink: 0,
@@ -1126,9 +1132,11 @@ export const LoginPage: React.FC = () => {
                 style={{
                   maxWidth: "420px",
                   width: "100%",
+                  maxHeight: "90dvh",
+                  overflowY: "auto",
                   backgroundColor: "var(--color-surface)",
                   boxShadow: "var(--shadow-modal)",
-                  padding: "22px 20px",
+                  padding: "clamp(16px, 3vh, 22px) clamp(14px, 4vw, 20px)",
                 }}
                 onClick={(e) => e.stopPropagation()}
               >
@@ -1255,8 +1263,11 @@ export const LoginPage: React.FC = () => {
                 style={{
                   maxWidth: "460px",
                   width: "100%",
+                  maxHeight: "90dvh",
+                  overflowY: "auto",
                   backgroundColor: "var(--color-surface)",
                   boxShadow: "var(--shadow-modal)",
+                  padding: "clamp(16px, 3vh, 22px) clamp(14px, 4vw, 20px)",
                 }}
                 onClick={(e) => e.stopPropagation()}
               >

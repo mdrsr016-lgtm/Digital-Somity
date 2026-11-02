@@ -175,15 +175,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .single();
 
         if (data && !error) {
+          const isAdmin = data.role_name_en?.toLowerCase().includes("admin");
           const user: User = {
             id: data.id,
             login_id: data.login_id,
             name: data.name,
             email: data.email || `${data.login_id}@dsbd.com`,
             phone: data.phone || "+880 1700-000000",
-            role: data.role_name_en?.toLowerCase().includes("admin") ? "admin" : "member",
+            role: isAdmin ? "admin" : "member",
+            scope: data.scope || (isAdmin ? "system" : "client"),
             role_name_en: data.role_name_en || "Member",
             role_name_bn: data.role_name_bn || "সদস্য",
+            role_color: data.role_color || (isAdmin ? "#16A34A" : "#475569"),
             workspace_name: data.workspace_name || "Central Somiti",
             status: data.status || "active",
             initial: data.initial || data.name.charAt(0).toUpperCase(),

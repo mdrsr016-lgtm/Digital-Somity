@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { translations, Language, formatCurrency as formatCurrencyUtil } from "../utils/translations";
+import { translations, Language, Translations, formatCurrency as formatCurrencyUtil } from "../utils/translations";
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   toggleLanguage: () => void;
-  t: typeof translations.en;
+  t: Translations;
   formatMoney: (amount: number) => string;
 }
 
@@ -31,7 +31,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setLanguageState((prev) => (prev === "en" ? "bn" : "en"));
   };
 
-  const t = translations[language];
+  const t: Translations = translations[language];
 
   const formatMoney = (amount: number) => formatCurrencyUtil(amount, language);
 
