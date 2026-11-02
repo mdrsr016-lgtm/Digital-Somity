@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { User, Lock, Eye, EyeOff, ShieldCheck, Moon, Sun, Globe, X, Ticket, KeyRound, Check } from "lucide-react";
+import { User, Lock, Eye, EyeOff, ShieldCheck, Moon, Sun, Globe, X, Ticket, KeyRound, Check, Crown, Shield, Briefcase, TrendingUp, Users } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth, DEMO_USERS } from "../contexts/AuthContext";
@@ -90,11 +90,76 @@ export const LoginPage: React.FC = () => {
     localStorage.setItem("ds_recent_account", id);
   };
 
-  const renderUserCircle = (k: string) => {
+  // Cash Register Icon matching design mockup
+  const CashRegisterIcon: React.FC<{ size?: number }> = ({ size = 9 }) => (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      style={{ display: "block", flexShrink: 0 }}
+    >
+      <rect x="7" y="2" width="10" height="6" rx="1.2" />
+      <rect x="11" y="8" width="2" height="2" />
+      <path d="M4 10h16l-1.5 6h-13z" />
+      <rect x="3" y="16" width="18" height="5" rx="1.2" />
+      <rect x="10.5" y="18.5" width="3" height="1" rx="0.5" fill="#FFFFFF" />
+    </svg>
+  );
+
+  const getRoleConfig = (role: string, isDark: boolean) => {
+    switch (role) {
+      case "founder":
+        return {
+          bg: isDark ? "rgba(147, 51, 234, 0.16)" : "#F3E8FF",
+          text: isDark ? "#C084FC" : "#9333EA",
+          border: "#9333EA",
+          icon: <Crown size={9} fill="currentColor" style={{ display: "block", flexShrink: 0 }} />,
+        };
+      case "admin":
+        return {
+          bg: isDark ? "rgba(22, 163, 74, 0.16)" : "#DCFCE7",
+          text: isDark ? "#4ADE80" : "#16A34A",
+          border: "#16A34A",
+          icon: <Shield size={9} fill="currentColor" style={{ display: "block", flexShrink: 0 }} />,
+        };
+      case "manager":
+        return {
+          bg: isDark ? "rgba(29, 78, 216, 0.16)" : "#DBEAFE",
+          text: isDark ? "#60A5FA" : "#1D4ED8",
+          border: "#1D4ED8",
+          icon: <Briefcase size={9} fill="currentColor" style={{ display: "block", flexShrink: 0 }} />,
+        };
+      case "cashier":
+        return {
+          bg: isDark ? "rgba(29, 78, 216, 0.16)" : "#DBEAFE",
+          text: isDark ? "#60A5FA" : "#1D4ED8",
+          border: "#1D4ED8",
+          icon: <CashRegisterIcon size={9} />,
+        };
+      case "investor":
+        return {
+          bg: isDark ? "rgba(234, 88, 12, 0.16)" : "#FFEDD5",
+          text: isDark ? "#FB923C" : "#EA580C",
+          border: "#EA580C",
+          icon: <TrendingUp size={9} strokeWidth={2.8} style={{ display: "block", flexShrink: 0 }} />,
+        };
+      case "member":
+      default:
+        return {
+          bg: isDark ? "rgba(148, 163, 184, 0.16)" : "#F1F5F9",
+          text: isDark ? "#CBD5E1" : "#475569",
+          border: "#475569",
+          icon: <Users size={9} fill="currentColor" style={{ display: "block", flexShrink: 0 }} />,
+        };
+    }
+  };
+
+  const renderUserCard = (k: string) => {
     const u = DEMO_USERS[k];
     if (!u) return null;
     const isSelected = k === savedAccount;
-    const roleColor = u.role_color || "var(--color-brand)";
+    const roleConfig = getRoleConfig(u.role, theme === "dark");
 
     return (
       <button
@@ -104,39 +169,39 @@ export const LoginPage: React.FC = () => {
         style={{
           background: "none",
           border: "none",
-          padding: 0,
+          padding: "0 1px",
           cursor: "pointer",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: "2px",
           transition: "transform 0.15s ease",
           flexShrink: 0,
         }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = "translateY(-1.5px)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = "translateY(0)";
+        }}
         title={`${u.name} • ${language === "bn" ? u.role_name_bn : u.role_name_en} (${k})`}
       >
+        {/* Minimal Scaled-Down Avatar Ring */}
         <div
           style={{
             position: "relative",
-            width: "36px",
-            height: "36px",
+            width: "32px",
+            height: "32px",
             borderRadius: "50%",
             background: theme === "dark" ? "#000000" : "#FFFFFF",
-            border: `2px solid ${isSelected ? roleColor : `${roleColor}80`}`,
+            border: `1.5px solid ${roleConfig.border}`,
             boxShadow: isSelected
-              ? `0 0 12px ${roleColor}90, 0 0 0 2px ${roleColor}40`
-              : "0 2px 5px rgba(0, 0, 0, 0.2)",
+              ? `0 0 8px ${roleConfig.border}70, 0 0 0 1.5px ${roleConfig.border}30`
+              : "0 1px 3px rgba(0, 0, 0, 0.08)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             overflow: "hidden",
-            transition: "transform 0.15s ease, box-shadow 0.15s ease",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "scale(1.08)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "scale(1)";
+            transition: "box-shadow 0.2s ease, transform 0.15s ease",
           }}
         >
           {!avatarErrors[k] && u.avatar_url ? (
@@ -158,56 +223,57 @@ export const LoginPage: React.FC = () => {
               style={{
                 width: "100%",
                 height: "100%",
-                backgroundColor: `${roleColor}25`,
-                color: roleColor,
+                backgroundColor: roleConfig.bg,
+                color: roleConfig.text,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontWeight: 700,
-                fontSize: "13px",
+                fontSize: "11px",
               }}
             >
               {u.initial}
             </div>
           )}
-
-          {/* Online Status Badge */}
-          <span
-            style={{
-              position: "absolute",
-              bottom: "1px",
-              right: "1px",
-              width: "7px",
-              height: "7px",
-              borderRadius: "50%",
-              backgroundColor: "#16A34A",
-              border: `1.5px solid ${theme === "dark" ? "#000000" : "#FFFFFF"}`,
-              zIndex: 2,
-            }}
-          />
         </div>
 
-        <div style={{ textAlign: "center", lineHeight: 1.15 }}>
-          <div
-            style={{
-              fontSize: "9.5px",
-              fontWeight: 700,
-              color: isSelected ? roleColor : "var(--color-text-primary)",
-              letterSpacing: "0.01em",
-            }}
-          >
-            {u.name}
-          </div>
-          <div
-            style={{
-              fontSize: "7.5px",
-              fontWeight: 600,
-              color: roleColor,
-              letterSpacing: "0.02em",
-            }}
-          >
-            {language === "bn" ? u.role_name_bn : u.role_name_en}
-          </div>
+        {/* User Name */}
+        <div
+          style={{
+            fontSize: "10.5px",
+            fontWeight: 600,
+            color: theme === "dark" ? "#F8FAFC" : "#0F172A",
+            marginTop: "3px",
+            marginBottom: "2px",
+            textAlign: "center",
+            whiteSpace: "nowrap",
+            letterSpacing: "-0.01em",
+            lineHeight: 1.2,
+          }}
+        >
+          {u.name}
+        </div>
+
+        {/* Minimal Role Pill Badge */}
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "3px",
+            padding: "1.5px 6px",
+            borderRadius: "9999px",
+            backgroundColor: roleConfig.bg,
+            color: roleConfig.text,
+            fontSize: "8.5px",
+            fontWeight: 700,
+            letterSpacing: "0.01em",
+            whiteSpace: "nowrap",
+            lineHeight: 1.2,
+          }}
+        >
+          {roleConfig.icon}
+          <span>{language === "bn" ? u.role_name_bn : u.role_name_en}</span>
         </div>
       </button>
     );
@@ -230,119 +296,206 @@ export const LoginPage: React.FC = () => {
       <div
         className="mobile-shell"
         style={{
+          width: "100%",
+          maxWidth: "440px",
           height: "100%",
           maxHeight: "100%",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          padding: "clamp(10px, 2.2vh, 16px) clamp(14px, 4vw, 20px)",
+          padding: "clamp(8px, 1.8vh, 14px) clamp(12px, 3vw, 18px)",
           boxSizing: "border-box",
-          overflow: "hidden",
+          overflowY: "auto",
+          scrollbarWidth: "none",
         }}
       >
-        {/* Top: Recently Saved Accounts Row (All 6 Roles: 2 System + 4 Clients) */}
+        {/* Top: Recently Saved Accounts (Minimal Scaled-Down Card) */}
         <header
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            width: "100%",
+            maxWidth: "400px",
+            margin: "0 auto",
             paddingTop: "2px",
             marginBottom: "4px",
             position: "relative",
             zIndex: 10,
           }}
         >
+          {/* Title: RECENTLY SAVED ACCOUNT */}
           <div
             style={{
-              fontSize: "10px",
+              fontSize: "9.5px",
               fontWeight: 700,
-              color: "var(--color-text-secondary)",
-              letterSpacing: "0.06em",
+              color: theme === "dark" ? "#94A3B8" : "#64748B",
+              letterSpacing: "0.08em",
               textTransform: "uppercase",
-              marginBottom: "6px",
+              marginBottom: "5px",
+              textAlign: "center",
               opacity: 0.85,
             }}
           >
-            {t.auth.recentlySavedAccount}
+            {t.auth.recentlySavedAccount || "RECENTLY SAVED ACCOUNT"}
           </div>
 
-          {/* Row of All 6 Role Accounts: 2 System + 4 Clients */}
+          {/* Minimal Scaled-Down Rounded Container Card */}
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "clamp(5px, 1.5vw, 9px)",
-              background: theme === "dark" ? "rgba(255, 255, 255, 0.02)" : "rgba(0, 0, 0, 0.02)",
-              padding: "5px 8px",
-              borderRadius: "16px",
-              border: `1px solid ${theme === "dark" ? "rgba(255, 255, 255, 0.06)" : "rgba(0, 0, 0, 0.06)"}`,
-              maxWidth: "100%",
+              width: "100%",
               boxSizing: "border-box",
+              backgroundColor: theme === "dark" ? "var(--color-surface)" : "#FFFFFF",
+              border: `1px solid ${theme === "dark" ? "rgba(255, 255, 255, 0.08)" : "#E2E8F0"}`,
+              borderRadius: "14px",
+              boxShadow:
+                theme === "dark"
+                  ? "0 6px 20px -2px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04)"
+                  : "0 4px 16px -2px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)",
+              padding: "8px 10px 9px 10px",
+              display: "flex",
+              alignItems: "stretch",
+              justifyContent: "space-between",
+              gap: "4px",
             }}
           >
-            {/* System Side: Aeysha (Founder) & Rafiq (Admin) */}
+            {/* System Section: 2 Roles */}
             <div
               style={{
+                flex: "2 1 0",
                 display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
-                gap: "clamp(3px, 1vw, 6px)",
               }}
             >
-              <span
+              {/* Header Line with Pill Badge */}
+              <div
                 style={{
-                  fontSize: "8px",
-                  fontWeight: 800,
-                  color: "var(--color-text-secondary)",
-                  letterSpacing: "0.05em",
-                  textTransform: "uppercase",
-                  opacity: 0.6,
-                  writingMode: "vertical-rl",
-                  transform: "rotate(180deg)",
-                  padding: "0 1px",
+                  display: "flex",
+                  alignItems: "center",
+                  width: "100%",
+                  marginBottom: "6px",
                 }}
               >
-                {t.auth.systemScope || "SYSTEM"}
-              </span>
+                <div
+                  style={{
+                    flex: 1,
+                    height: "1px",
+                    backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "#E2E8F0",
+                  }}
+                />
+                <span
+                  style={{
+                    padding: "1px 6px",
+                    fontSize: "8.5px",
+                    fontWeight: 700,
+                    letterSpacing: "0.06em",
+                    borderRadius: "9999px",
+                    backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.08)" : "#F1F5F9",
+                    color: theme === "dark" ? "#94A3B8" : "#64748B",
+                    textTransform: "uppercase",
+                    margin: "0 5px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {t.auth.systemScope || "SYSTEM"}
+                </span>
+                <div
+                  style={{
+                    flex: 1,
+                    height: "1px",
+                    backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "#E2E8F0",
+                  }}
+                />
+              </div>
 
-              {["aye01", "adm00"].map((k) => renderUserCircle(k))}
+              {/* System Accounts: Aeysha (Founder) & Rafiq (Admin) */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-around",
+                  width: "100%",
+                  gap: "4px",
+                }}
+              >
+                {["aye01", "adm00"].map((k) => renderUserCard(k))}
+              </div>
             </div>
 
-            {/* Subtle Divider */}
+            {/* Vertical Divider */}
             <div
               style={{
                 width: "1px",
-                height: "40px",
-                backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.12)",
-                margin: "0 1px",
+                alignSelf: "stretch",
+                backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "#E2E8F0",
+                margin: "0 4px",
+                flexShrink: 0,
               }}
             />
 
-            {/* Clients Side: Nasrin (Manager), Karim (Cashier), Selim (Investor), Tania (Member) */}
+            {/* Clients Section: 4 Roles */}
             <div
               style={{
+                flex: "4 1 0",
                 display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
-                gap: "clamp(3px, 1vw, 6px)",
               }}
             >
-              <span
+              {/* Header Line with Pill Badge */}
+              <div
                 style={{
-                  fontSize: "8px",
-                  fontWeight: 800,
-                  color: "var(--color-text-secondary)",
-                  letterSpacing: "0.05em",
-                  textTransform: "uppercase",
-                  opacity: 0.6,
-                  writingMode: "vertical-rl",
-                  transform: "rotate(180deg)",
-                  padding: "0 1px",
+                  display: "flex",
+                  alignItems: "center",
+                  width: "100%",
+                  marginBottom: "6px",
                 }}
               >
-                {t.auth.clientScope || "CLIENTS"}
-              </span>
+                <div
+                  style={{
+                    flex: 1,
+                    height: "1px",
+                    backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "#E2E8F0",
+                  }}
+                />
+                <span
+                  style={{
+                    padding: "1px 6px",
+                    fontSize: "8.5px",
+                    fontWeight: 700,
+                    letterSpacing: "0.06em",
+                    borderRadius: "9999px",
+                    backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.08)" : "#F1F5F9",
+                    color: theme === "dark" ? "#94A3B8" : "#64748B",
+                    textTransform: "uppercase",
+                    margin: "0 5px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {t.auth.clientScope || "CLIENTS"}
+                </span>
+                <div
+                  style={{
+                    flex: 1,
+                    height: "1px",
+                    backgroundColor: theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "#E2E8F0",
+                  }}
+                />
+              </div>
 
-              {["mng01", "csh01", "inv01", "mbr01"].map((k) => renderUserCircle(k))}
+              {/* Clients Accounts: Nasrin (Manager), Karim (Cashier), Selim (Investor), Tania (Member) */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-around",
+                  width: "100%",
+                  gap: "3px",
+                }}
+              >
+                {["mng01", "csh01", "inv01", "mbr01"].map((k) => renderUserCard(k))}
+              </div>
             </div>
           </div>
         </header>

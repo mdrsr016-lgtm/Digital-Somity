@@ -34,11 +34,11 @@ export const DEMO_USERS: Record<string, User> = {
     scope: "system",
     role_name_en: "Founder",
     role_name_bn: "প্রতিষ্ঠাতা",
-    role_color: "#EAB308", // Yellow / Gold as in design
+    role_color: "#9333EA", // Purple as in design
     workspace_name: "Digital Somiti HQ",
     status: "active",
     initial: "A",
-    avatar_url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&auto=format&fit=crop&q=80",
+    avatar_url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80",
     balance: 5000000,
   },
   adm00: {
@@ -51,11 +51,11 @@ export const DEMO_USERS: Record<string, User> = {
     scope: "system",
     role_name_en: "Admin",
     role_name_bn: "অ্যাডমিন",
-    role_color: "#A855F7", // Purple as in design
+    role_color: "#16A34A", // Green as in design
     workspace_name: "Digital Somiti HQ",
     status: "active",
     initial: "R",
-    avatar_url: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80",
+    avatar_url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=160&auto=format&fit=crop&q=80",
     balance: 1450000,
   },
 
@@ -70,11 +70,11 @@ export const DEMO_USERS: Record<string, User> = {
     scope: "client",
     role_name_en: "Manager",
     role_name_bn: "ম্যানেজার",
-    role_color: "#06B6D4", // Cyan as in design
+    role_color: "#1D4ED8", // Blue as in design
     workspace_name: "Motijheel Financial Branch",
     status: "active",
     initial: "N",
-    avatar_url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&auto=format&fit=crop&q=80",
+    avatar_url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=160&auto=format&fit=crop&q=80",
     balance: 750000,
   },
   csh01: {
@@ -87,11 +87,11 @@ export const DEMO_USERS: Record<string, User> = {
     scope: "client",
     role_name_en: "Cashier",
     role_name_bn: "ক্যাশিয়ার",
-    role_color: "#10B981", // Green as in design
+    role_color: "#1D4ED8", // Blue as in design
     workspace_name: "Motijheel Financial Branch",
     status: "active",
     initial: "K",
-    avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80",
+    avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&auto=format&fit=crop&q=80",
     balance: 320000,
   },
   inv01: {
@@ -104,11 +104,11 @@ export const DEMO_USERS: Record<string, User> = {
     scope: "client",
     role_name_en: "Investor",
     role_name_bn: "বিনিয়োগকারী",
-    role_color: "#F97316", // Orange as in design
+    role_color: "#EA580C", // Orange as in design
     workspace_name: "Central Somiti (HQ)",
     status: "active",
     initial: "S",
-    avatar_url: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&auto=format&fit=crop&q=80",
+    avatar_url: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=160&auto=format&fit=crop&q=80",
     balance: 850000,
   },
   mbr01: {
@@ -121,7 +121,7 @@ export const DEMO_USERS: Record<string, User> = {
     scope: "client",
     role_name_en: "Member",
     role_name_bn: "সদস্য",
-    role_color: "#94A3B8", // Slate Gray as in design
+    role_color: "#475569", // Slate as in design
     workspace_name: "Dhanmondi Branch",
     status: "active",
     initial: "T",
