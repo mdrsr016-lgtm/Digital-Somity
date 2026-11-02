@@ -23,7 +23,6 @@ import {
   Moon,
   Sun,
   Globe,
-  Menu,
   X,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
@@ -41,40 +40,40 @@ type NavItem = {
 // ─── Role-based nav configs ──────────────────────────────────────────────────
 const NAV_BY_ROLE: Record<string, NavItem[]> = {
   founder: [
-    { id: "home", icon: <Home size={20} />, label: "Overview", labelBn: "সংক্ষিপ্ত" },
-    { id: "branches", icon: <Building2 size={20} />, label: "Branches", labelBn: "শাখাসমূহ" },
-    { id: "members", icon: <Users size={20} />, label: "Members", labelBn: "সদস্যগণ" },
-    { id: "finance", icon: <TrendingUp size={20} />, label: "Finance", labelBn: "অর্থায়ন" },
-    { id: "reports", icon: <FileText size={20} />, label: "Reports", labelBn: "প্রতিবেদন" },
-    { id: "settings", icon: <Settings size={20} />, label: "Settings", labelBn: "সেটিংস" },
+    { id: "home", icon: <Home size={22} />, label: "Overview", labelBn: "সংক্ষিপ্ত" },
+    { id: "branches", icon: <Building2 size={22} />, label: "Branches", labelBn: "শাখাসমূহ" },
+    { id: "members", icon: <Users size={22} />, label: "Members", labelBn: "সদস্যগণ" },
+    { id: "finance", icon: <TrendingUp size={22} />, label: "Finance", labelBn: "অর্থায়ন" },
+    { id: "reports", icon: <FileText size={22} />, label: "Reports", labelBn: "প্রতিবেদন" },
+    { id: "settings", icon: <Settings size={22} />, label: "Settings", labelBn: "সেটিংস" },
   ],
   admin: [
-    { id: "home", icon: <Home size={20} />, label: "Overview", labelBn: "সংক্ষিপ্ত" },
-    { id: "members", icon: <Users size={20} />, label: "Members", labelBn: "সদস্যগণ" },
-    { id: "finance", icon: <TrendingUp size={20} />, label: "Finance", labelBn: "অর্থায়ন" },
-    { id: "reports", icon: <FileText size={20} />, label: "Reports", labelBn: "প্রতিবেদন" },
-    { id: "settings", icon: <Settings size={20} />, label: "Settings", labelBn: "সেটিংস" },
+    { id: "home", icon: <Home size={22} />, label: "Overview", labelBn: "সংক্ষিপ্ত" },
+    { id: "members", icon: <Users size={22} />, label: "Members", labelBn: "সদস্যগণ" },
+    { id: "finance", icon: <TrendingUp size={22} />, label: "Finance", labelBn: "অর্থায়ন" },
+    { id: "reports", icon: <FileText size={22} />, label: "Reports", labelBn: "প্রতিবেদন" },
+    { id: "settings", icon: <Settings size={22} />, label: "Settings", labelBn: "সেটিংস" },
   ],
   manager: [
-    { id: "home", icon: <Home size={20} />, label: "Overview", labelBn: "সংক্ষিপ্ত" },
-    { id: "members", icon: <Users size={20} />, label: "Members", labelBn: "সদস্যগণ" },
-    { id: "transactions", icon: <CreditCard size={20} />, label: "Transactions", labelBn: "লেনদেন" },
-    { id: "reports", icon: <FileText size={20} />, label: "Reports", labelBn: "প্রতিবেদন" },
+    { id: "home", icon: <Home size={22} />, label: "Overview", labelBn: "সংক্ষিপ্ত" },
+    { id: "members", icon: <Users size={22} />, label: "Members", labelBn: "সদস্যগণ" },
+    { id: "transactions", icon: <CreditCard size={22} />, label: "Transactions", labelBn: "লেনদেন" },
+    { id: "reports", icon: <FileText size={22} />, label: "Reports", labelBn: "প্রতিবেদন" },
   ],
   cashier: [
-    { id: "home", icon: <Home size={20} />, label: "Overview", labelBn: "সংক্ষিপ্ত" },
-    { id: "transactions", icon: <CreditCard size={20} />, label: "Transactions", labelBn: "লেনদেন" },
-    { id: "members", icon: <Users size={20} />, label: "Members", labelBn: "সদস্যগণ" },
+    { id: "home", icon: <Home size={22} />, label: "Overview", labelBn: "সংক্ষিপ্ত" },
+    { id: "transactions", icon: <CreditCard size={22} />, label: "Transactions", labelBn: "লেনদেন" },
+    { id: "members", icon: <Users size={22} />, label: "Members", labelBn: "সদস্যগণ" },
   ],
   investor: [
-    { id: "home", icon: <Home size={20} />, label: "Portfolio", labelBn: "পোর্টফোলিও" },
-    { id: "finance", icon: <PieChart size={20} />, label: "Returns", labelBn: "আয়" },
-    { id: "transactions", icon: <CreditCard size={20} />, label: "Transactions", labelBn: "লেনদেন" },
+    { id: "home", icon: <Home size={22} />, label: "Portfolio", labelBn: "পোর্টফোলিও" },
+    { id: "finance", icon: <PieChart size={22} />, label: "Returns", labelBn: "আয়" },
+    { id: "transactions", icon: <CreditCard size={22} />, label: "Transactions", labelBn: "লেনদেন" },
   ],
   member: [
-    { id: "home", icon: <Home size={20} />, label: "My Account", labelBn: "আমার অ্যাকাউন্ট" },
-    { id: "transactions", icon: <CreditCard size={20} />, label: "Transactions", labelBn: "লেনদেন" },
-    { id: "finance", icon: <Wallet size={20} />, label: "Savings", labelBn: "সঞ্চয়" },
+    { id: "home", icon: <Home size={22} />, label: "My Account", labelBn: "আমার অ্যাকাউন্ট" },
+    { id: "transactions", icon: <CreditCard size={22} />, label: "Transactions", labelBn: "লেনদেন" },
+    { id: "finance", icon: <Wallet size={22} />, label: "Savings", labelBn: "সঞ্চয়" },
   ],
 };
 
@@ -378,6 +377,7 @@ export const DashboardPage: React.FC = () => {
   const { language, toggleLanguage } = useLanguage();
   const [activeTab, setActiveTab] = useState("home");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   // ── Sliding pill refs & state ──
   const navRef = useRef<HTMLDivElement>(null);
@@ -413,60 +413,176 @@ export const DashboardPage: React.FC = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "12px 16px",
-          background: "var(--color-surface)",
-          borderBottom: "1px solid var(--color-border)",
+          padding: "10px 16px",
+          background: "transparent",
           flexShrink: 0,
-          zIndex: 10,
+          zIndex: 20,
+          position: "relative",
         }}
       >
-        {/* Left: Avatar + Greeting */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div
+        {/* Left: Logo SVG + brand text in Caviler font */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {/* Inline SVG from Logo component */}
+          <svg
+            viewBox="0 0 5000 4008"
+            width={28}
+            height={28}
             style={{
-              width: 38,
-              height: 38,
-              borderRadius: "50%",
-              overflow: "hidden",
-              border: `2px solid ${currentUser.role_color}`,
+              filter: theme === "dark"
+                ? "drop-shadow(0 0 10px rgba(15,91,228,0.6))"
+                : "drop-shadow(0 2px 6px rgba(15,91,228,0.3))",
               flexShrink: 0,
-              background: currentUser.role_color,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#fff",
-              fontSize: 15,
-              fontWeight: 700,
             }}
           >
-            {currentUser.avatar_url ? (
-              <img src={currentUser.avatar_url} alt={currentUser.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            ) : (
-              currentUser.initial
-            )}
-          </div>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)", lineHeight: 1.2 }}>
-              {currentUser.name}
-            </div>
-            <RoleIcon role={currentUser.role} color={currentUser.role_color} />
-          </div>
+            <defs>
+              <linearGradient id="hdr-logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#0F5BE4" />
+                <stop offset="100%" stopColor="#6BBCE9" />
+              </linearGradient>
+            </defs>
+            <path
+              fill="url(#hdr-logo-grad)"
+              d="M3886 750.5h327.8c115.6 0 220.8 47.4 297.1 123.6l.3.3c76.2 76.3 123.6 181.5 123.6 297.1v723.8h224.9c40.7 0 73.8 33.1 73.8 73.8v1014.4c0 40.7-33.1 73.7-73.8 73.7h-224.9v467.1c0 115.7-47.4 220.9-123.6 297.2l-.3.2c-76.3 76.3-181.5 123.7-297.1 123.7H487c-115.7 0-220.9-47.4-297.1-123.7l-.3-.2C113.4 3745.2 66 3640 66 3524.3V477c0-113.8 45.9-217.5 120-293.5 72.4-74.1 171.9-121.9 282.1-126.8 3.4-.4 6.9-.7 10.4-.7H3465c115.6 0 220.9 47.4 297.1 123.6l.3.3C3838.6 256.2 3886 361.4 3886 477zM487 898l-8.8-.1-2.4-.1c-93.6-2.4-179.9-36-248.9-90.5l-.9-.8-2.1-1.6-1.8-1.5-6.1-5-2.1-1.8-.4-.3v2728c0 75.3 30.8 143.7 80.3 193.3 49.5 49.4 117.9 80.2 193.2 80.2h3726.8c75.2 0 143.7-30.8 193.2-80.2 49.5-49.6 80.3-118 80.3-193.3v-467.1h-645.1c-26.7 0-50-14.2-63-35.4l-177.8-249.3-179.9-252.2q-2.1-2.85-3.9-5.7l-1-1.7-1-1.9-.1-.2-1.4-2.7-1.7-4-.5-1.1-1.5-4.2-.1-.3-.4-1.4v-.1c-1.5-4.9-2.4-9.9-2.8-15l-.2-3.4-.1-2.4.1-2.3.2-3.5c.4-5 1.3-10 2.8-15l.4-1.5.1-.2 1.5-4.3.5-1.1 1.7-3.9 1.4-2.7.1-.3 1-1.9 1-1.6q1.8-3 3.9-5.7l179.9-252.2 177.8-249.3c13-21.2 36.3-35.4 63-35.4h645.1v-723.8c0-75.2-30.8-143.7-80.3-193.2S4289 898 4213.8 898zM282.1 657.9l.9.9.2.3 1.7 1.8 3.7 4.1.9.9 1.9 2 2.3 2.3.6.6 6.6 6.3 1.5 1.4 1.2 1.1.3.3c46.8 42.2 108.1 68.6 175.5 70.5h3259.1V477c0-75.3-30.8-143.7-80.3-193.3-49.5-49.4-117.9-80.2-193.2-80.2H478.5v-.1c-73 2.2-139.1 33.5-187.1 82.7-48.1 49.3-77.9 116.8-77.9 190.9 0 69.2 26 132.6 68.6 180.9M4561 2042.8h-681.1l-158.7 222.5-150.4 210.9 150.4 211 158.7 222.5h906v-866.9zm-1139.5 389.4c4.5-6 9.9-11.4 16.3-15.9zm662.8-183.4c62.8 0 119.7 25.5 160.9 66.6 41.1 41.2 66.6 98.1 66.6 160.9s-25.5 119.7-66.6 160.8c-41.2 41.2-98.1 66.7-160.9 66.7s-119.7-25.5-160.8-66.7q-2.4-2.4-4.6-4.9c-38.5-40.8-62.1-95.8-62.1-155.9 0-62.6 25.5-119.4 66.8-160.7l-.1-.2c41.1-41.1 98-66.6 160.8-66.6m56.6 170.9a79.97 79.97 0 0 0-56.6-23.4c-22.1 0-42.1 9-56.6 23.4l-.1-.2-.1.2c-14.4 14.3-23.2 34.3-23.2 56.6 0 20.9 7.8 39.8 20.6 53.9l2.8 2.7c14.5 14.4 34.5 23.4 56.6 23.4s42.2-9 56.6-23.4c14.4-14.5 23.4-34.5 23.4-56.6s-9-42.2-23.4-56.6"
+            />
+          </svg>
+
+          {/* Brand name in Caviler logo font */}
+          <span
+            style={{
+              fontFamily: "var(--font-logo)",
+              fontSize: 20,
+              fontWeight: 400,
+              letterSpacing: "0.04em",
+              lineHeight: 1,
+              userSelect: "none",
+              color: "var(--color-text-primary)",
+            }}
+          >
+            Digital{" "}
+            <span style={{ color: "var(--color-brand-variant)" }}>Somiti</span>
+          </span>
         </div>
 
-        {/* Right: Actions */}
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <IconBtn onClick={toggleLanguage} title="Toggle language">
-            <Globe size={17} />
-          </IconBtn>
-          <IconBtn onClick={toggleTheme} title="Toggle theme">
-            {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
-          </IconBtn>
-          <IconBtn title="Notifications">
-            <Bell size={17} />
-          </IconBtn>
-          <IconBtn onClick={() => setDrawerOpen(true)} title="Menu">
-            <Menu size={17} />
-          </IconBtn>
+        {/* Right: Avatar + Name + Role + Chevron → opens profile dropdown */}
+        <div style={{ position: "relative" }}>
+          <button
+            onClick={() => setProfileOpen((v) => !v)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "4px 6px",
+              borderRadius: "var(--radius-lg)",
+            }}
+          >
+            {/* Avatar */}
+            <div
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: "50%",
+                overflow: "hidden",
+                border: `2px solid ${currentUser.role_color}`,
+                flexShrink: 0,
+                background: currentUser.role_color,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#fff",
+                fontSize: 13,
+                fontWeight: 700,
+              }}
+            >
+              {currentUser.avatar_url ? (
+                <img
+                  src={currentUser.avatar_url}
+                  alt={currentUser.name}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              ) : (
+                currentUser.initial
+              )}
+            </div>
+
+            {/* Name + Role */}
+            <div style={{ textAlign: "left", lineHeight: 1.25 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)", whiteSpace: "nowrap" }}>
+                {currentUser.name}
+              </div>
+              <div style={{ fontSize: 11, color: currentUser.role_color, fontWeight: 500, whiteSpace: "nowrap" }}>
+                {currentUser.role_name_en}
+              </div>
+            </div>
+
+            {/* Chevron */}
+            <motion.span
+              animate={{ rotate: profileOpen ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+              style={{ display: "flex", color: "var(--color-text-muted)", flexShrink: 0 }}
+            >
+              <ChevronRight size={14} style={{ transform: "rotate(90deg)" }} />
+            </motion.span>
+          </button>
+
+          {/* ── Profile Dropdown ── */}
+          <AnimatePresence>
+            {profileOpen && (
+              <>
+                {/* Click-away backdrop */}
+                <div
+                  onClick={() => setProfileOpen(false)}
+                  style={{ position: "fixed", inset: 0, zIndex: 28 }}
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.94, y: -8 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.94, y: -8 }}
+                  transition={{ duration: 0.18, ease: "easeOut" }}
+                  style={{
+                    position: "absolute",
+                    top: "calc(100% + 8px)",
+                    right: 0,
+                    minWidth: 200,
+                    background: "var(--color-surface)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "var(--radius-lg)",
+                    boxShadow: "var(--shadow-modal)",
+                    zIndex: 29,
+                    overflow: "hidden",
+                  }}
+                >
+                  {/* Profile header */}
+                  <div style={{ padding: "14px 16px", borderBottom: "1px solid var(--color-border)" }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>{currentUser.name}</div>
+                    <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 2 }}>{currentUser.email}</div>
+                    <div style={{ marginTop: 6 }}>
+                      <RoleIcon role={currentUser.role} color={currentUser.role_color} />
+                    </div>
+                  </div>
+
+                  {/* Quick actions */}
+                  <div style={{ padding: "6px" }}>
+                    <DropdownItem icon={<Globe size={15} />} label={language === "bn" ? "English" : "বাংলা"} onClick={() => { toggleLanguage(); setProfileOpen(false); }} />
+                    <DropdownItem icon={theme === "dark" ? <Sun size={15} /> : <Moon size={15} />} label={theme === "dark" ? "Light Mode" : "Dark Mode"} onClick={() => { toggleTheme(); setProfileOpen(false); }} />
+                    <DropdownItem icon={<Settings size={15} />} label="Settings" onClick={() => setProfileOpen(false)} />
+                  </div>
+
+                  {/* Logout */}
+                  <div style={{ padding: "6px", borderTop: "1px solid var(--color-border)" }}>
+                    <DropdownItem
+                      icon={<LogOut size={15} />}
+                      label="Log Out"
+                      danger
+                      onClick={() => { logout(); setProfileOpen(false); }}
+                    />
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
         </div>
       </header>
 
@@ -494,11 +610,12 @@ export const DashboardPage: React.FC = () => {
         style={{
           flexShrink: 0,
           padding: "10px 16px",
-          paddingBottom: "calc(10px + env(safe-area-inset-bottom, 0px))",
+          paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))",
           background: "var(--color-bg)",
+          width: "100%",
+          boxSizing: "border-box",
         }}
       >
-        {/* The nav is a plain div so we can ref it */}
         <div
           ref={navRef}
           style={{
@@ -508,32 +625,34 @@ export const DashboardPage: React.FC = () => {
             background: "var(--color-surface)",
             border: "1px solid var(--color-border)",
             borderRadius: 999,
-            padding: "6px 8px",
-            gap: 4,
-            boxShadow: "var(--shadow-card)",
+            padding: "6px 6px",
+            boxShadow: "0 8px 30px rgba(0,0,0,0.25), 0 0 0 1px var(--color-border)",
             position: "relative",
+            width: "100%",
+            boxSizing: "border-box",
           }}
         >
-          {/* ── Single sliding pill — lives outside buttons, z:0 ── */}
+          {/* ── Single sliding pill (Accent Color) ── */}
           <motion.div
             animate={{
               left: pill.left,
               width: pill.width,
               opacity: pill.ready ? 1 : 0,
             }}
-            transition={{ type: "spring", stiffness: 420, damping: 38, mass: 0.9 }}
+            transition={{ type: "spring", stiffness: 440, damping: 38, mass: 0.9 }}
             style={{
               position: "absolute",
               top: 6,
               height: "calc(100% - 12px)",
               borderRadius: 999,
-              background: "var(--color-text-primary)",
+              background: "var(--color-brand)",
+              boxShadow: "0 4px 16px var(--color-brand-glow)",
               pointerEvents: "none",
               zIndex: 0,
             }}
           />
 
-          {/* ── Tab buttons — transparent, pill sits behind them ── */}
+          {/* ── Tab buttons ── */}
           {navItems.map((item, idx) => {
             const isActive = activeTab === item.id;
             return (
@@ -547,18 +666,19 @@ export const DashboardPage: React.FC = () => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: isActive ? 7 : 0,
-                  padding: isActive ? "9px 16px" : "9px 10px",
+                  gap: isActive ? 8 : 0,
+                  padding: isActive ? "10px 18px" : "10px 11px",
                   border: "none",
                   borderRadius: 999,
                   background: "transparent",
-                  color: isActive ? "var(--color-bg)" : "var(--color-text-muted)",
+                  color: isActive ? "#FFFFFF" : "var(--color-text-muted)",
                   cursor: "pointer",
                   flexShrink: isActive ? 0 : 1,
                   whiteSpace: "nowrap",
                   minWidth: 0,
                   transition: "color 180ms ease",
                   outline: "none",
+                  WebkitTapHighlightColor: "transparent",
                 }}
               >
                 {/* Icon */}
@@ -568,21 +688,24 @@ export const DashboardPage: React.FC = () => {
                     alignItems: "center",
                     justifyContent: "center",
                     flexShrink: 0,
-                    width: 20,
-                    height: 20,
+                    width: 22,
+                    height: 22,
+                    color: isActive ? "#FFFFFF" : "currentColor",
+                    transition: "color 180ms ease",
                   }}
                 >
                   {item.icon}
                 </span>
 
-                {/* Label: shown instantly when active so measurement is correct */}
+                {/* Label */}
                 {isActive && (
                   <span
                     style={{
-                      fontSize: 13,
+                      fontSize: 13.5,
                       fontWeight: 700,
                       letterSpacing: "-0.01em",
                       whiteSpace: "nowrap",
+                      color: "#FFFFFF",
                     }}
                   >
                     {language === "bn" ? item.labelBn : item.label}
@@ -759,6 +882,36 @@ const IconBtn: React.FC<{ children: React.ReactNode; onClick?: () => void; title
     }}
   >
     {children}
+  </button>
+);
+
+// ─── Dropdown menu item ───────────────────────────────────────────────────────
+const DropdownItem: React.FC<{
+  icon: React.ReactNode;
+  label: string;
+  onClick?: () => void;
+  danger?: boolean;
+}> = ({ icon, label, onClick, danger }) => (
+  <button
+    onClick={onClick}
+    style={{
+      width: "100%",
+      display: "flex",
+      alignItems: "center",
+      gap: 10,
+      padding: "9px 10px",
+      border: "none",
+      borderRadius: "var(--radius-md)",
+      background: "none",
+      color: danger ? "var(--color-error)" : "var(--color-text-secondary)",
+      cursor: "pointer",
+      fontSize: 13,
+      fontWeight: 500,
+      textAlign: "left",
+    }}
+  >
+    {icon}
+    {label}
   </button>
 );
 
