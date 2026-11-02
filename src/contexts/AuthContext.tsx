@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { supabase, isSupabaseConfigured } from "../utils/supabaseClient";
 
-export type UserRole = "admin" | "cashier" | "investor" | "member";
+export type UserRole = "founder" | "admin" | "manager" | "cashier" | "investor" | "member";
+export type RoleScope = "system" | "client";
 
 export interface User {
   id: string;
@@ -10,69 +11,121 @@ export interface User {
   email: string;
   phone: string;
   role: UserRole;
+  scope: RoleScope;
   role_name_en: string;
   role_name_bn: string;
+  role_color: string;
   workspace_name: string;
   status: "active" | "suspended" | "fridge" | "disabled";
   initial: string;
+  avatar_url?: string;
   balance?: number;
 }
 
 export const DEMO_USERS: Record<string, User> = {
+  // System Side (2 Roles)
+  aye01: {
+    id: "usr-founder-01",
+    login_id: "aye01",
+    name: "Aeysha",
+    email: "aeysha@dsbd.com",
+    phone: "+880 1711-000001",
+    role: "founder",
+    scope: "system",
+    role_name_en: "Founder",
+    role_name_bn: "প্রতিষ্ঠাতা",
+    role_color: "#EAB308", // Yellow / Gold as in design
+    workspace_name: "Digital Somiti HQ",
+    status: "active",
+    initial: "A",
+    avatar_url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&auto=format&fit=crop&q=80",
+    balance: 5000000,
+  },
   adm00: {
     id: "usr-admin-01",
     login_id: "adm00",
-    name: "Rashid Shahriyar",
-    email: "admin@dsbd.com",
-    phone: "+880 1711-234567",
+    name: "Rafiq",
+    email: "rafiq@dsbd.com",
+    phone: "+880 1711-000002",
     role: "admin",
-    role_name_en: "System Admin / Owner",
-    role_name_bn: "সিস্টেম অ্যাডমিন / মালিক",
-    workspace_name: "Central Somiti (HQ)",
+    scope: "system",
+    role_name_en: "Admin",
+    role_name_bn: "অ্যাডমিন",
+    role_color: "#A855F7", // Purple as in design
+    workspace_name: "Digital Somiti HQ",
     status: "active",
     initial: "R",
+    avatar_url: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80",
     balance: 1450000,
+  },
+
+  // Clients Side (4 Roles from design)
+  mng01: {
+    id: "usr-manager-01",
+    login_id: "mng01",
+    name: "Nasrin",
+    email: "nasrin@somiti.com",
+    phone: "+880 1819-000003",
+    role: "manager",
+    scope: "client",
+    role_name_en: "Manager",
+    role_name_bn: "ম্যানেজার",
+    role_color: "#06B6D4", // Cyan as in design
+    workspace_name: "Motijheel Financial Branch",
+    status: "active",
+    initial: "N",
+    avatar_url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&auto=format&fit=crop&q=80",
+    balance: 750000,
   },
   csh01: {
     id: "usr-cashier-01",
     login_id: "csh01",
-    name: "Anisur Rahman",
-    email: "cashier@dsbd.com",
-    phone: "+880 1819-876543",
+    name: "Karim",
+    email: "karim@somiti.com",
+    phone: "+880 1819-000004",
     role: "cashier",
-    role_name_en: "Chief Cashier",
-    role_name_bn: "প্রধান ক্যাশিয়ার",
-    workspace_name: "Motijheel Branch",
+    scope: "client",
+    role_name_en: "Cashier",
+    role_name_bn: "ক্যাশিয়ার",
+    role_color: "#10B981", // Green as in design
+    workspace_name: "Motijheel Financial Branch",
     status: "active",
-    initial: "A",
+    initial: "K",
+    avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80",
     balance: 320000,
   },
   inv01: {
     id: "usr-investor-01",
     login_id: "inv01",
-    name: "Tanvir Ahmed",
-    email: "tanvir@invest.com",
-    phone: "+880 1912-345678",
+    name: "Selim",
+    email: "selim@invest.com",
+    phone: "+880 1912-000005",
     role: "investor",
-    role_name_en: "Founding Investor",
-    role_name_bn: "প্রতিষ্ঠাতা বিনিয়োগকারী",
+    scope: "client",
+    role_name_en: "Investor",
+    role_name_bn: "বিনিয়োগকারী",
+    role_color: "#F97316", // Orange as in design
     workspace_name: "Central Somiti (HQ)",
     status: "active",
-    initial: "T",
+    initial: "S",
+    avatar_url: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&auto=format&fit=crop&q=80",
     balance: 850000,
   },
   mbr01: {
     id: "usr-member-01",
     login_id: "mbr01",
-    name: "Kazi Nazrul Islam",
-    email: "nazrul@member.com",
-    phone: "+880 1611-987654",
+    name: "Tania",
+    email: "tania@somiti.com",
+    phone: "+880 1611-000006",
     role: "member",
-    role_name_en: "General Member",
-    role_name_bn: "সাধারণ সদস্য",
+    scope: "client",
+    role_name_en: "Member",
+    role_name_bn: "সদস্য",
+    role_color: "#94A3B8", // Slate Gray as in design
     workspace_name: "Dhanmondi Branch",
     status: "active",
-    initial: "K",
+    initial: "T",
+    avatar_url: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&auto=format&fit=crop&q=80",
     balance: 64500,
   },
 };

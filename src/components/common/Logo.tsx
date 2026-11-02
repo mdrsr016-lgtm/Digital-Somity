@@ -5,16 +5,17 @@ import { useTheme } from "../../contexts/ThemeContext";
 interface LogoProps {
   size?: "sm" | "md" | "lg";
   showText?: boolean;
+  layout?: "horizontal" | "vertical";
 }
 
-export const Logo: React.FC<LogoProps> = ({ size = "md", showText = true }) => {
+export const Logo: React.FC<LogoProps> = ({ size = "md", showText = true, layout = "vertical" }) => {
   const { language } = useLanguage();
   const { theme } = useTheme();
 
   const dimensions = {
-    sm: { img: 26, text: "20px" },
-    md: { img: 34, text: "26px" },
-    lg: { img: 44, text: "32px" },
+    sm: { img: 26, text: "18px" },
+    md: { img: 38, text: "23px" },
+    lg: { img: 48, text: "28px" },
   }[size];
 
   // Dynamic gradient colors per theme
@@ -25,8 +26,10 @@ export const Logo: React.FC<LogoProps> = ({ size = "md", showText = true }) => {
     <div
       style={{
         display: "inline-flex",
+        flexDirection: layout === "vertical" ? "column" : "row",
         alignItems: "center",
-        gap: "12px",
+        justifyContent: "center",
+        gap: layout === "vertical" ? "6px" : "12px",
         textDecoration: "none",
         cursor: "pointer",
         userSelect: "none",
@@ -40,8 +43,8 @@ export const Logo: React.FC<LogoProps> = ({ size = "md", showText = true }) => {
         style={{
           filter:
             theme === "dark"
-              ? "drop-shadow(0 0 12px rgba(15, 91, 228, 0.55))"
-              : "drop-shadow(0 2px 6px rgba(15, 91, 228, 0.25))",
+              ? "drop-shadow(0 0 14px rgba(15, 91, 228, 0.6))"
+              : "drop-shadow(0 2px 8px rgba(15, 91, 228, 0.3))",
           transition: "filter var(--transition-normal)",
           flexShrink: 0,
         }}
