@@ -362,22 +362,25 @@ export const LoginPage: React.FC = () => {
             className="fintech-card"
             style={{
               width: "100%",
+              maxWidth: "400px",
+              margin: "0 auto",
               backgroundColor: "var(--color-surface)",
               borderColor: "var(--color-border)",
               boxShadow:
                 theme === "dark"
                   ? "0 20px 50px -10px rgba(0, 0, 0, 0.95), 0 0 35px -5px rgba(15, 91, 228, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.12)"
                   : "0 16px 40px -12px rgba(4, 27, 69, 0.16), 0 0 0 1px #E5E0E4",
-              padding: "clamp(16px, 2.4vh, 22px) clamp(18px, 4vw, 22px)",
+              padding: "clamp(22px, 2.8vh, 26px) 24px",
               position: "relative",
               borderRadius: "var(--radius-xl)",
               transition: "box-shadow var(--transition-normal), border-color var(--transition-normal)",
+              boxSizing: "border-box",
             }}
           >
-            {/* Logo & Heading (Styled to Reference Mockup with SVG Logo on Top) */}
-            <div style={{ textAlign: "center", marginBottom: "12px" }}>
+            {/* Brand Group */}
+            <div style={{ textAlign: "center", marginBottom: "22px" }}>
               {/* Wallet SVG Logo Icon on Top */}
-              <div style={{ display: "flex", justifyContent: "center", marginBottom: "5px" }}>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: "6px" }}>
                 <svg
                   viewBox="0 0 5000 4008"
                   width={36}
@@ -404,33 +407,33 @@ export const LoginPage: React.FC = () => {
                 </svg>
               </div>
 
-              {/* Brand Name */}
+              {/* Brand Name: 24px, bold, line-height 1.2 */}
               <div
                 style={{
-                  fontSize: "clamp(21px, 3.2vw, 24px)",
+                  fontSize: "24px",
                   fontWeight: 700,
                   color: "var(--color-text-primary)",
                   letterSpacing: language === "bn" ? "normal" : "-0.01em",
                   fontFamily: language === "bn" ? "var(--font-bangla)" : "var(--font-heading)",
                   lineHeight: 1.2,
-                  marginBottom: "3px",
+                  marginBottom: "7px",
                 }}
               >
                 {language === "bn" ? "ডিজিটাল সমিতি" : "Digital Somiti"}
               </div>
 
-              {/* Glowing Curved Blue Arc */}
+              {/* Decorative Underline Arc: 6-8px from brand, 12px to heading */}
               <div
                 style={{
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
-                  margin: "2px 0 6px",
+                  marginBottom: "12px",
                 }}
               >
-                <svg width="46" height="7" viewBox="0 0 46 7" fill="none">
+                <svg width="44" height="7" viewBox="0 0 44 7" fill="none">
                   <path
-                    d="M3 5.8C15 1.6 31 1.6 43 5.8"
+                    d="M3 5.8C14 1.6 30 1.6 41 5.8"
                     stroke={theme === "dark" ? "#00A3FF" : "var(--color-brand)"}
                     strokeWidth="2.5"
                     strokeLinecap="round"
@@ -444,15 +447,15 @@ export const LoginPage: React.FC = () => {
                 </svg>
               </div>
 
-              {/* Main Heading: Sign In With Your ID */}
+              {/* Main Heading: 20px, semibold, line-height 1.3 */}
               <h1
                 style={{
-                  fontSize: "clamp(19px, 3vw, 21px)",
-                  fontWeight: 700,
+                  fontSize: "20px",
+                  fontWeight: 600,
                   color: "var(--color-text-primary)",
-                  marginBottom: "5px",
+                  marginBottom: "6px",
                   letterSpacing: "-0.02em",
-                  lineHeight: 1.25,
+                  lineHeight: 1.3,
                 }}
               >
                 {language === "bn" ? (
@@ -467,20 +470,24 @@ export const LoginPage: React.FC = () => {
                 )}
               </h1>
 
+              {/* Description: 12-13px, regular, line-height 1.5 */}
               <p
                 style={{
-                  fontSize: "12px",
+                  fontSize: "12.5px",
+                  fontWeight: 400,
                   color: "var(--color-text-secondary)",
-                  lineHeight: 1.45,
+                  lineHeight: 1.5,
+                  margin: 0,
                 }}
               >
                 {t.auth.loginSubtitle}
               </p>
             </div>
 
-            {/* Login Form */}
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              <div>
+            {/* Form Group */}
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
+              {/* User ID Field: 16px bottom margin */}
+              <div style={{ marginBottom: "16px" }}>
                 <label
                   style={{
                     display: "inline-flex",
@@ -489,7 +496,7 @@ export const LoginPage: React.FC = () => {
                     fontSize: "11px",
                     fontWeight: 600,
                     color: "var(--color-text-secondary)",
-                    marginBottom: "5px",
+                    marginBottom: "6px",
                     textTransform: "uppercase",
                     letterSpacing: "0.04em",
                   }}
@@ -506,6 +513,7 @@ export const LoginPage: React.FC = () => {
                       top: "50%",
                       transform: "translateY(-50%)",
                       color: "var(--color-input-icon)",
+                      pointerEvents: "none",
                     }}
                   />
                   <input
@@ -513,13 +521,23 @@ export const LoginPage: React.FC = () => {
                     placeholder={t.auth.userIdPlaceholder}
                     value={userId}
                     onChange={(e) => setUserId(e.target.value)}
-                    style={{ paddingLeft: "40px", minHeight: "44px", fontSize: "14px" }}
+                    style={{
+                      height: "46px",
+                      minHeight: "46px",
+                      paddingLeft: "42px",
+                      paddingRight: "16px",
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      boxSizing: "border-box",
+                      width: "100%",
+                    }}
                     autoComplete="username"
                   />
                 </div>
               </div>
 
-              <div>
+              {/* Password Field: 16px bottom margin to options row */}
+              <div style={{ marginBottom: "16px" }}>
                 <label
                   style={{
                     display: "inline-flex",
@@ -528,7 +546,7 @@ export const LoginPage: React.FC = () => {
                     fontSize: "11px",
                     fontWeight: 600,
                     color: "var(--color-text-secondary)",
-                    marginBottom: "5px",
+                    marginBottom: "6px",
                     textTransform: "uppercase",
                     letterSpacing: "0.04em",
                   }}
@@ -545,6 +563,7 @@ export const LoginPage: React.FC = () => {
                       top: "50%",
                       transform: "translateY(-50%)",
                       color: "var(--color-input-icon)",
+                      pointerEvents: "none",
                     }}
                   />
                   <input
@@ -553,10 +572,14 @@ export const LoginPage: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     style={{
-                      paddingLeft: "40px",
-                      paddingRight: "40px",
-                      minHeight: "44px",
+                      height: "46px",
+                      minHeight: "46px",
+                      paddingLeft: "42px",
+                      paddingRight: "42px",
                       fontSize: "14px",
+                      fontWeight: 500,
+                      boxSizing: "border-box",
+                      width: "100%",
                     }}
                     autoComplete="current-password"
                   />
@@ -565,30 +588,32 @@ export const LoginPage: React.FC = () => {
                     onClick={() => setShowPassword(!showPassword)}
                     style={{
                       position: "absolute",
-                      right: "10px",
+                      right: "12px",
                       top: "50%",
                       transform: "translateY(-50%)",
                       background: "transparent",
+                      border: "none",
                       color: "var(--color-input-icon)",
                       padding: "4px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
+                      cursor: "pointer",
                     }}
+                    title={showPassword ? "Hide password" : "Show password"}
                   >
-                    {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
               </div>
 
-              {/* Remember Me & Forgot Password Row */}
+              {/* Remember Me & Forgot Password Row: 24px bottom margin to button */}
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  marginTop: "-2px",
-                  marginBottom: "2px",
+                  marginBottom: "24px",
                   userSelect: "none",
                 }}
               >
@@ -597,7 +622,7 @@ export const LoginPage: React.FC = () => {
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: "6px",
+                    gap: "8px",
                     cursor: "pointer",
                     fontSize: "12px",
                     fontWeight: 500,
@@ -613,6 +638,7 @@ export const LoginPage: React.FC = () => {
                       width: "14px",
                       height: "14px",
                       cursor: "pointer",
+                      margin: 0,
                     }}
                   />
                   <span>{t.auth.rememberMe}</span>
@@ -639,31 +665,35 @@ export const LoginPage: React.FC = () => {
                 </button>
               </div>
 
-              {/* Primary Sign In Button */}
+              {/* Primary Sign In Button: 46px height */}
               <button
                 type="submit"
                 className="btn-primary"
                 disabled={isLoading}
                 style={{
                   width: "100%",
-                  padding: "11px",
-                  minHeight: "44px",
-                  marginTop: "2px",
+                  height: "46px",
+                  minHeight: "46px",
                   backgroundColor: "var(--color-brand)",
                   borderRadius: "var(--radius-md)",
                   fontSize: "14px",
                   fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: isLoading ? "not-allowed" : "pointer",
                 }}
               >
                 {isLoading ? t.auth.loggingIn : t.auth.loginBtn}
               </button>
 
-              {/* Don't have an account? Register link (Opens Invitation Code Modal) */}
+              {/* Don't have an account? Register link: 20px top margin */}
               <div
                 style={{
                   textAlign: "center",
-                  marginTop: "8px",
+                  marginTop: "20px",
                   fontSize: "12px",
+                  fontWeight: 400,
                   color: "var(--color-text-secondary)",
                   display: "flex",
                   alignItems: "center",
@@ -699,11 +729,11 @@ export const LoginPage: React.FC = () => {
               </div>
             </form>
 
-            {/* Footer Security Badge inside card */}
+            {/* Footer Security Badge inside card: 16px top margin, 12px padding top */}
             <div
               style={{
-                marginTop: "14px",
-                paddingTop: "10px",
+                marginTop: "16px",
+                paddingTop: "12px",
                 borderTop: "1px solid var(--color-border)",
                 display: "flex",
                 alignItems: "center",
@@ -711,9 +741,10 @@ export const LoginPage: React.FC = () => {
                 gap: "6px",
                 color: "var(--color-text-muted)",
                 fontSize: "11px",
+                fontWeight: 400,
               }}
             >
-              <ShieldCheck size={13} style={{ color: "var(--color-success)" }} />
+              <ShieldCheck size={14} style={{ color: "var(--color-success)" }} />
               <span>{t.auth.securedBy}</span>
             </div>
           </div>

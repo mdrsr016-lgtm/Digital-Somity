@@ -234,7 +234,7 @@ button {
 }
 
 /* Input Fields (Mobile-Optimized & Contrast Inverted) */
-input, select, textarea {
+input:not([type="checkbox"]):not([type="radio"]), select, textarea {
   font-family: var(--font-ui);
   font-size: 16px; /* 16px prevents iOS Safari auto-zoom on mobile devices */
   background-color: var(--color-input-bg) !important;
@@ -246,6 +246,11 @@ input, select, textarea {
   outline: none;
   width: 100%;
   transition: all var(--transition-fast);
+}
+
+input[type="checkbox"], input[type="radio"] {
+  accent-color: var(--color-brand);
+  cursor: pointer;
 }
 
 input:focus, select:focus, textarea:focus {
