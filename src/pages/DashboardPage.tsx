@@ -221,10 +221,14 @@ const HomeContent: React.FC<{ role: string; user: { name: string; balance?: numb
   if (role === "founder") {
     return (
       <>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
-          <StatCard label="Total Balance" value={`৳${fmt(balance)}`} sub="All branches" icon={<Wallet size={16} />} accent="#9333EA" />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12, marginBottom: 20 }}>
+          {/* 1. Total Branches */}
+          <StatCard label="Total Branches" value="7" sub="2 pending" icon={<Building2 size={16} />} accent="#10B981" />
+          {/* 2. Total Members */}
           <StatCard label="Total Members" value="1,248" sub="+12 this month" icon={<Users size={16} />} accent="#0F5BE4" />
-          <StatCard label="Active Branches" value="7" sub="2 pending" icon={<Building2 size={16} />} accent="#10B981" />
+          {/* 3. Subscription Revenue */}
+          <StatCard label="Subscription Revenue" value="৳1.8L" sub="+14.2% growth" icon={<CreditCard size={16} />} accent="#9333EA" />
+          {/* 4. Monthly Revenue */}
           <StatCard label="Monthly Revenue" value="৳3.2L" sub="+8.4% vs last" icon={<TrendingUp size={16} />} accent="#EA580C" />
         </div>
         <SectionCard title="Recent Transactions">
@@ -237,7 +241,7 @@ const HomeContent: React.FC<{ role: string; user: { name: string; balance?: numb
   if (role === "admin") {
     return (
       <>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12, marginBottom: 20 }}>
           <StatCard label="HQ Balance" value={`৳${fmt(balance)}`} sub="Current" icon={<Wallet size={16} />} accent="#16A34A" />
           <StatCard label="Total Members" value="1,248" sub="+12 this month" icon={<Users size={16} />} accent="#0F5BE4" />
           <StatCard label="Pending Tasks" value="5" sub="Needs review" icon={<FileText size={16} />} accent="#EA580C" />
@@ -253,7 +257,7 @@ const HomeContent: React.FC<{ role: string; user: { name: string; balance?: numb
   if (role === "manager") {
     return (
       <>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12, marginBottom: 20 }}>
           <StatCard label="Branch Balance" value={`৳${fmt(balance)}`} sub={user.workspace_name} icon={<Building2 size={16} />} accent="#1D4ED8" />
           <StatCard label="Branch Members" value="186" sub="+3 this week" icon={<Users size={16} />} accent="#0F5BE4" />
           <StatCard label="Collections" value="৳42,500" sub="This month" icon={<TrendingUp size={16} />} accent="#10B981" />
