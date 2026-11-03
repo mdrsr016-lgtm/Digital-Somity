@@ -48,6 +48,12 @@ import {
   Smartphone,
   AlertTriangle,
   Database,
+  ArrowLeft,
+  Camera,
+  Edit3,
+  User,
+  Calendar,
+  Fingerprint,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
@@ -103,31 +109,47 @@ const NAV_BY_ROLE: Record<string, NavItem[]> = {
 };
 
 // ─── Role badge icon ─────────────────────────────────────────────────────────
-const RoleIcon: React.FC<{ role: string; color: string }> = ({ role, color }) => {
+const RoleIcon: React.FC<{
+  role: string;
+  color: string;
+  showLabel?: boolean;
+  label?: string;
+  size?: number;
+}> = ({ role, color, showLabel = true, label, size = 12 }) => {
   const icons: Record<string, React.ReactNode> = {
-    founder: <Crown size={14} />,
-    admin: <Shield size={14} />,
-    manager: <Briefcase size={14} />,
-    cashier: <BadgeDollarSign size={14} />,
-    investor: <TrendingUp size={14} />,
-    member: <UserCheck size={14} />,
+    founder: <Crown size={size} />,
+    admin: <Shield size={size} />,
+    manager: <Briefcase size={size} />,
+    cashier: <BadgeDollarSign size={size} />,
+    investor: <TrendingUp size={size} />,
+    member: <UserCheck size={size} />,
+  };
+  const roleNames: Record<string, string> = {
+    founder: "Platform Founder",
+    admin: "Admin",
+    manager: "Branch Manager",
+    cashier: "Cashier",
+    investor: "Investor",
+    member: "Member",
   };
   return (
     <span
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: 4,
+        gap: 5,
         color,
         fontSize: 11,
         fontWeight: 600,
         background: `${color}18`,
         border: `1px solid ${color}40`,
         borderRadius: 999,
-        padding: "2px 8px",
+        padding: "2.5px 8px",
+        lineHeight: 1,
       }}
     >
-      {icons[role]}
+      {icons[role] ?? <Crown size={size} />}
+      {showLabel && <span>{label ?? roleNames[role] ?? role}</span>}
     </span>
   );
 };
@@ -5121,6 +5143,1494 @@ const SettingsTab: React.FC = () => {
   );
 };
 
+// ─── Profile Page View ───────────────────────────────────────────────────────
+const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+  const { currentUser, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const { language, toggleLanguage } = useLanguage();
+  const { success, info } = useToast();
+
+  // Profile data states
+  const [profileName, setProfileName] = useState(currentUser?.name || "Aeysha Shahriyar");
+  const [profileEmail, setProfileEmail] = useState(currentUser?.email || "aeysha@dsbd.com");
+  const [profilePhone, setPhone] = useState(currentUser?.phone || "+880 1711-000001");
+  const [profileNid, setProfileNid] = useState("8293-8472-9182");
+  const [profileHq, setProfileHq] = useState("Central Somiti HQ, Road 11, Banani, Dhaka-1213");
+  const [profileBio, setProfileBio] = useState(
+    "Platform Founder & Chief Administrator of Digital Somiti Cooperative Management Platform."
+  );
+
+  // Modals state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [currentPw, setCurrentPw] = useState("");
+  const [newPw, setNewPw] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+
+  const handleSaveProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    success(
+      language === "bn" ? "প্রোফাইল সংরক্ষিত" : "Profile Updated",
+      language === "bn"
+        ? `প্রতিষ্ঠাতা ${profileName}-এর তথ্য সফলভাবে সংরক্ষিত হয়েছে।`
+        : `Profile details for ${profileName} have been saved successfully.`
+    );
+    setIsEditModalOpen(false);
+  };
+
+  const handleChangePassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPw || newPw !== confirmPw) {
+      info(
+        language === "bn" ? "পাসওয়ার্ড মেলেনি" : "Password Mismatch",
+        language === "bn"
+          ? "নতুন পাসওয়ার্ড এবং নিশ্চিতকরণ পাসওয়ার্ড মেলেনি।"
+          : "New password and confirmation password do not match."
+      );
+      return;
+    }
+    success(
+      language === "bn" ? "পাসওয়ার্ড পরিবর্তিত" : "Password Changed",
+      language === "bn"
+        ? "আপনার অ্যাকাউন্টের নিরাপত্তা পাসওয়ার্ড সফলভাবে আপডেট হয়েছে।"
+        : "Your account password was updated successfully."
+    );
+    setIsPasswordModalOpen(false);
+    setCurrentPw("");
+    setNewPw("");
+    setConfirmPw("");
+  };
+
+  const handleAvatarClick = () => {
+    info(
+      language === "bn" ? "প্রোফাইল ছবি পরিবর্তন" : "Profile Photo",
+      language === "bn"
+        ? "ক্লাউড ফটো সিঙ্ক সক্রিয়। ক্যামেরা বা গ্যালারি থেকে নতুন ছবি নির্বাচন করতে পারেন।"
+        : "Cloud avatar sync ready. Choose a photo from your device."
+    );
+  };
+
+  const handleExportData = () => {
+    const data = {
+      profile: {
+        id: currentUser?.id,
+        loginId: currentUser?.login_id,
+        name: profileName,
+        email: profileEmail,
+        phone: profilePhone,
+        nid: profileNid,
+        headquarters: profileHq,
+        bio: profileBio,
+        role: currentUser?.role,
+        roleEn: currentUser?.role_name_en,
+        roleBn: currentUser?.role_name_bn,
+        status: currentUser?.status,
+        memberSince: "January 15, 2025",
+        securityTier: "Tier 4 - Root Master",
+      },
+      founderPrivileges: [
+        "MULTI_BRANCH_ADMINISTRATION",
+        "CENTRAL_TREASURY_LIQUIDITY_MANAGEMENT",
+        "INTEREST_POLICY_GOVERNANCE",
+        "KYC_COMPLIANCE_MASTER",
+        "CRYPTOGRAPHIC_LEDGER_AUDIT",
+      ],
+      systemMetrics: {
+        totalBranches: 7,
+        totalMembers: 1248,
+        platformLiquidity: "5,000,000 BDT",
+        exportTimestamp: new Date().toISOString(),
+      },
+    };
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `digital-somiti-profile-${currentUser?.login_id || "founder"}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    success(
+      language === "bn" ? "প্রোফাইল ডাউনলোড সম্পন্ন" : "Profile Exported",
+      language === "bn"
+        ? "আপনার সম্পূর্ণ প্রতিষ্ঠাতা তথ্য এবং নিরাপত্তা পারমিশন ডাউনলোড হয়েছে।"
+        : "Your complete founder profile and permissions exported as JSON."
+    );
+  };
+
+  const founderCapabilities = [
+    {
+      icon: <Building2 size={16} color="#00B4D8" />,
+      title: language === "bn" ? "মাল্টি-ব্রাঞ্চ লাইসেন্সিং ও অনুমোদন" : "Multi-Branch Licensing & Operations",
+      desc: language === "bn" ? "সমগ্র বাংলাদেশে নতুন শাখা লাইসেন্স প্রদান, পরিদর্শন, অনুমোদন বা ফ্রিজ করার ক্ষমতা।" : "Issue new somiti branch licenses, conduct branch audits, approve expansions, or freeze branches in default.",
+    },
+    {
+      icon: <Wallet size={16} color="#8B5CF6" />,
+      title: language === "bn" ? "সেন্ট্রাল ট্রেজারি ও ভল্ট রিজার্ভ" : "Treasury & Vault Liquidity Reserves",
+      desc: language === "bn" ? "৫০ লাখ টাকার প্ল্যাটফর্ম রিজার্ভ এবং শাখাগুলোর সংবিধিবদ্ধ তারল্য নিয়ন্ত্রণ।" : "Master supervision over ৳50,00,000 platform liquidity reserves and statutory branch reserve ratios.",
+    },
+    {
+      icon: <Sliders size={16} color="#10B981" />,
+      title: language === "bn" ? "নীতিমালা ও সুদের হার নির্ধারণ" : "Interest Rate & Cooperative Governance",
+      desc: language === "bn" ? "ডিপিএস (৮.৫%), এফডিআর (১০.০%) এবং ক্ষুদ্রঋণের বার্ষিক হার প্ল্যাটফর্মব্যাপী কনফিগারেশন।" : "Platform-wide rate setting for DPS (8.5%), FDR (10.0%), and microcredit schedules.",
+    },
+    {
+      icon: <Users size={16} color="#F59E0B" />,
+      title: language === "bn" ? "সর্বজনীন কেওয়াইসি অডিট ও সম্মতি" : "Multi-Branch KYC Directory",
+      desc: language === "bn" ? "সকল ৭টি শাখার ১,২৪৮ সদস্যের কেওয়াইসি প্রোফাইল ও নথি অডিট করার সার্বিক সুযোগ।" : "Unrestricted visibility and verification audit access across all 1,248 cooperative member records.",
+    },
+    {
+      icon: <Database size={16} color="#EC4899" />,
+      title: language === "bn" ? "ক্রিপ্টোগ্রাফিক লেজার ও সিস্টেম অডিট" : "Cryptographic Ledger & Audit Logs",
+      desc: language === "bn" ? "লেনদেনের অপরিবর্তনীয় অডিট ট্রেইল ও রিয়েলটাইম লেজার স্টেট নিরীক্ষণ ক্ষমতা।" : "Inspect immutable cooperative transaction trails and download certified compliance logs.",
+    },
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.22, ease: "easeOut" }}
+      style={{ display: "flex", flexDirection: "column", gap: 16 }}
+    >
+      {/* ── Top Navigation & Actions Bar ── */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+        <button
+          onClick={onBack}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 7,
+            background: "var(--color-surface-hover)",
+            border: "1px solid var(--color-border)",
+            borderRadius: 999,
+            padding: "8px 14px",
+            color: "var(--color-text-primary)",
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: "all 140ms ease",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--color-brand)")}
+          onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--color-border)")}
+        >
+          <ArrowLeft size={15} />
+          <span>{language === "bn" ? "ড্যাশবোর্ড" : "Dashboard"}</span>
+        </button>
+
+        <button
+          onClick={() => setIsEditModalOpen(true)}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            background: "var(--color-brand-soft, rgba(0, 180, 216, 0.12))",
+            border: "1px solid var(--color-brand)",
+            borderRadius: 999,
+            padding: "8px 16px",
+            color: "var(--color-brand)",
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: "all 140ms ease",
+          }}
+        >
+          <Edit3 size={14} />
+          <span>{language === "bn" ? "তথ্য সম্পাদনা" : "Edit Profile"}</span>
+        </button>
+      </div>
+
+      {/* ── Hero Profile Card ── */}
+      <div
+        style={{
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: 20,
+          overflow: "hidden",
+          boxShadow: "var(--shadow-card)",
+          position: "relative",
+        }}
+      >
+        {/* Banner Cover */}
+        <div
+          style={{
+            height: 96,
+            background: "linear-gradient(135deg, rgba(147, 51, 234, 0.45) 0%, rgba(0, 180, 216, 0.35) 60%, rgba(16, 185, 129, 0.3) 100%)",
+            position: "relative",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: 12,
+              right: 14,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              background: "rgba(0, 0, 0, 0.45)",
+              backdropFilter: "blur(8px)",
+              padding: "4px 10px",
+              borderRadius: 999,
+              color: "#FFFFFF",
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: "0.02em",
+            }}
+          >
+            <ShieldCheck size={13} color="#00F5D4" />
+            <span>Root Tier-4</span>
+          </div>
+        </div>
+
+        {/* Identity content */}
+        <div style={{ padding: "0 20px 20px" }}>
+          {/* Avatar overlap */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "space-between",
+              marginTop: -44,
+              marginBottom: 14,
+            }}
+          >
+            <div style={{ position: "relative" }}>
+              <div
+                style={{
+                  width: 82,
+                  height: 82,
+                  borderRadius: "50%",
+                  overflow: "hidden",
+                  border: `3px solid var(--color-surface)`,
+                  boxShadow: `0 8px 24px ${currentUser?.role_color || "#9333EA"}45`,
+                  background: currentUser?.role_color || "#9333EA",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#FFFFFF",
+                  fontSize: 28,
+                  fontWeight: 800,
+                }}
+              >
+                {currentUser?.avatar_url ? (
+                  <img
+                    src={currentUser.avatar_url}
+                    alt={profileName}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                ) : (
+                  currentUser?.initial || "A"
+                )}
+              </div>
+              {/* Camera edit button */}
+              <button
+                onClick={handleAvatarClick}
+                title="Change Photo"
+                style={{
+                  position: "absolute",
+                  bottom: 0,
+                  right: 0,
+                  width: 28,
+                  height: 28,
+                  borderRadius: "50%",
+                  background: "var(--color-brand)",
+                  color: "#FFFFFF",
+                  border: "2px solid var(--color-surface)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
+                }}
+              >
+                <Camera size={13} />
+              </button>
+            </div>
+
+            {/* Quick Status Pill */}
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "4px 10px",
+                borderRadius: 999,
+                background: "rgba(16, 185, 129, 0.12)",
+                border: "1px solid rgba(16, 185, 129, 0.3)",
+                color: "#10B981",
+                fontSize: 11.5,
+                fontWeight: 700,
+              }}
+            >
+              <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#10B981" }} />
+              <span>{language === "bn" ? "সক্রিয় প্রতিষ্ঠাতা" : "Active Founder"}</span>
+            </div>
+          </div>
+
+          {/* User Name & Handle */}
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+              <h2
+                style={{
+                  fontSize: 20,
+                  fontWeight: 800,
+                  color: "var(--color-text-primary)",
+                  margin: 0,
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                {profileName}
+              </h2>
+              <BadgeCheck size={18} color="#00B4D8" />
+            </div>
+
+            <div style={{ fontSize: 12.5, color: "var(--color-text-muted)", marginTop: 2 }}>
+              @{currentUser?.login_id || "aye01"} • <span style={{ opacity: 0.8 }}>ID: DS-FOUNDER-001</span>
+            </div>
+
+            {/* Role & Access Badges */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  padding: "4px 10px",
+                  borderRadius: 999,
+                  background: `${currentUser?.role_color || "#9333EA"}18`,
+                  border: `1px solid ${currentUser?.role_color || "#9333EA"}40`,
+                  color: currentUser?.role_color || "#9333EA",
+                  fontSize: 11.5,
+                  fontWeight: 700,
+                }}
+              >
+                <Crown size={13} />
+                <span>{language === "bn" ? "প্ল্যাটফর্ম প্রতিষ্ঠাতা" : "Platform Founder"}</span>
+              </div>
+
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  padding: "4px 10px",
+                  borderRadius: 999,
+                  background: "rgba(0, 180, 216, 0.12)",
+                  border: "1px solid rgba(0, 180, 216, 0.35)",
+                  color: "#00B4D8",
+                  fontSize: 11.5,
+                  fontWeight: 700,
+                }}
+              >
+                <Shield size={12} />
+                <span>{language === "bn" ? "ফুল সিস্টেম অ্যাক্সেস" : "Full Access"}</span>
+              </div>
+            </div>
+
+            {/* Bio quote */}
+            <p
+              style={{
+                fontSize: 12.5,
+                color: "var(--color-text-secondary)",
+                lineHeight: 1.5,
+                marginTop: 12,
+                marginBottom: 0,
+                background: "var(--color-surface-hover)",
+                padding: "10px 14px",
+                borderRadius: "var(--radius-md)",
+                border: "1px solid var(--color-border)",
+              }}
+            >
+              "{profileBio}"
+            </p>
+          </div>
+
+          {/* Quick Stats Strip */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 8,
+              marginTop: 16,
+              paddingTop: 16,
+              borderTop: "1px solid var(--color-border)",
+            }}
+          >
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+                {language === "bn" ? "শাখা নিয়ন্ত্রণ" : "Branches"}
+              </div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-text-primary)", marginTop: 2 }}>
+                7
+              </div>
+              <div style={{ fontSize: 10, color: "#10B981", fontWeight: 600 }}>5 Active, 2 Pend.</div>
+            </div>
+
+            <div style={{ textAlign: "center", borderLeft: "1px solid var(--color-border)", borderRight: "1px solid var(--color-border)" }}>
+              <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+                {language === "bn" ? "মোট সদস্য" : "Members"}
+              </div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-text-primary)", marginTop: 2 }}>
+                1,248
+              </div>
+              <div style={{ fontSize: 10, color: "#00B4D8", fontWeight: 600 }}>Across BD</div>
+            </div>
+
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+                {language === "bn" ? "ভল্ট রিজার্ভ" : "Vault Liquidity"}
+              </div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-text-primary)", marginTop: 2 }}>
+                ৳50L
+              </div>
+              <div style={{ fontSize: 10, color: "#8B5CF6", fontWeight: 600 }}>Platform Backed</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Section 1: Personal & Contact Information Card ── */}
+      <div
+        style={{
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: "var(--radius-lg)",
+          padding: "18px",
+          boxShadow: "var(--shadow-card)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: "var(--radius-sm)",
+                background: "rgba(0, 180, 216, 0.12)",
+                color: "var(--color-brand)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <User size={15} />
+            </div>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>
+              {language === "bn" ? "ব্যক্তিগত ও যোগাযোগের তথ্য" : "Personal & Contact Details"}
+            </h3>
+          </div>
+
+          <button
+            onClick={() => setIsEditModalOpen(true)}
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "var(--color-brand)",
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            {language === "bn" ? "সম্পাদনা" : "Edit"}
+          </button>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {/* Email */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <Mail size={15} color="var(--color-text-muted)" />
+              <div>
+                <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+                  {language === "bn" ? "অফিসিয়াল ইমেইল" : "Official Email"}
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text-primary)" }}>
+                  {profileEmail}
+                </div>
+              </div>
+            </div>
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                color: "#10B981",
+                background: "rgba(16, 185, 129, 0.12)",
+                border: "1px solid rgba(16, 185, 129, 0.3)",
+                padding: "2px 7px",
+                borderRadius: 999,
+              }}
+            >
+              Verified
+            </span>
+          </div>
+
+          <div style={{ height: 1, background: "var(--color-border)" }} />
+
+          {/* Phone */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <Phone size={15} color="var(--color-text-muted)" />
+              <div>
+                <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+                  {language === "bn" ? "মোবাইল নম্বর" : "Mobile Phone"}
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text-primary)" }}>
+                  {profilePhone}
+                </div>
+              </div>
+            </div>
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                color: "#00B4D8",
+                background: "rgba(0, 180, 216, 0.12)",
+                border: "1px solid rgba(0, 180, 216, 0.3)",
+                padding: "2px 7px",
+                borderRadius: 999,
+              }}
+            >
+              2FA Linked
+            </span>
+          </div>
+
+          <div style={{ height: 1, background: "var(--color-border)" }} />
+
+          {/* NID */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <FileText size={15} color="var(--color-text-muted)" />
+              <div>
+                <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+                  {language === "bn" ? "জাতীয় পরিচয়পত্র (NID)" : "National ID (NID)"}
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text-primary)" }}>
+                  {profileNid}
+                </div>
+              </div>
+            </div>
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                color: "#8B5CF6",
+                background: "rgba(139, 92, 246, 0.12)",
+                border: "1px solid rgba(139, 92, 246, 0.3)",
+                padding: "2px 7px",
+                borderRadius: 999,
+              }}
+            >
+              KYC Passed
+            </span>
+          </div>
+
+          <div style={{ height: 1, background: "var(--color-border)" }} />
+
+          {/* Headquarters */}
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+            <Building2 size={15} color="var(--color-text-muted)" style={{ marginTop: 2 }} />
+            <div>
+              <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+                {language === "bn" ? "কেন্দ্রীয় কার্যালয় / ঠিকানা" : "Headquarters Address"}
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 500, color: "var(--color-text-primary)", marginTop: 1 }}>
+                {profileHq}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ height: 1, background: "var(--color-border)" }} />
+
+          {/* Registration Date */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <Calendar size={15} color="var(--color-text-muted)" />
+            <div>
+              <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+                {language === "bn" ? "প্রতিষ্ঠাতা হিসেবে যুক্ত" : "Established / Member Since"}
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text-primary)" }}>
+                January 15, 2025 (DS Platform Launch)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Section 2: Founder Privileges & Root Governance Matrix ── */}
+      <div
+        style={{
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: "var(--radius-lg)",
+          padding: "18px",
+          boxShadow: "var(--shadow-card)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+          <div
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: "var(--radius-sm)",
+              background: "rgba(147, 51, 234, 0.12)",
+              color: "#9333EA",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Crown size={15} />
+          </div>
+          <div>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>
+              {language === "bn" ? "প্রতিষ্ঠাতা অধিকার ও সিস্টেম সুযোগ" : "Founder Privileges & Governance"}
+            </h3>
+            <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 1 }}>
+              {language === "bn" ? "রুট অ্যাডমিনিস্ট্রেটর হিসেবে আপনার কেন্দ্রীয় নিয়ন্ত্রণ" : "Root authority capabilities across Digital Somiti platform"}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {founderCapabilities.map((cap, i) => (
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: 12,
+                padding: "10px 12px",
+                borderRadius: "var(--radius-md)",
+                background: "var(--color-surface-hover)",
+                border: "1px solid var(--color-border)",
+              }}
+            >
+              <div
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: "var(--radius-sm)",
+                  background: "var(--color-surface)",
+                  border: "1px solid var(--color-border)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  marginTop: 1,
+                }}
+              >
+                {cap.icon}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 12.5, fontWeight: 700, color: "var(--color-text-primary)" }}>
+                  {cap.title}
+                </div>
+                <div style={{ fontSize: 11.5, color: "var(--color-text-secondary)", marginTop: 2, lineHeight: 1.4 }}>
+                  {cap.desc}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Section 3: Security, 2FA & Active Sessions ── */}
+      <div
+        style={{
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: "var(--radius-lg)",
+          padding: "18px",
+          boxShadow: "var(--shadow-card)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+          <div
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: "var(--radius-sm)",
+              background: "rgba(16, 185, 129, 0.12)",
+              color: "#10B981",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <ShieldCheck size={15} />
+          </div>
+          <div>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>
+              {language === "bn" ? "নিরাপত্তা ও অ্যাক্টিভ সেশন" : "Security & Active Sessions"}
+            </h3>
+            <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 1 }}>
+              {language === "bn" ? "দ্বি-স্তরীয় প্রমাণীকরণ এবং বর্তমান সংযোগ" : "Two-factor authentication and device login records"}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {/* 2FA Status */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "10px 12px",
+              borderRadius: "var(--radius-md)",
+              background: "var(--color-surface-hover)",
+              border: "1px solid var(--color-border)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <Smartphone size={16} color="#00B4D8" />
+              <div>
+                <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--color-text-primary)" }}>
+                  {language === "bn" ? "দ্বি-স্তরীয় প্রমাণীকরণ (2FA)" : "Two-Factor Authentication"}
+                </div>
+                <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+                  Google Authenticator App (Active)
+                </div>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#10B981", fontSize: 12, fontWeight: 700 }}>
+              <CheckCircle2 size={14} />
+              <span>Enabled</span>
+            </div>
+          </div>
+
+          {/* Biometric Status */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "10px 12px",
+              borderRadius: "var(--radius-md)",
+              background: "var(--color-surface-hover)",
+              border: "1px solid var(--color-border)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <Fingerprint size={16} color="#8B5CF6" />
+              <div>
+                <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--color-text-primary)" }}>
+                  {language === "bn" ? "বায়োমেট্রিক ও ফেস আনলক" : "Biometric & Face Unlock"}
+                </div>
+                <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+                  WebAuthn Fingerprint Hardware Lock
+                </div>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#10B981", fontSize: 12, fontWeight: 700 }}>
+              <CheckCircle2 size={14} />
+              <span>Active</span>
+            </div>
+          </div>
+
+          {/* Current Device Session */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "10px 12px",
+              borderRadius: "var(--radius-md)",
+              background: "var(--color-surface-hover)",
+              border: "1px solid var(--color-border)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <Clock size={16} color="var(--color-text-muted)" />
+              <div>
+                <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--color-text-primary)" }}>
+                  Windows 11 Client (Desktop App)
+                </div>
+                <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+                  IP: 103.114.98.22 • Dhaka, Bangladesh
+                </div>
+              </div>
+            </div>
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                color: "#10B981",
+                background: "rgba(16, 185, 129, 0.12)",
+                padding: "2px 7px",
+                borderRadius: 999,
+              }}
+            >
+              Current
+            </span>
+          </div>
+
+          {/* Change Password & Export Buttons */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 4 }}>
+            <button
+              onClick={() => setIsPasswordModalOpen(true)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6,
+                padding: "9px 12px",
+                borderRadius: "var(--radius-md)",
+                border: "1px solid var(--color-border)",
+                background: "var(--color-surface)",
+                color: "var(--color-text-primary)",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 140ms ease",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--color-brand)")}
+              onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--color-border)")}
+            >
+              <Key size={13} color="var(--color-brand)" />
+              <span>{language === "bn" ? "পাসওয়ার্ড পরিবর্তন" : "Change Password"}</span>
+            </button>
+
+            <button
+              onClick={handleExportData}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6,
+                padding: "9px 12px",
+                borderRadius: "var(--radius-md)",
+                border: "1px solid var(--color-border)",
+                background: "var(--color-surface)",
+                color: "var(--color-text-primary)",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 140ms ease",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#8B5CF6")}
+              onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--color-border)")}
+            >
+              <Download size={13} color="#8B5CF6" />
+              <span>{language === "bn" ? "তথ্য এক্সপোর্ট" : "Export Data (JSON)"}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Section: Recent Platform Activity & Audit Log ── */}
+      <div
+        style={{
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: "var(--radius-lg)",
+          padding: "18px",
+          boxShadow: "var(--shadow-card)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: "var(--radius-sm)",
+                background: "rgba(0, 180, 216, 0.12)",
+                color: "var(--color-brand)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Clock size={15} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>
+                {language === "bn" ? "সাম্প্রতিক অডিট ও কার্যকলাপ" : "Recent Activity & Audit Log"}
+              </h3>
+              <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 1 }}>
+                {language === "bn" ? "প্রতিষ্ঠাতা অ্যাকাউন্টের ক্রিপ্টোগ্রাফিক রেকর্ড" : "Authenticated founder security actions"}
+              </div>
+            </div>
+          </div>
+          <span
+            style={{
+              fontSize: 10.5,
+              fontWeight: 700,
+              color: "#10B981",
+              background: "rgba(16, 185, 129, 0.12)",
+              padding: "2px 8px",
+              borderRadius: 999,
+            }}
+          >
+            Live Sync
+          </span>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+          {[
+            {
+              action: language === "bn" ? "নীতিমালা হালনাগাদ (DPS ৮.৫%, Loan ১২%)" : "Updated cooperative policy rates (DPS 8.5%)",
+              time: language === "bn" ? "আজ, ১০:৪৫ অপরাহ্ন" : "Today, 10:45 PM",
+              badge: "Policy",
+              badgeColor: "#00B4D8",
+            },
+            {
+              action: language === "bn" ? "নতুন শাখা অনুমোদন: বনানী কর্পোরেট শাখা" : "Approved Branch License: Banani Corporate",
+              time: language === "bn" ? "গতকাল, ৩:২০ অপরাহ্ন" : "Yesterday, 3:20 PM",
+              badge: "Branch",
+              badgeColor: "#10B981",
+            },
+            {
+              action: language === "bn" ? "প্ল্যাটফর্ম রিজার্ভ রি-ব্যালান্স (৳৫০,০০,০০০)" : "Vault statutory liquidity re-balanced (৳50L)",
+              time: language === "bn" ? "১ নভেম্বর, ৯:০০ পূর্বাহ্ন" : "Nov 1, 9:00 AM",
+              badge: "Treasury",
+              badgeColor: "#8B5CF6",
+            },
+            {
+              action: language === "bn" ? "নিরাপত্তা নিরীক্ষা সম্পন্ন ও এনক্রিপ্ট ডেটা ব্যাকআপ" : "Completed system audit & encrypted ledger backup",
+              time: language === "bn" ? "৩০ অক্টোবর, ৪:১৫ অপরাহ্ন" : "Oct 30, 4:15 PM",
+              badge: "Security",
+              badgeColor: "#F59E0B",
+            },
+          ].map((item, idx) => (
+            <div
+              key={idx}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "9px 12px",
+                borderRadius: "var(--radius-md)",
+                background: "var(--color-surface-hover)",
+                border: "1px solid var(--color-border)",
+                gap: 10,
+              }}
+            >
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--color-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {item.action}
+                </div>
+                <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 1 }}>
+                  {item.time}
+                </div>
+              </div>
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: item.badgeColor,
+                  background: `${item.badgeColor}18`,
+                  border: `1px solid ${item.badgeColor}35`,
+                  padding: "2px 7px",
+                  borderRadius: 999,
+                  flexShrink: 0,
+                }}
+              >
+                {item.badge}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Section 4: Preferences & Logout ── */}
+      <div
+        style={{
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: "var(--radius-lg)",
+          padding: "18px",
+          boxShadow: "var(--shadow-card)",
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
+              {language === "bn" ? "ভাষা পরিবর্তন (Language)" : "Language Preference"}
+            </div>
+            <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+              {language === "bn" ? "বর্তমানে: বাংলা" : "Currently: English"}
+            </div>
+          </div>
+          <button
+            onClick={toggleLanguage}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 12px",
+              borderRadius: "var(--radius-md)",
+              border: "1px solid var(--color-border)",
+              background: "var(--color-surface-hover)",
+              color: "var(--color-text-primary)",
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            <Globe size={13} />
+            <span>{language === "bn" ? "English" : "বাংলা"}</span>
+          </button>
+        </div>
+
+        <div style={{ height: 1, background: "var(--color-border)" }} />
+
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
+              {language === "bn" ? "থিম ও ডিসপ্লে" : "Theme & Appearance"}
+            </div>
+            <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+              {theme === "dark" ? (language === "bn" ? "ডার্ক মোড সক্রিয়" : "Dark Mode Active") : (language === "bn" ? "লাইট মোড সক্রিয়" : "Light Mode Active")}
+            </div>
+          </div>
+          <button
+            onClick={toggleTheme}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 12px",
+              borderRadius: "var(--radius-md)",
+              border: "1px solid var(--color-border)",
+              background: "var(--color-surface-hover)",
+              color: "var(--color-text-primary)",
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            {theme === "dark" ? <Sun size={13} /> : <Moon size={13} />}
+            <span>{theme === "dark" ? (language === "bn" ? "লাইট" : "Light") : (language === "bn" ? "ডার্ক" : "Dark")}</span>
+          </button>
+        </div>
+
+        <div style={{ height: 1, background: "var(--color-border)" }} />
+
+        <button
+          onClick={logout}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 7,
+            padding: "10px 16px",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid rgba(239, 68, 68, 0.3)",
+            background: "rgba(239, 68, 68, 0.08)",
+            color: "#EF4444",
+            fontSize: 13,
+            fontWeight: 700,
+            cursor: "pointer",
+            marginTop: 4,
+            transition: "all 140ms ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(239, 68, 68, 0.16)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(239, 68, 68, 0.08)";
+          }}
+        >
+          <LogOut size={15} />
+          <span>{language === "bn" ? "অ্যাকাউন্ট থেকে লগআউট" : "Log Out from Founder Account"}</span>
+        </button>
+      </div>
+
+      {/* ── Edit Profile Modal ── */}
+      <AnimatePresence>
+        {isEditModalOpen && (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0, 0, 0, 0.72)",
+              backdropFilter: "blur(6px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 9999,
+              padding: "16px",
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 14 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 14 }}
+              style={{
+                background: "var(--color-surface)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-lg)",
+                width: "100%",
+                maxWidth: 440,
+                maxHeight: "90vh",
+                overflowY: "auto",
+                padding: "20px",
+                boxShadow: "0 20px 40px rgba(0,0,0,0.4)",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>
+                  {language === "bn" ? "প্রতিষ্ঠাতা প্রোফাইল সম্পাদনা" : "Edit Founder Profile"}
+                </h3>
+                <button
+                  onClick={() => setIsEditModalOpen(false)}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: "var(--color-text-muted)",
+                    cursor: "pointer",
+                    padding: 4,
+                  }}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveProfile} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-muted)", marginBottom: 4 }}>
+                    {language === "bn" ? "পূর্ণ নাম" : "Full Name"}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={profileName}
+                    onChange={(e) => setProfileName(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-muted)", marginBottom: 4 }}>
+                    {language === "bn" ? "অফিসিয়াল ইমেইল" : "Email Address"}
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={profileEmail}
+                    onChange={(e) => setProfileEmail(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-muted)", marginBottom: 4 }}>
+                    {language === "bn" ? "মোবাইল নম্বর" : "Phone Number"}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={profilePhone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-muted)", marginBottom: 4 }}>
+                    {language === "bn" ? "জাতীয় পরিচয়পত্র (NID)" : "National ID (NID)"}
+                  </label>
+                  <input
+                    type="text"
+                    value={profileNid}
+                    onChange={(e) => setProfileNid(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-muted)", marginBottom: 4 }}>
+                    {language === "bn" ? "প্রধান কার্যালয় ঠিকানা" : "Headquarters Address"}
+                  </label>
+                  <input
+                    type="text"
+                    value={profileHq}
+                    onChange={(e) => setProfileHq(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-muted)", marginBottom: 4 }}>
+                    {language === "bn" ? "বায়ো / বিবরণ" : "Bio / Platform Summary"}
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={profileBio}
+                    onChange={(e) => setProfileBio(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                      resize: "none",
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: "flex", gap: 10, marginTop: 6 }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditModalOpen(false)}
+                    style={{
+                      padding: "10px 16px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "transparent",
+                      color: "var(--color-text-secondary)",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {language === "bn" ? "বাতিল" : "Cancel"}
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      flex: 1,
+                      padding: "10px 16px",
+                      borderRadius: "var(--radius-md)",
+                      border: "none",
+                      background: "var(--color-brand)",
+                      color: "#FFFFFF",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {language === "bn" ? "সংরক্ষণ করুন" : "Save Changes"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Change Password Modal ── */}
+      <AnimatePresence>
+        {isPasswordModalOpen && (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0, 0, 0, 0.72)",
+              backdropFilter: "blur(6px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 9999,
+              padding: "16px",
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 14 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 14 }}
+              style={{
+                background: "var(--color-surface)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-lg)",
+                width: "100%",
+                maxWidth: 400,
+                padding: "20px",
+                boxShadow: "0 20px 40px rgba(0,0,0,0.4)",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>
+                  {language === "bn" ? "অ্যাকাউন্ট পাসওয়ার্ড পরিবর্তন" : "Change Password"}
+                </h3>
+                <button
+                  onClick={() => setIsPasswordModalOpen(false)}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: "var(--color-text-muted)",
+                    cursor: "pointer",
+                    padding: 4,
+                  }}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <form onSubmit={handleChangePassword} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-muted)", marginBottom: 4 }}>
+                    {language === "bn" ? "বর্তমান পাসওয়ার্ড" : "Current Password"}
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={currentPw}
+                    onChange={(e) => setCurrentPw(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-muted)", marginBottom: 4 }}>
+                    {language === "bn" ? "নতুন পাসওয়ার্ড" : "New Password"}
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={newPw}
+                    onChange={(e) => setNewPw(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-muted)", marginBottom: 4 }}>
+                    {language === "bn" ? "নতুন পাসওয়ার্ড নিশ্চিত করুন" : "Confirm New Password"}
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={confirmPw}
+                    onChange={(e) => setConfirmPw(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsPasswordModalOpen(false)}
+                    style={{
+                      padding: "10px 16px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "transparent",
+                      color: "var(--color-text-secondary)",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {language === "bn" ? "বাতিল" : "Cancel"}
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      flex: 1,
+                      padding: "10px 16px",
+                      borderRadius: "var(--radius-md)",
+                      border: "none",
+                      background: "var(--color-brand)",
+                      color: "#FFFFFF",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {language === "bn" ? "পাসওয়ার্ড আপডেট করুন" : "Update Password"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
+
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export const DashboardPage: React.FC = () => {
   const { currentUser, logout } = useAuth();
@@ -5140,6 +6650,10 @@ export const DashboardPage: React.FC = () => {
     const role = currentUser?.role ?? "member";
     const items = NAV_BY_ROLE[role] ?? NAV_BY_ROLE.member;
     const idx = items.findIndex((n) => n.id === activeTab);
+    if (idx === -1) {
+      setPill((prev) => ({ ...prev, ready: false }));
+      return;
+    }
     const btn = btnRefs.current[idx];
     const nav = navRef.current;
     if (!btn || !nav) return;
@@ -5431,7 +6945,9 @@ export const DashboardPage: React.FC = () => {
                     position: "absolute",
                     top: "calc(100% + 8px)",
                     right: 0,
-                    minWidth: 200,
+                    minWidth: 260,
+                    width: 270,
+                    maxWidth: "calc(100vw - 32px)",
                     background: "var(--color-surface)",
                     border: "1px solid var(--color-border)",
                     borderRadius: "var(--radius-lg)",
@@ -5440,20 +6956,136 @@ export const DashboardPage: React.FC = () => {
                     overflow: "hidden",
                   }}
                 >
-                  {/* Profile header */}
-                  <div style={{ padding: "14px 16px", borderBottom: "1px solid var(--color-border)" }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>{currentUser.name}</div>
-                    <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 2 }}>{currentUser.email}</div>
-                    <div style={{ marginTop: 6 }}>
-                      <RoleIcon role={currentUser.role} color={currentUser.role_color} />
+                  {/* Profile header (Clickable to Profile Page) */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab("profile");
+                      setProfileOpen(false);
+                    }}
+                    style={{
+                      width: "100%",
+                      padding: "12px 14px",
+                      background: "transparent",
+                      border: "none",
+                      borderBottom: "1px solid var(--color-border)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 11,
+                      cursor: "pointer",
+                      textAlign: "left",
+                      transition: "background 150ms ease",
+                      WebkitTapHighlightColor: "transparent",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "var(--color-surface-hover, rgba(255,255,255,0.05))";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "transparent";
+                    }}
+                  >
+                    {/* User Avatar with role border & online dot */}
+                    <div style={{ position: "relative", flexShrink: 0 }}>
+                      <div
+                        style={{
+                          width: 42,
+                          height: 42,
+                          borderRadius: "50%",
+                          overflow: "hidden",
+                          border: `2px solid ${currentUser.role_color}`,
+                          background: currentUser.role_color,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#fff",
+                          fontSize: 15,
+                          fontWeight: 700,
+                          boxShadow: `0 0 10px ${currentUser.role_color}30`,
+                        }}
+                      >
+                        {currentUser.avatar_url ? (
+                          <img
+                            src={currentUser.avatar_url}
+                            alt={currentUser.name}
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          />
+                        ) : (
+                          currentUser.initial
+                        )}
+                      </div>
+                      <span
+                        style={{
+                          position: "absolute",
+                          bottom: 0,
+                          right: 0,
+                          width: 10,
+                          height: 10,
+                          borderRadius: "50%",
+                          background: "#10B981",
+                          border: "2px solid var(--color-surface)",
+                        }}
+                      />
                     </div>
-                  </div>
+
+                    {/* Name, email & role badge */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: 13.5,
+                          fontWeight: 700,
+                          color: "var(--color-text-primary)",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {currentUser.name}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 11,
+                          color: "var(--color-text-muted)",
+                          marginTop: 1,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {currentUser.email}
+                      </div>
+                      <div style={{ marginTop: 5 }}>
+                        <RoleIcon role={currentUser.role} color={currentUser.role_color} size={11} />
+                      </div>
+                    </div>
+
+                    {/* Chevron right affordance */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 26,
+                        height: 26,
+                        borderRadius: "50%",
+                        background: "var(--color-surface-hover, rgba(255,255,255,0.06))",
+                        color: "var(--color-text-muted)",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <ChevronRight size={14} />
+                    </div>
+                  </button>
 
                   {/* Quick actions */}
                   <div style={{ padding: "6px" }}>
+                    <DropdownItem
+                      icon={<User size={15} />}
+                      label={language === "bn" ? "আমার প্রোফাইল" : "My Profile"}
+                      onClick={() => { setActiveTab("profile"); setProfileOpen(false); }}
+                    />
                     <DropdownItem icon={<Globe size={15} />} label={language === "bn" ? "English" : "বাংলা"} onClick={() => { toggleLanguage(); setProfileOpen(false); }} />
-                    <DropdownItem icon={theme === "dark" ? <Sun size={15} /> : <Moon size={15} />} label={theme === "dark" ? "Light Mode" : "Dark Mode"} onClick={() => { toggleTheme(); setProfileOpen(false); }} />
-                    <DropdownItem icon={<Settings size={15} />} label="Settings" onClick={() => { setActiveTab("settings"); setProfileOpen(false); }} />
+                    <DropdownItem icon={theme === "dark" ? <Sun size={15} /> : <Moon size={15} />} label={theme === "dark" ? (language === "bn" ? "লাইট মোড" : "Light Mode") : (language === "bn" ? "ডার্ক মোড" : "Dark Mode")} onClick={() => { toggleTheme(); setProfileOpen(false); }} />
+                    <DropdownItem icon={<Settings size={15} />} label={language === "bn" ? "সেটিংস" : "Settings"} onClick={() => { setActiveTab("settings"); setProfileOpen(false); }} />
                   </div>
 
                   {/* Logout */}
@@ -5604,6 +7236,8 @@ export const DashboardPage: React.FC = () => {
           <MembersTab />
         ) : activeTab === "settings" ? (
           <SettingsTab />
+        ) : activeTab === "profile" ? (
+          <ProfileView onBack={() => setActiveTab("home")} />
         ) : (
           <>
             {/* Page title for other tabs */}
@@ -5791,35 +7425,67 @@ export const DashboardPage: React.FC = () => {
             </div>
 
             {/* Profile summary */}
-            <div style={{ padding: "16px", borderBottom: "1px solid var(--color-border)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div
+              onClick={() => {
+                setActiveTab("profile");
+                setDrawerOpen(false);
+              }}
+              style={{
+                padding: "16px",
+                borderBottom: "1px solid var(--color-border)",
+                cursor: "pointer",
+                transition: "background 150ms ease",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-surface-hover)")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div
+                    style={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: "50%",
+                      overflow: "hidden",
+                      border: `2px solid ${currentUser.role_color}`,
+                      background: currentUser.role_color,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#fff",
+                      fontSize: 18,
+                      fontWeight: 700,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {currentUser.avatar_url ? (
+                      <img src={currentUser.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      currentUser.initial
+                    )}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: "var(--color-text-primary)" }}>{currentUser.name}</div>
+                    <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>{currentUser.login_id}</div>
+                    <div style={{ marginTop: 4 }}>
+                      <RoleIcon role={currentUser.role} color={currentUser.role_color} />
+                    </div>
+                  </div>
+                </div>
                 <div
                   style={{
-                    width: 48,
-                    height: 48,
+                    width: 28,
+                    height: 28,
                     borderRadius: "50%",
-                    overflow: "hidden",
-                    border: `2px solid ${currentUser.role_color}`,
-                    background: currentUser.role_color,
+                    background: "var(--color-surface-hover)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: "#fff",
-                    fontSize: 18,
-                    fontWeight: 700,
+                    color: "var(--color-text-muted)",
                     flexShrink: 0,
                   }}
                 >
-                  {currentUser.avatar_url ? (
-                    <img src={currentUser.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  ) : (
-                    currentUser.initial
-                  )}
-                </div>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: 15, color: "var(--color-text-primary)" }}>{currentUser.name}</div>
-                  <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>{currentUser.login_id}</div>
-                  <RoleIcon role={currentUser.role} color={currentUser.role_color} />
+                  <ChevronRight size={15} />
                 </div>
               </div>
             </div>
