@@ -16,6 +16,7 @@ import {
   PieChart,
   FileText,
   Shield,
+  ShieldCheck,
   Crown,
   Briefcase,
   BadgeDollarSign,
@@ -402,6 +403,91 @@ export const DashboardPage: React.FC = () => {
   const navItems = NAV_BY_ROLE[currentUser.role] ?? NAV_BY_ROLE.member;
   const activeNavItem = navItems.find((n) => n.id === activeTab) ?? navItems[0];
 
+  // ── Dynamic time greeting & date ──
+  const now = new Date();
+  const hour = now.getHours();
+  let timeOfDay = "Evening";
+  let greetingWord = "Good evening,";
+  if (hour >= 5 && hour < 12) {
+    timeOfDay = "Morning";
+    greetingWord = "Good morning,";
+  } else if (hour >= 12 && hour < 17) {
+    timeOfDay = "Afternoon";
+    greetingWord = "Good afternoon,";
+  } else if (hour >= 17 && hour < 22) {
+    timeOfDay = "Evening";
+    greetingWord = "Good evening,";
+  } else {
+    timeOfDay = "Night";
+    greetingWord = "Good evening,";
+  }
+
+  const formattedDate = now.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const displayName = currentUser.login_id === "aye01" ? "Aeysha Shahriyar" : currentUser.name;
+
+  const roleBadgeMap: Record<string, { label: string; labelBn: string; color: string; border: string; bg: string; icon: React.ReactNode }> = {
+    founder: {
+      label: "Platform Founder",
+      labelBn: "প্ল্যাটফর্ম প্রতিষ্ঠাতা",
+      color: "#E879F9",
+      border: "rgba(217, 70, 239, 0.45)",
+      bg: "rgba(217, 70, 239, 0.12)",
+      icon: <Crown size={13} />,
+    },
+    admin: {
+      label: "System Admin",
+      labelBn: "সিস্টেম অ্যাডমিন",
+      color: "#4ADE80",
+      border: "rgba(74, 222, 128, 0.45)",
+      bg: "rgba(74, 222, 128, 0.12)",
+      icon: <Shield size={13} />,
+    },
+    manager: {
+      label: "Branch Manager",
+      labelBn: "শাখা ব্যবস্থাপক",
+      color: "#60A5FA",
+      border: "rgba(96, 165, 250, 0.45)",
+      bg: "rgba(96, 165, 250, 0.12)",
+      icon: <Briefcase size={13} />,
+    },
+    cashier: {
+      label: "Cashier Officer",
+      labelBn: "ক্যাশ কর্মকর্তা",
+      color: "#38BDF8",
+      border: "rgba(56, 189, 248, 0.45)",
+      bg: "rgba(56, 189, 248, 0.12)",
+      icon: <BadgeDollarSign size={13} />,
+    },
+    investor: {
+      label: "Key Investor",
+      labelBn: "বিনিয়োগকারী",
+      color: "#FB923C",
+      border: "rgba(251, 146, 60, 0.45)",
+      bg: "rgba(251, 146, 60, 0.12)",
+      icon: <TrendingUp size={13} />,
+    },
+    member: {
+      label: "Verified Member",
+      labelBn: "যাচাইকৃত সদস্য",
+      color: "#94A3B8",
+      border: "rgba(148, 163, 184, 0.45)",
+      bg: "rgba(148, 163, 184, 0.12)",
+      icon: <UserCheck size={13} />,
+    },
+  };
+
+  const currentRoleBadge = roleBadgeMap[currentUser.role] ?? roleBadgeMap.member;
+  const accessBadge = {
+    label: currentUser.scope === "system" ? "Full Access" : "Branch Access",
+    labelBn: currentUser.scope === "system" ? "পূর্ণ অ্যাক্সেস" : "শাখা অ্যাক্সেস",
+  };
+
   return (
     <div
       className="mobile-shell"
@@ -588,20 +674,138 @@ export const DashboardPage: React.FC = () => {
 
       {/* ── Main Content ── */}
       <main style={{ flex: 1, overflowY: "auto", padding: "16px", WebkitOverflowScrolling: "touch" }}>
-        {/* Page title */}
-        <div style={{ marginBottom: 16 }}>
-          <h2 style={{ fontSize: "var(--size-section-heading)", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>
-            {language === "bn" ? activeNavItem.labelBn : activeNavItem.label}
-          </h2>
-          <p style={{ fontSize: 12, color: "var(--color-text-muted)", margin: "2px 0 0" }}>
-            {currentUser.workspace_name}
-          </p>
-        </div>
-
         {activeTab === "home" ? (
-          <HomeContent role={currentUser.role} user={currentUser} />
+          <>
+            {/* ── Hero Greeting Banner (Borderless) ── */}
+            <div style={{ marginBottom: 22, paddingTop: 4 }}>
+              {/* 1. Time of Day + Date Row */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 13 }}>
+                {/* Sun Horizon Icon */}
+                <div style={{ display: "flex", alignItems: "center", color: "#00C2FF" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00C2FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2v4" />
+                    <path d="m4.93 10.93 2.83-2.83" />
+                    <path d="m19.07 10.93-2.83-2.83" />
+                    <path d="M2 18h20" />
+                    <path d="M16 18a4 4 0 0 0-8 0" />
+                  </svg>
+                </div>
+                <span style={{ fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.01em" }}>
+                  {timeOfDay}
+                </span>
+                <span style={{ color: "var(--color-text-muted)", opacity: 0.4 }}>|</span>
+                <span style={{ color: "var(--color-text-muted)", fontWeight: 500, fontSize: 12.5 }}>
+                  {formattedDate}
+                </span>
+              </div>
+
+              {/* 2. Main Greeting Headline */}
+              <div style={{ marginBottom: 12 }}>
+                <h1
+                  style={{
+                    fontSize: "clamp(22px, 5.5vw, 26px)",
+                    fontWeight: 700,
+                    color: "var(--color-text-primary)",
+                    margin: 0,
+                    lineHeight: 1.2,
+                    letterSpacing: "-0.02em",
+                    fontFamily: "var(--font-heading)",
+                  }}
+                >
+                  {greetingWord}
+                </h1>
+                <div
+                  style={{
+                    fontSize: "clamp(28px, 7.5vw, 36px)",
+                    fontWeight: 800,
+                    letterSpacing: "-0.03em",
+                    lineHeight: 1.15,
+                    fontFamily: "var(--font-heading)",
+                    background: "linear-gradient(90deg, #00B4D8 0%, #00F5D4 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    marginTop: 2,
+                  }}
+                >
+                  {displayName}!
+                </div>
+              </div>
+
+              {/* 3. Badges Row */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
+                {/* Role Badge */}
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "4px 12px",
+                    borderRadius: 999,
+                    border: `1px solid ${currentRoleBadge.border}`,
+                    background: currentRoleBadge.bg,
+                    color: currentRoleBadge.color,
+                    fontSize: 12,
+                    fontWeight: 600,
+                  }}
+                >
+                  {currentRoleBadge.icon}
+                  <span>{language === "bn" ? currentRoleBadge.labelBn : currentRoleBadge.label}</span>
+                </div>
+
+                <span style={{ color: "var(--color-text-muted)", opacity: 0.4 }}>|</span>
+
+                {/* Access Badge */}
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "4px 12px",
+                    borderRadius: 999,
+                    border: "1px solid rgba(56, 189, 248, 0.45)",
+                    background: "rgba(56, 189, 248, 0.12)",
+                    color: "#38BDF8",
+                    fontSize: 12,
+                    fontWeight: 600,
+                  }}
+                >
+                  <ShieldCheck size={13} />
+                  <span>{language === "bn" ? accessBadge.labelBn : accessBadge.label}</span>
+                </div>
+              </div>
+
+              {/* 4. Bottom Welcome + Glow Bar */}
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{ fontSize: 13, color: "var(--color-text-muted)", fontWeight: 500 }}>
+                  Welcome to Digital Somity
+                </span>
+                <div
+                  style={{
+                    height: 3,
+                    width: 76,
+                    borderRadius: 999,
+                    background: "linear-gradient(90deg, #00B4D8 0%, #00F5D4 70%, transparent 100%)",
+                    boxShadow: "0 0 10px rgba(0, 180, 216, 0.6)",
+                  }}
+                />
+              </div>
+            </div>
+
+            <HomeContent role={currentUser.role} user={currentUser} />
+          </>
         ) : (
-          <PlaceholderContent tab={language === "bn" ? activeNavItem.labelBn : activeNavItem.label} />
+          <>
+            {/* Page title for other tabs */}
+            <div style={{ marginBottom: 16 }}>
+              <h2 style={{ fontSize: "var(--size-section-heading)", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>
+                {language === "bn" ? activeNavItem.labelBn : activeNavItem.label}
+              </h2>
+              <p style={{ fontSize: 12, color: "var(--color-text-muted)", margin: "2px 0 0" }}>
+                {currentUser.workspace_name}
+              </p>
+            </div>
+            <PlaceholderContent tab={language === "bn" ? activeNavItem.labelBn : activeNavItem.label} />
+          </>
         )}
       </main>
 
