@@ -43,6 +43,11 @@ import {
   BadgeCheck,
   Award,
   Mail,
+  Lock,
+  Key,
+  Smartphone,
+  AlertTriangle,
+  Database,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
@@ -4048,6 +4053,1074 @@ const MembersTab: React.FC = () => {
   );
 };
 
+// ─── Settings Tab Component ───────────────────────────────────────────────────
+const SettingToggle: React.FC<{
+  title: string;
+  subtitle: string;
+  checked: boolean;
+  onChange: () => void;
+  icon?: React.ReactNode;
+}> = ({ title, subtitle, checked, onChange, icon }) => (
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "12px 14px",
+      borderRadius: "var(--radius-md)",
+      background: "var(--color-surface-hover)",
+      border: "1px solid var(--color-border-subtle)",
+      gap: 12,
+    }}
+  >
+    <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
+      {icon && (
+        <span style={{ color: checked ? "var(--color-brand)" : "var(--color-text-muted)", flexShrink: 0 }}>
+          {icon}
+        </span>
+      )}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>{title}</div>
+        <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>{subtitle}</div>
+      </div>
+    </div>
+    <div
+      onClick={onChange}
+      style={{
+        width: 44,
+        height: 24,
+        borderRadius: 999,
+        background: checked ? "var(--color-brand)" : "var(--color-border)",
+        padding: 2,
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        transition: "background 0.2s ease",
+        flexShrink: 0,
+      }}
+    >
+      <motion.div
+        animate={{ x: checked ? 20 : 0 }}
+        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+        style={{
+          width: 20,
+          height: 20,
+          borderRadius: "50%",
+          background: "#FFFFFF",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.25)",
+        }}
+      />
+    </div>
+  </div>
+);
+
+const SettingsTab: React.FC = () => {
+  const { currentUser, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const { language, toggleLanguage } = useLanguage();
+  const { success, info } = useToast();
+
+  // Profile state
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [profileName, setProfileName] = useState(currentUser?.name || "Aeysha Shahriyar");
+  const [profilePhone, setProfilePhone] = useState(currentUser?.phone || "+880 1711-000001");
+  const [profileEmail, setProfileEmail] = useState(currentUser?.email || "founder@dsbd.com");
+
+  // Operational policy rates (Founder controls)
+  const [dpsRate, setDpsRate] = useState("8.5");
+  const [loanRate, setLoanRate] = useState("12.0");
+  const [maxLoan, setMaxLoan] = useState("500000");
+  const [vaultLimit, setVaultLimit] = useState("2000000");
+
+  // Security Toggles
+  const [twoFactor, setTwoFactor] = useState(true);
+  const [biometric, setBiometric] = useState(true);
+  const [autoLock, setAutoLock] = useState("15");
+
+  // Notification Toggles
+  const [smsAlerts, setSmsAlerts] = useState(true);
+  const [loanAlerts, setLoanAlerts] = useState(true);
+  const [dailyDigest, setDailyDigest] = useState(false);
+  const [emailDigest, setEmailDigest] = useState(true);
+
+  // Password Modal
+  const [isPasswordOpen, setIsPasswordOpen] = useState(false);
+  const [currentPw, setCurrentPw] = useState("");
+  const [newPw, setNewPw] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+
+  const fmt = (n: number) => n.toLocaleString("en-BD");
+
+  const handleSaveProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    success(
+      language === "bn" ? "প্রোফাইল আপডেট হয়েছে" : "Profile Updated",
+      `Profile information for ${profileName} has been saved.`
+    );
+    setIsEditProfileOpen(false);
+  };
+
+  const handleSavePolicies = (e: React.FormEvent) => {
+    e.preventDefault();
+    success(
+      language === "bn" ? "নীতিমালা সংরক্ষিত" : "Cooperative Policy Saved",
+      `DPS Rate set to ${dpsRate}% and Loan Rate set to ${loanRate}%. Applied network-wide.`
+    );
+  };
+
+  const handleChangePassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPw || newPw !== confirmPw) {
+      info(
+        language === "bn" ? "পাসওয়ার্ড মেলেনি" : "Password Mismatch",
+        "New password and confirmation do not match."
+      );
+      return;
+    }
+    success(
+      language === "bn" ? "পাসওয়ার্ড পরিবর্তিত" : "Password Changed",
+      "Your account security credentials were updated successfully."
+    );
+    setIsPasswordOpen(false);
+    setCurrentPw("");
+    setNewPw("");
+    setConfirmPw("");
+  };
+
+  const handleExportData = () => {
+    success(
+      language === "bn" ? "ব্যাকআপ তৈরি সম্পন্ন" : "Backup Exported",
+      "Complete Somiti encrypted JSON ledger downloaded to your device."
+    );
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* ── Page Title ── */}
+      <div>
+        <h2
+          style={{
+            fontSize: 22,
+            fontWeight: 800,
+            color: "var(--color-text-primary)",
+            margin: 0,
+            fontFamily: "var(--font-heading)",
+            letterSpacing: "-0.02em",
+          }}
+        >
+          {language === "bn" ? "প্ল্যাটফর্ম সেটিংস" : "Platform Settings"}
+        </h2>
+        <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "4px 0 0" }}>
+          {language === "bn"
+            ? "সমিতির পলিসি, সুদের হার, থিম ও নিরাপত্তা পরিচালনা করুন"
+            : "Manage cooperative policy, rates, theme, security, and credentials"}
+        </p>
+      </div>
+
+      {/* ── Section 1: Profile Card ── */}
+      <div
+        style={{
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: "var(--radius-lg)",
+          padding: "18px 16px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 14,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: "50%",
+                background: "linear-gradient(135deg, #0F5BE4 0%, #00F5D4 100%)",
+                color: "#FFFFFF",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 18,
+                fontWeight: 800,
+                border: "2px solid #E879F9",
+                flexShrink: 0,
+              }}
+            >
+              {profileName.charAt(0)}
+            </div>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+                {profileName}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+                <span
+                  style={{
+                    padding: "2px 8px",
+                    borderRadius: 999,
+                    fontSize: 10.5,
+                    fontWeight: 700,
+                    background: "rgba(217, 70, 239, 0.12)",
+                    border: "1px solid rgba(217, 70, 239, 0.35)",
+                    color: "#E879F9",
+                  }}
+                >
+                  Platform Founder
+                </span>
+                <span
+                  style={{
+                    padding: "2px 8px",
+                    borderRadius: 999,
+                    fontSize: 10.5,
+                    fontWeight: 700,
+                    background: "rgba(56, 189, 248, 0.12)",
+                    border: "1px solid rgba(56, 189, 248, 0.35)",
+                    color: "#38BDF8",
+                  }}
+                >
+                  Full Access
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setIsEditProfileOpen(true)}
+            style={{
+              padding: "6px 12px",
+              borderRadius: "var(--radius-md)",
+              border: "1px solid var(--color-border)",
+              background: "var(--color-surface-hover)",
+              color: "var(--color-brand)",
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            {language === "bn" ? "সম্পাদনা" : "Edit"}
+          </button>
+        </div>
+
+        {/* Contact details row */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 8,
+            padding: "10px 12px",
+            borderRadius: "var(--radius-md)",
+            background: "var(--color-surface-hover)",
+            border: "1px solid var(--color-border-subtle)",
+            fontSize: 12,
+          }}
+        >
+          <div>
+            <span style={{ color: "var(--color-text-muted)", display: "block", fontSize: 10, textTransform: "uppercase", fontWeight: 600 }}>
+              Login ID
+            </span>
+            <span style={{ fontWeight: 700, color: "var(--color-text-primary)" }}>
+              {currentUser?.login_id || "aye01"}
+            </span>
+          </div>
+          <div>
+            <span style={{ color: "var(--color-text-muted)", display: "block", fontSize: 10, textTransform: "uppercase", fontWeight: 600 }}>
+              Phone
+            </span>
+            <span style={{ fontWeight: 600, color: "var(--color-text-secondary)" }}>
+              {profilePhone}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Section 2: Appearance & Language ── */}
+      <div
+        style={{
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: "var(--radius-lg)",
+          padding: "18px 16px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 14,
+        }}
+      >
+        <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+          {language === "bn" ? "ডিসপ্লে ও ভাষা" : "Appearance & Language"}
+        </div>
+
+        {/* Theme Segmented Switch */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
+              {language === "bn" ? "থিম মোড" : "Theme Mode"}
+            </div>
+            <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+              {theme === "dark" ? "Deep Navy Dark Mode Active" : "Clean White Light Mode Active"}
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              padding: 3,
+              borderRadius: "var(--radius-md)",
+              background: "var(--color-surface-hover)",
+              border: "1px solid var(--color-border)",
+            }}
+          >
+            <button
+              onClick={() => { if (theme !== "dark") toggleTheme(); }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                padding: "6px 12px",
+                borderRadius: "var(--radius-sm)",
+                border: "none",
+                background: theme === "dark" ? "var(--color-brand)" : "transparent",
+                color: theme === "dark" ? "#FFFFFF" : "var(--color-text-muted)",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+            >
+              <Moon size={13} /> Dark
+            </button>
+            <button
+              onClick={() => { if (theme !== "light") toggleTheme(); }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                padding: "6px 12px",
+                borderRadius: "var(--radius-sm)",
+                border: "none",
+                background: theme === "light" ? "var(--color-brand)" : "transparent",
+                color: theme === "light" ? "#FFFFFF" : "var(--color-text-muted)",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+            >
+              <Sun size={13} /> Light
+            </button>
+          </div>
+        </div>
+
+        {/* Language Segmented Switch */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, paddingTop: 6, borderTop: "1px solid var(--color-border-subtle)" }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
+              {language === "bn" ? "ভাষা নির্বাচন" : "System Language"}
+            </div>
+            <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+              {language === "bn" ? "বাংলা ইন্টারফেস সক্রিয়" : "English interface active"}
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              padding: 3,
+              borderRadius: "var(--radius-md)",
+              background: "var(--color-surface-hover)",
+              border: "1px solid var(--color-border)",
+            }}
+          >
+            <button
+              onClick={() => { if (language !== "en") toggleLanguage(); }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                padding: "6px 12px",
+                borderRadius: "var(--radius-sm)",
+                border: "none",
+                background: language === "en" ? "var(--color-brand)" : "transparent",
+                color: language === "en" ? "#FFFFFF" : "var(--color-text-muted)",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              EN
+            </button>
+            <button
+              onClick={() => { if (language !== "bn") toggleLanguage(); }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                padding: "6px 12px",
+                borderRadius: "var(--radius-sm)",
+                border: "none",
+                background: language === "bn" ? "var(--color-brand)" : "transparent",
+                color: language === "bn" ? "#FFFFFF" : "var(--color-text-muted)",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              বাংলা
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Section 3: Cooperative Financial Policies (Founder Level) ── */}
+      <div
+        style={{
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: "var(--radius-lg)",
+          padding: "18px 16px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 14,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+              {language === "bn" ? "সমিতি নীতি ও সুদের হার" : "Cooperative Policy & Rates"}
+            </div>
+            <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+              {language === "bn" ? "সকল শাখায় একযোগে প্রযোজ্য হবে" : "Controls global rates across all branches"}
+            </div>
+          </div>
+          <span
+            style={{
+              padding: "2px 8px",
+              borderRadius: 999,
+              fontSize: 10,
+              fontWeight: 700,
+              background: "rgba(217, 70, 239, 0.12)",
+              color: "#E879F9",
+              border: "1px solid rgba(217, 70, 239, 0.35)",
+            }}
+          >
+            Founder Only
+          </span>
+        </div>
+
+        <form onSubmit={handleSavePolicies} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {/* DPS Interest Rate */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--color-text-primary)" }}>
+                {language === "bn" ? "ডিপিএস সঞ্চয় মুনাফা হার" : "DPS Savings Dividend Rate"}
+              </div>
+              <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>Annual payout to savings members</div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <input
+                type="number"
+                step="0.1"
+                value={dpsRate}
+                onChange={(e) => setDpsRate(e.target.value)}
+                style={{
+                  width: 60,
+                  padding: "6px 8px",
+                  borderRadius: "var(--radius-sm)",
+                  border: "1px solid var(--color-border)",
+                  background: "var(--color-surface-hover)",
+                  color: "var(--color-text-primary)",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  textAlign: "center",
+                  outline: "none",
+                }}
+              />
+              <span style={{ fontSize: 12, fontWeight: 700, color: "var(--color-text-muted)" }}>%</span>
+            </div>
+          </div>
+
+          {/* Micro-Credit Loan Rate */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 8, borderTop: "1px solid var(--color-border-subtle)" }}>
+            <div>
+              <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--color-text-primary)" }}>
+                {language === "bn" ? "ক্ষুদ্রঋণ সার্ভিস চার্জ হার" : "Micro-Loan Service Charge"}
+              </div>
+              <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>Annual flat service charge</div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <input
+                type="number"
+                step="0.1"
+                value={loanRate}
+                onChange={(e) => setLoanRate(e.target.value)}
+                style={{
+                  width: 60,
+                  padding: "6px 8px",
+                  borderRadius: "var(--radius-sm)",
+                  border: "1px solid var(--color-border)",
+                  background: "var(--color-surface-hover)",
+                  color: "var(--color-text-primary)",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  textAlign: "center",
+                  outline: "none",
+                }}
+              />
+              <span style={{ fontSize: 12, fontWeight: 700, color: "var(--color-text-muted)" }}>%</span>
+            </div>
+          </div>
+
+          {/* Max Loan Limit */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 8, borderTop: "1px solid var(--color-border-subtle)" }}>
+            <div>
+              <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--color-text-primary)" }}>
+                {language === "bn" ? "সর্বোচ্চ ঋণ সীমা" : "Maximum Loan Ceiling"}
+              </div>
+              <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>Requires founder pre-approval</div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "var(--color-text-muted)" }}>৳</span>
+              <input
+                type="number"
+                value={maxLoan}
+                onChange={(e) => setMaxLoan(e.target.value)}
+                style={{
+                  width: 90,
+                  padding: "6px 8px",
+                  borderRadius: "var(--radius-sm)",
+                  border: "1px solid var(--color-border)",
+                  background: "var(--color-surface-hover)",
+                  color: "var(--color-text-primary)",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  textAlign: "right",
+                  outline: "none",
+                }}
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            style={{
+              marginTop: 6,
+              padding: "10px",
+              borderRadius: "var(--radius-md)",
+              border: "none",
+              background: "var(--color-brand)",
+              color: "#FFFFFF",
+              fontSize: 12.5,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            {language === "bn" ? "নীতিমালা হালনাগাদ করুন" : "Apply Policy Changes"}
+          </button>
+        </form>
+      </div>
+
+      {/* ── Section 4: Security & Credentials ── */}
+      <div
+        style={{
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: "var(--radius-lg)",
+          padding: "18px 16px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+        }}
+      >
+        <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+          {language === "bn" ? "নিরাপত্তা ও অ্যাক্সেস" : "Security & Authentication"}
+        </div>
+
+        <SettingToggle
+          title="Two-Factor Authentication (2FA)"
+          subtitle="SMS/Authenticator OTP required on new device"
+          checked={twoFactor}
+          onChange={() => setTwoFactor((v) => !v)}
+          icon={<ShieldCheck size={18} />}
+        />
+
+        <SettingToggle
+          title="Biometric App Lock"
+          subtitle="Use Touch ID / Face ID to access mobile shell"
+          checked={biometric}
+          onChange={() => setBiometric((v) => !v)}
+          icon={<Smartphone size={18} />}
+        />
+
+        {/* Change Password Button */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", borderRadius: "var(--radius-md)", background: "var(--color-surface-hover)" }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
+              {language === "bn" ? "পাসওয়ার্ড পরিবর্তন" : "Account Password"}
+            </div>
+            <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>Last changed 45 days ago</div>
+          </div>
+          <button
+            onClick={() => setIsPasswordOpen(true)}
+            style={{
+              padding: "6px 12px",
+              borderRadius: "var(--radius-sm)",
+              border: "1px solid var(--color-border)",
+              background: "var(--color-surface)",
+              color: "var(--color-text-primary)",
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            {language === "bn" ? "পরিবর্তন" : "Change"}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Section 5: Notification Settings ── */}
+      <div
+        style={{
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: "var(--radius-lg)",
+          padding: "18px 16px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+        }}
+      >
+        <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+          {language === "bn" ? "বিজ্ঞপ্তি সেটিংস" : "Notification Preferences"}
+        </div>
+
+        <SettingToggle
+          title="SMS Transaction Alerts"
+          subtitle="Instant SMS on member deposit and cash out"
+          checked={smsAlerts}
+          onChange={() => setSmsAlerts((v) => !v)}
+          icon={<Bell size={18} />}
+        />
+
+        <SettingToggle
+          title="High-Value Loan Notifications"
+          subtitle="Immediate ping when loan > ৳50,000 is requested"
+          checked={loanAlerts}
+          onChange={() => setLoanAlerts((v) => !v)}
+          icon={<AlertCircle size={18} />}
+        />
+
+        <SettingToggle
+          title="Weekly Financial Audit Digest"
+          subtitle="Receive PDF balance sheet every Friday evening"
+          checked={emailDigest}
+          onChange={() => setEmailDigest((v) => !v)}
+          icon={<Mail size={18} />}
+        />
+      </div>
+
+      {/* ── Section 6: Data, Backup & Sign Out ── */}
+      <div
+        style={{
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: "var(--radius-lg)",
+          padding: "18px 16px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 14,
+        }}
+      >
+        <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+          {language === "bn" ? "ডাটাবেস ও সিস্টেম ব্যাকআপ" : "Database & System Ledger"}
+        </div>
+
+        {/* Database Status Box */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "10px 12px",
+            borderRadius: "var(--radius-md)",
+            background: "var(--color-surface-hover)",
+            border: "1px solid var(--color-border-subtle)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <Database size={16} color="var(--color-brand)" />
+            <div>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: "var(--color-text-primary)" }}>
+                Supabase PostgreSQL
+              </div>
+              <div style={{ fontSize: 10.5, color: "var(--color-text-muted)" }}>
+                udfbawtsfqvrxuyzahfh.supabase.co
+              </div>
+            </div>
+          </div>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              padding: "2px 8px",
+              borderRadius: 999,
+              fontSize: 10.5,
+              fontWeight: 700,
+              background: "var(--color-success-soft)",
+              color: "var(--color-success)",
+              border: "1px solid rgba(16, 185, 129, 0.25)",
+            }}
+          >
+            ● Active
+          </span>
+        </div>
+
+        {/* Export Somiti Ledger */}
+        <button
+          onClick={handleExportData}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+            padding: "10px",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid var(--color-border)",
+            background: "var(--color-surface-hover)",
+            color: "var(--color-text-primary)",
+            fontSize: 12.5,
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          <Download size={14} />
+          <span>{language === "bn" ? "সম্পূর্ণ ডাটা ব্যাকআপ ডাউনলোড" : "Download Encrypted Backup (JSON)"}</span>
+        </button>
+
+        {/* Log Out Button */}
+        <button
+          onClick={() => logout()}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+            padding: "10px",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid rgba(239, 68, 68, 0.3)",
+            background: "var(--color-error-soft)",
+            color: "var(--color-error)",
+            fontSize: 12.5,
+            fontWeight: 700,
+            cursor: "pointer",
+            marginTop: 4,
+          }}
+        >
+          <LogOut size={14} />
+          <span>{language === "bn" ? "লগ আউট করুন" : "Log Out of Digital Somity"}</span>
+        </button>
+      </div>
+
+      {/* ── Modal: Edit Profile ── */}
+      <AnimatePresence>
+        {isEditProfileOpen && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0, 0, 0, 0.75)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
+              zIndex: 9999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "16px",
+            }}
+            onClick={() => setIsEditProfileOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 16 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: "100%",
+                maxWidth: 380,
+                background: "var(--color-surface)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-xl)",
+                boxShadow: "var(--shadow-modal)",
+                padding: "20px",
+                boxSizing: "border-box",
+              }}
+            >
+              <h3 style={{ margin: "0 0 14px 0", fontSize: 16, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+                Edit Founder Profile
+              </h3>
+
+              <form onSubmit={handleSaveProfile}>
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
+                    Full Name
+                  </label>
+                  <input
+                    value={profileName}
+                    onChange={(e) => setProfileName(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
+                    Phone
+                  </label>
+                  <input
+                    value={profilePhone}
+                    onChange={(e) => setProfilePhone(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: 18 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
+                    Email
+                  </label>
+                  <input
+                    value={profileEmail}
+                    onChange={(e) => setProfileEmail(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: "flex", gap: 10 }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditProfileOpen(false)}
+                    style={{
+                      padding: "10px 16px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "transparent",
+                      color: "var(--color-text-secondary)",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      flex: 1,
+                      padding: "10px 16px",
+                      borderRadius: "var(--radius-md)",
+                      border: "none",
+                      background: "var(--color-brand)",
+                      color: "#FFFFFF",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Modal: Change Password ── */}
+      <AnimatePresence>
+        {isPasswordOpen && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0, 0, 0, 0.75)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
+              zIndex: 9999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "16px",
+            }}
+            onClick={() => setIsPasswordOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 16 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: "100%",
+                maxWidth: 380,
+                background: "var(--color-surface)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-xl)",
+                boxShadow: "var(--shadow-modal)",
+                padding: "20px",
+                boxSizing: "border-box",
+              }}
+            >
+              <h3 style={{ margin: "0 0 14px 0", fontSize: 16, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+                Change Credentials
+              </h3>
+
+              <form onSubmit={handleChangePassword}>
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
+                    Current Password
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={currentPw}
+                    onChange={(e) => setCurrentPw(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={newPw}
+                    onChange={(e) => setNewPw(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: 18 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
+                    Confirm New Password
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={confirmPw}
+                    onChange={(e) => setConfirmPw(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: "flex", gap: 10 }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsPasswordOpen(false)}
+                    style={{
+                      padding: "10px 16px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "transparent",
+                      color: "var(--color-text-secondary)",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      flex: 1,
+                      padding: "10px 16px",
+                      borderRadius: "var(--radius-md)",
+                      border: "none",
+                      background: "var(--color-brand)",
+                      color: "#FFFFFF",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Update Password
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export const DashboardPage: React.FC = () => {
   const { currentUser, logout } = useAuth();
@@ -4380,7 +5453,7 @@ export const DashboardPage: React.FC = () => {
                   <div style={{ padding: "6px" }}>
                     <DropdownItem icon={<Globe size={15} />} label={language === "bn" ? "English" : "বাংলা"} onClick={() => { toggleLanguage(); setProfileOpen(false); }} />
                     <DropdownItem icon={theme === "dark" ? <Sun size={15} /> : <Moon size={15} />} label={theme === "dark" ? "Light Mode" : "Dark Mode"} onClick={() => { toggleTheme(); setProfileOpen(false); }} />
-                    <DropdownItem icon={<Settings size={15} />} label="Settings" onClick={() => setProfileOpen(false)} />
+                    <DropdownItem icon={<Settings size={15} />} label="Settings" onClick={() => { setActiveTab("settings"); setProfileOpen(false); }} />
                   </div>
 
                   {/* Logout */}
@@ -4529,6 +5602,8 @@ export const DashboardPage: React.FC = () => {
           <BranchesTab />
         ) : activeTab === "members" ? (
           <MembersTab />
+        ) : activeTab === "settings" ? (
+          <SettingsTab />
         ) : (
           <>
             {/* Page title for other tabs */}
