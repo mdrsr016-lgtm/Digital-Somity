@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Home,
@@ -1472,26 +1472,76 @@ export const DashboardPage: React.FC = () => {
   const navItems = NAV_BY_ROLE[currentUser.role] ?? NAV_BY_ROLE.member;
   const activeNavItem = navItems.find((n) => n.id === activeTab) ?? navItems[0];
 
-  // ── Dynamic time greeting & date ──
-  const now = new Date();
-  const hour = now.getHours();
+  // ── Dynamic time greeting & date (live updating) ──
+  const [currentTime, setCurrentTime] = useState(() => new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 30000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const hour = currentTime.getHours();
   let timeOfDay = "Evening";
   let greetingWord = "Good evening,";
+  let timeIcon: React.ReactNode = null;
+
   if (hour >= 5 && hour < 12) {
-    timeOfDay = "Morning";
-    greetingWord = "Good morning,";
+    timeOfDay = language === "bn" ? "সকাল" : "Morning";
+    greetingWord = language === "bn" ? "শুভ সকাল," : "Good morning,";
+    timeIcon = (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2" />
+        <path d="M12 20v2" />
+        <path d="m4.93 4.93 1.41 1.41" />
+        <path d="m17.66 17.66 1.41 1.41" />
+        <path d="M2 12h2" />
+        <path d="M20 12h2" />
+        <path d="m6.34 17.66-1.41 1.41" />
+        <path d="m19.07 4.93-1.41 1.41" />
+      </svg>
+    );
   } else if (hour >= 12 && hour < 17) {
-    timeOfDay = "Afternoon";
-    greetingWord = "Good afternoon,";
-  } else if (hour >= 17 && hour < 22) {
-    timeOfDay = "Evening";
-    greetingWord = "Good evening,";
+    timeOfDay = language === "bn" ? "দুপুর" : "Afternoon";
+    greetingWord = language === "bn" ? "শুভ দুপুর," : "Good afternoon,";
+    timeIcon = (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00C2FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="5" />
+        <path d="M12 1v2" />
+        <path d="M12 21v2" />
+        <path d="M4.22 4.22l1.42 1.42" />
+        <path d="M18.36 18.36l1.42 1.42" />
+        <path d="M1 12h2" />
+        <path d="M21 12h2" />
+        <path d="M4.22 19.78l1.42-1.42" />
+        <path d="M18.36 5.64l1.42-1.42" />
+      </svg>
+    );
+  } else if (hour >= 17 && hour < 21) {
+    timeOfDay = language === "bn" ? "সন্ধ্যা" : "Evening";
+    greetingWord = language === "bn" ? "শুভ সন্ধ্যা," : "Good evening,";
+    timeIcon = (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FB923C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2v4" />
+        <path d="m4.93 10.93 2.83-2.83" />
+        <path d="m19.07 10.93-2.83-2.83" />
+        <path d="M2 18h20" />
+        <path d="M16 18a4 4 0 0 0-8 0" />
+      </svg>
+    );
   } else {
-    timeOfDay = "Night";
-    greetingWord = "Good evening,";
+    timeOfDay = language === "bn" ? "রাত" : "Night";
+    greetingWord = language === "bn" ? "শুভ রাত্রি," : "Good night,";
+    timeIcon = (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38BDF8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+      </svg>
+    );
   }
 
-  const formattedDate = now.toLocaleDateString("en-US", {
+  const formattedDate = currentTime.toLocaleDateString(language === "bn" ? "bn-BD" : "en-US", {
     weekday: "long",
     month: "long",
     day: "numeric",
@@ -1760,15 +1810,9 @@ export const DashboardPage: React.FC = () => {
             <div style={{ marginBottom: 28, paddingTop: 8, paddingLeft: 2, paddingRight: 2 }}>
               {/* 1. Time of Day + Date Row */}
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, fontSize: 13 }}>
-                {/* Sun Horizon Icon */}
-                <div style={{ display: "flex", alignItems: "center", color: "#00C2FF" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00C2FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2v4" />
-                    <path d="m4.93 10.93 2.83-2.83" />
-                    <path d="m19.07 10.93-2.83-2.83" />
-                    <path d="M2 18h20" />
-                    <path d="M16 18a4 4 0 0 0-8 0" />
-                  </svg>
+                {/* Dynamic Time of Day Icon */}
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  {timeIcon}
                 </div>
                 <span style={{ fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.01em" }}>
                   {timeOfDay}
