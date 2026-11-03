@@ -101,9 +101,6 @@ const RoleIcon: React.FC<{ role: string; color: string }> = ({ role, color }) =>
         border: `1px solid ${color}40`,
         borderRadius: 999,
         padding: "2px 8px",
-        backdropFilter: "blur(14px) saturate(180%)",
-        WebkitBackdropFilter: "blur(14px) saturate(180%)",
-        boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05), inset 0 1px 0.5px rgba(255, 255, 255, 0.3)",
       }}
     >
       {icons[role]}
@@ -201,10 +198,6 @@ const StatCard: React.FC<{
             height: 32,
             borderRadius: "var(--radius-md)",
             background: `${accent}18`,
-            border: `1px solid ${accent}30`,
-            backdropFilter: "blur(10px)",
-            WebkitBackdropFilter: "blur(10px)",
-            boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.2)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -226,16 +219,13 @@ const StatCard: React.FC<{
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 4,
-                padding: "2px 9px",
+                padding: "2px 8px",
                 borderRadius: "var(--radius-full)",
                 fontSize: 11,
                 fontWeight: 600,
                 color,
                 background: bg,
                 border: `1px solid ${border}`,
-                backdropFilter: "blur(14px) saturate(180%)",
-                WebkitBackdropFilter: "blur(14px) saturate(180%)",
-                boxShadow: "0 2px 6px rgba(0, 0, 0, 0.04), inset 0 1px 0.5px rgba(255, 255, 255, 0.35)",
                 width: "fit-content",
                 lineHeight: 1.3,
               }}
@@ -855,9 +845,6 @@ export const DashboardPage: React.FC = () => {
                     borderRadius: 999,
                     border: `1px solid ${currentRoleBadge.border}`,
                     background: currentRoleBadge.bg,
-                    backdropFilter: "blur(16px) saturate(190%)",
-                    WebkitBackdropFilter: "blur(16px) saturate(190%)",
-                    boxShadow: "0 4px 14px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.3)",
                     color: currentRoleBadge.color,
                     fontSize: 12,
                     fontWeight: 600,
@@ -878,10 +865,7 @@ export const DashboardPage: React.FC = () => {
                     padding: "6px 14px",
                     borderRadius: 999,
                     border: "1px solid rgba(56, 189, 248, 0.45)",
-                    background: "rgba(56, 189, 248, 0.14)",
-                    backdropFilter: "blur(16px) saturate(190%)",
-                    WebkitBackdropFilter: "blur(16px) saturate(190%)",
-                    boxShadow: "0 4px 14px rgba(56, 189, 248, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.35)",
+                    background: "rgba(56, 189, 248, 0.12)",
                     color: "#38BDF8",
                     fontSize: 12,
                     fontWeight: 600,
@@ -950,21 +934,21 @@ export const DashboardPage: React.FC = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-around",
-            background: theme === "dark" ? "rgba(10, 10, 16, 0.58)" : "rgba(255, 255, 255, 0.60)",
-            backdropFilter: "blur(28px) saturate(210%)",
-            WebkitBackdropFilter: "blur(28px) saturate(210%)",
-            border: theme === "dark" ? "1px solid rgba(255, 255, 255, 0.18)" : "1px solid rgba(255, 255, 255, 0.85)",
+            background: theme === "dark" ? "rgba(10, 10, 16, 0.68)" : "rgba(255, 255, 255, 0.72)",
+            backdropFilter: "blur(24px) saturate(190%)",
+            WebkitBackdropFilter: "blur(24px) saturate(190%)",
+            border: theme === "dark" ? "1px solid rgba(255, 255, 255, 0.12)" : "1px solid rgba(0, 0, 0, 0.08)",
             borderRadius: 999,
             padding: "6px 6px",
             boxShadow: theme === "dark"
-              ? "0 20px 48px rgba(0, 0, 0, 0.8), inset 0 1px 1.5px rgba(255, 255, 255, 0.22)"
-              : "0 16px 40px rgba(4, 27, 69, 0.12), inset 0 1px 2px rgba(255, 255, 255, 0.95), inset 0 -1px 1px rgba(0, 0, 0, 0.04)",
+              ? "0 16px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08)"
+              : "0 14px 35px rgba(4, 27, 69, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04)",
             position: "relative",
             width: "100%",
             boxSizing: "border-box",
           }}
         >
-          {/* ── Single sliding pill (Accent Color - Frosted Glass) ── */}
+          {/* ── Single sliding pill (Accent Color) ── */}
           <motion.div
             animate={{
               left: pill.left,
@@ -977,11 +961,8 @@ export const DashboardPage: React.FC = () => {
               top: 6,
               height: "calc(100% - 12px)",
               borderRadius: 999,
-              background: "linear-gradient(135deg, rgba(15, 91, 228, 0.90) 0%, rgba(29, 78, 216, 0.78) 100%)",
-              backdropFilter: "blur(16px) saturate(190%)",
-              WebkitBackdropFilter: "blur(16px) saturate(190%)",
-              border: "1px solid rgba(255, 255, 255, 0.35)",
-              boxShadow: "0 6px 20px var(--color-brand-glow), inset 0 1px 1.5px rgba(255, 255, 255, 0.45)",
+              background: "var(--color-brand)",
+              boxShadow: "0 4px 16px var(--color-brand-glow)",
               pointerEvents: "none",
               zIndex: 0,
             }}
