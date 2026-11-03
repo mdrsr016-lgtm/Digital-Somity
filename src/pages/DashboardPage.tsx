@@ -687,10 +687,10 @@ export const DashboardPage: React.FC = () => {
       >
         {activeTab === "home" ? (
           <>
-            {/* ── Hero Greeting Banner (Borderless) ── */}
-            <div style={{ marginBottom: 22, paddingTop: 4 }}>
+            {/* ── Hero Greeting Banner (Borderless & Well-Spaced) ── */}
+            <div style={{ marginBottom: 28, paddingTop: 8, paddingLeft: 2, paddingRight: 2 }}>
               {/* 1. Time of Day + Date Row */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 13 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, fontSize: 13 }}>
                 {/* Sun Horizon Icon */}
                 <div style={{ display: "flex", alignItems: "center", color: "#00C2FF" }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00C2FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -704,21 +704,21 @@ export const DashboardPage: React.FC = () => {
                 <span style={{ fontWeight: 700, color: "var(--color-text-primary)", letterSpacing: "-0.01em" }}>
                   {timeOfDay}
                 </span>
-                <span style={{ color: "var(--color-text-muted)", opacity: 0.4 }}>|</span>
-                <span style={{ color: "var(--color-text-muted)", fontWeight: 500, fontSize: 12.5 }}>
+                <span style={{ color: "var(--color-text-muted)", opacity: 0.35, margin: "0 2px" }}>|</span>
+                <span style={{ color: "var(--color-text-muted)", fontWeight: 500, fontSize: 13 }}>
                   {formattedDate}
                 </span>
               </div>
 
               {/* 2. Main Greeting Headline */}
-              <div style={{ marginBottom: 12 }}>
+              <div style={{ marginBottom: 18 }}>
                 <h1
                   style={{
                     fontSize: "clamp(22px, 5.5vw, 26px)",
                     fontWeight: 700,
                     color: "var(--color-text-primary)",
                     margin: 0,
-                    lineHeight: 1.2,
+                    lineHeight: 1.25,
                     letterSpacing: "-0.02em",
                     fontFamily: "var(--font-heading)",
                   }}
@@ -730,12 +730,12 @@ export const DashboardPage: React.FC = () => {
                     fontSize: "clamp(28px, 7.5vw, 36px)",
                     fontWeight: 800,
                     letterSpacing: "-0.03em",
-                    lineHeight: 1.15,
+                    lineHeight: 1.2,
                     fontFamily: "var(--font-heading)",
                     background: "linear-gradient(90deg, #00B4D8 0%, #00F5D4 100%)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
-                    marginTop: 2,
+                    marginTop: 4,
                   }}
                 >
                   {displayName}!
@@ -743,14 +743,14 @@ export const DashboardPage: React.FC = () => {
               </div>
 
               {/* 3. Badges Row */}
-              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 18 }}>
                 {/* Role Badge */}
                 <div
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: 6,
-                    padding: "4px 12px",
+                    gap: 7,
+                    padding: "6px 14px",
                     borderRadius: 999,
                     border: `1px solid ${currentRoleBadge.border}`,
                     background: currentRoleBadge.bg,
@@ -763,15 +763,15 @@ export const DashboardPage: React.FC = () => {
                   <span>{language === "bn" ? currentRoleBadge.labelBn : currentRoleBadge.label}</span>
                 </div>
 
-                <span style={{ color: "var(--color-text-muted)", opacity: 0.4 }}>|</span>
+                <span style={{ color: "var(--color-text-muted)", opacity: 0.35 }}>|</span>
 
                 {/* Access Badge */}
                 <div
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: 6,
-                    padding: "4px 12px",
+                    gap: 7,
+                    padding: "6px 14px",
                     borderRadius: 999,
                     border: "1px solid rgba(56, 189, 248, 0.45)",
                     background: "rgba(56, 189, 248, 0.12)",
@@ -780,23 +780,23 @@ export const DashboardPage: React.FC = () => {
                     fontWeight: 600,
                   }}
                 >
-                  <ShieldCheck size={13} />
+                  <ShieldCheck size={14} />
                   <span>{language === "bn" ? accessBadge.labelBn : accessBadge.label}</span>
                 </div>
               </div>
 
               {/* 4. Bottom Welcome + Glow Bar */}
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{ fontSize: 13, color: "var(--color-text-muted)", fontWeight: 500 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <span style={{ fontSize: 13.5, color: "var(--color-text-muted)", fontWeight: 500, letterSpacing: "-0.01em" }}>
                   Welcome to Digital Somity
                 </span>
                 <div
                   style={{
-                    height: 3,
-                    width: 76,
+                    height: 3.5,
+                    width: 84,
                     borderRadius: 999,
                     background: "linear-gradient(90deg, #00B4D8 0%, #00F5D4 70%, transparent 100%)",
-                    boxShadow: "0 0 10px rgba(0, 180, 216, 0.6)",
+                    boxShadow: "0 0 10px rgba(0, 180, 216, 0.55)",
                   }}
                 />
               </div>
