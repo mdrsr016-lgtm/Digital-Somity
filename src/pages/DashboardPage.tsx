@@ -679,6 +679,7 @@ export const DashboardPage: React.FC = () => {
           flex: 1,
           overflowY: "auto",
           padding: "16px",
+          paddingBottom: "calc(88px + env(safe-area-inset-bottom, 0px))",
           WebkitOverflowScrolling: "touch",
           scrollbarWidth: "none",
           msOverflowStyle: "none",
@@ -819,13 +820,18 @@ export const DashboardPage: React.FC = () => {
         )}
       </main>
 
-      {/* ── Bottom Navigation ── */}
+      {/* ── Bottom Navigation (Floating & Glass Transparent) ── */}
       <div
         style={{
-          flexShrink: 0,
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
           padding: "10px 16px",
-          paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))",
-          background: "var(--color-bg)",
+          paddingBottom: "calc(14px + env(safe-area-inset-bottom, 0px))",
+          background: "transparent",
+          zIndex: 25,
+          pointerEvents: "none",
           width: "100%",
           boxSizing: "border-box",
         }}
@@ -833,14 +839,19 @@ export const DashboardPage: React.FC = () => {
         <div
           ref={navRef}
           style={{
+            pointerEvents: "auto",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-around",
-            background: "var(--color-surface)",
-            border: "1px solid var(--color-border)",
+            background: theme === "dark" ? "rgba(10, 10, 16, 0.68)" : "rgba(255, 255, 255, 0.72)",
+            backdropFilter: "blur(24px) saturate(190%)",
+            WebkitBackdropFilter: "blur(24px) saturate(190%)",
+            border: theme === "dark" ? "1px solid rgba(255, 255, 255, 0.12)" : "1px solid rgba(0, 0, 0, 0.08)",
             borderRadius: 999,
             padding: "6px 6px",
-            boxShadow: "0 8px 30px rgba(0,0,0,0.25), 0 0 0 1px var(--color-border)",
+            boxShadow: theme === "dark"
+              ? "0 16px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08)"
+              : "0 14px 35px rgba(4, 27, 69, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04)",
             position: "relative",
             width: "100%",
             boxSizing: "border-box",
