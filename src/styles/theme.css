@@ -67,6 +67,9 @@
   --color-success: #10B981;
   --color-success-soft: rgba(16, 185, 129, 0.16);
 
+  --color-warning: #F59E0B;
+  --color-warning-soft: rgba(245, 158, 11, 0.16);
+
   --color-error: #EF4444;
   --color-error-soft: rgba(239, 68, 68, 0.16);
 
@@ -110,6 +113,9 @@
 
   --color-success: #059669;
   --color-success-soft: rgba(5, 150, 105, 0.1);
+
+  --color-warning: #D97706;
+  --color-warning-soft: rgba(217, 119, 6, 0.12);
 
   --color-error: #DC2626;
   --color-error-soft: rgba(220, 38, 38, 0.1);

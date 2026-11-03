@@ -113,46 +113,133 @@ const StatCard: React.FC<{
   label: string;
   value: string;
   sub?: string;
+  subType?: "success" | "warning" | "error" | "brand" | "neutral";
+  subColor?: string;
   icon: React.ReactNode;
   accent: string;
-}> = ({ label, value, sub, icon, accent }) => (
-  <div
-    style={{
-      background: "var(--color-surface)",
-      border: "1px solid var(--color-border)",
-      borderRadius: "var(--radius-lg)",
-      padding: "16px",
-      display: "flex",
-      flexDirection: "column",
-      gap: 8,
-      flex: "1 1 140px",
-      minWidth: 0,
-    }}
-  >
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-      <span style={{ fontSize: 12, color: "var(--color-text-muted)", fontWeight: 500 }}>{label}</span>
-      <span
-        style={{
-          width: 32,
-          height: 32,
-          borderRadius: "var(--radius-md)",
-          background: `${accent}18`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: accent,
-          flexShrink: 0,
-        }}
-      >
-        {icon}
-      </span>
+}> = ({ label, value, sub, subType, subColor, icon, accent }) => {
+  let color = "var(--color-text-muted)";
+  let bg = "transparent";
+  let border = "transparent";
+  let isPill = false;
+
+  if (sub) {
+    const s = sub.toLowerCase();
+    const isSuccess =
+      subType === "success" ||
+      (!subType &&
+        (sub.startsWith("+") ||
+          s.includes("growth") ||
+          s.includes("roi") ||
+          s.includes("vs last") ||
+          s.includes("month") ||
+          s.includes("week") ||
+          s.includes("collected") ||
+          s.includes("deposited")));
+    const isWarning =
+      subType === "warning" ||
+      (!subType &&
+        (s.includes("pending") || s.includes("review") || s.includes("awaiting")));
+    const isError =
+      subType === "error" ||
+      (!subType && (sub.startsWith("-") || s.includes("declined") || s.includes("overdue")));
+
+    if (subColor) {
+      color = subColor;
+      bg = `${subColor}18`;
+      border = `${subColor}35`;
+      isPill = true;
+    } else if (isSuccess) {
+      color = "var(--color-success)";
+      bg = "var(--color-success-soft)";
+      border = "rgba(16, 185, 129, 0.25)";
+      isPill = true;
+    } else if (isWarning) {
+      color = "var(--color-warning)";
+      bg = "var(--color-warning-soft)";
+      border = "rgba(245, 158, 11, 0.25)";
+      isPill = true;
+    } else if (isError) {
+      color = "var(--color-error)";
+      bg = "var(--color-error-soft)";
+      border = "rgba(239, 68, 68, 0.25)";
+      isPill = true;
+    } else if (subType === "brand") {
+      color = "var(--color-brand)";
+      bg = "var(--color-brand-soft)";
+      border = "rgba(15, 91, 228, 0.25)";
+      isPill = true;
+    } else {
+      color = "var(--color-text-muted)";
+      bg = "transparent";
+      border = "transparent";
+      isPill = false;
+    }
+  }
+
+  return (
+    <div
+      style={{
+        background: "var(--color-surface)",
+        border: "1px solid var(--color-border)",
+        borderRadius: "var(--radius-lg)",
+        padding: "16px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+        minWidth: 0,
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <span style={{ fontSize: 12, color: "var(--color-text-muted)", fontWeight: 500 }}>{label}</span>
+        <span
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: "var(--radius-md)",
+            background: `${accent}18`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: accent,
+            flexShrink: 0,
+          }}
+        >
+          {icon}
+        </span>
+      </div>
+      <div style={{ fontSize: 20, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+        {value}
+      </div>
+      {sub && (
+        <div style={{ display: "flex", alignItems: "center", minHeight: 22 }}>
+          {isPill ? (
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                padding: "2px 8px",
+                borderRadius: "var(--radius-full)",
+                fontSize: 11,
+                fontWeight: 600,
+                color,
+                background: bg,
+                border: `1px solid ${border}`,
+                width: "fit-content",
+                lineHeight: 1.3,
+              }}
+            >
+              {sub}
+            </span>
+          ) : (
+            <span style={{ fontSize: 11, color: "var(--color-text-muted)" }}>{sub}</span>
+          )}
+        </div>
+      )}
     </div>
-    <div style={{ fontSize: 20, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
-      {value}
-    </div>
-    {sub && <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>{sub}</div>}
-  </div>
-);
+  );
+};
 
 // ─── Transaction Row ─────────────────────────────────────────────────────────
 const TxRow: React.FC<{ name: string; amount: string; type: "in" | "out"; date: string }> = ({
@@ -223,13 +310,13 @@ const HomeContent: React.FC<{ role: string; user: { name: string; balance?: numb
       <>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12, marginBottom: 20 }}>
           {/* 1. Total Branches */}
-          <StatCard label="Total Branches" value="7" sub="2 pending" icon={<Building2 size={16} />} accent="#10B981" />
+          <StatCard label="Total Branches" value="7" sub="2 pending" subType="warning" icon={<Building2 size={16} />} accent="#10B981" />
           {/* 2. Total Members */}
-          <StatCard label="Total Members" value="1,248" sub="+12 this month" icon={<Users size={16} />} accent="#0F5BE4" />
+          <StatCard label="Total Members" value="1,248" sub="+12 this month" subType="success" icon={<Users size={16} />} accent="#0F5BE4" />
           {/* 3. Subscription Revenue */}
-          <StatCard label="Subscription Revenue" value="৳1.8L" sub="+14.2% growth" icon={<CreditCard size={16} />} accent="#9333EA" />
+          <StatCard label="Subscription Revenue" value="৳1.8L" sub="+14.2% growth" subType="success" icon={<CreditCard size={16} />} accent="#9333EA" />
           {/* 4. Monthly Revenue */}
-          <StatCard label="Monthly Revenue" value="৳3.2L" sub="+8.4% vs last" icon={<TrendingUp size={16} />} accent="#EA580C" />
+          <StatCard label="Monthly Revenue" value="৳3.2L" sub="+8.4% vs last" subType="success" icon={<TrendingUp size={16} />} accent="#EA580C" />
         </div>
         <SectionCard title="Recent Transactions">
           {recentTxs.map((tx, i) => <TxRow key={i} {...tx} />)}
