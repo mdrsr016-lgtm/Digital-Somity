@@ -34,6 +34,12 @@ import {
   Sliders,
   Check,
   Download,
+  MapPin,
+  Search,
+  Filter,
+  Phone,
+  Clock,
+  MoreVertical,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
@@ -1440,6 +1446,1215 @@ const PlaceholderContent: React.FC<{ tab: string }> = ({ tab }) => (
   </div>
 );
 
+// ─── Branches Tab Component ───────────────────────────────────────────────────
+interface BranchItem {
+  id: string;
+  name: string;
+  nameBn: string;
+  code: string;
+  type: string;
+  typeBn: string;
+  manager: string;
+  managerPhone: string;
+  location: string;
+  membersCount: number;
+  vaultBalance: number;
+  status: "active" | "pending" | "fridge";
+  established: string;
+  collectionRate: number;
+  activeLoans: number;
+}
+
+const INITIAL_BRANCHES: BranchItem[] = [
+  {
+    id: "ws-01",
+    name: "Central Somiti (HQ)",
+    nameBn: "সেন্ট্রাল সমিতি (প্রধান কার্যালয়)",
+    code: "DS-HQ",
+    type: "Headquarters",
+    typeBn: "প্রধান কার্যালয়",
+    manager: "Aeysha Shahriyar",
+    managerPhone: "+880 1711-000001",
+    location: "Dilkusha C/A, Motijheel, Dhaka",
+    membersCount: 142,
+    vaultBalance: 14500000,
+    status: "active",
+    established: "Jan 2024",
+    collectionRate: 99.4,
+    activeLoans: 2450000,
+  },
+  {
+    id: "ws-02",
+    name: "Motijheel Financial Branch",
+    nameBn: "মতিঝিল ফাইন্যান্সিয়াল শাখা",
+    code: "DS-MJ",
+    type: "Commercial",
+    typeBn: "বাণিজ্যিক শাখা",
+    manager: "Tareq Rahman",
+    managerPhone: "+880 1712-456789",
+    location: "Senakalyan Bhaban, Motijheel, Dhaka",
+    membersCount: 88,
+    vaultBalance: 6850000,
+    status: "active",
+    established: "Mar 2024",
+    collectionRate: 97.8,
+    activeLoans: 1850000,
+  },
+  {
+    id: "ws-03",
+    name: "Dhanmondi Cooperative Branch",
+    nameBn: "ধানমন্ডি কো-অপারেটিভ শাখা",
+    code: "DS-DH",
+    type: "Sub-urban",
+    typeBn: "উপ-শাখা",
+    manager: "Nadia Sultana",
+    managerPhone: "+880 1819-234567",
+    location: "Road 27, Dhanmondi, Dhaka",
+    membersCount: 64,
+    vaultBalance: 4200000,
+    status: "active",
+    established: "Jun 2024",
+    collectionRate: 98.1,
+    activeLoans: 920000,
+  },
+  {
+    id: "ws-04",
+    name: "Agrabad Chittagong Hub",
+    nameBn: "আগ্রাবাদ চট্টগ্রাম হাব",
+    code: "DS-CTG",
+    type: "Regional Hub",
+    typeBn: "আঞ্চলিক হাব",
+    manager: "Zubair Ahmed",
+    managerPhone: "+880 1911-345678",
+    location: "Agrabad C/A, Chittagong",
+    membersCount: 51,
+    vaultBalance: 3950000,
+    status: "active",
+    established: "Aug 2024",
+    collectionRate: 96.5,
+    activeLoans: 1150000,
+  },
+  {
+    id: "ws-05",
+    name: "Uttara Metropolitan Branch",
+    nameBn: "উত্তরা মেট্রোপলিটন শাখা",
+    code: "DS-UTT",
+    type: "Sub-urban",
+    typeBn: "উপ-শাখা",
+    manager: "Rashidul Hasan",
+    managerPhone: "+880 1723-890123",
+    location: "Sector 7, Uttara, Dhaka",
+    membersCount: 42,
+    vaultBalance: 2800000,
+    status: "active",
+    established: "Oct 2024",
+    collectionRate: 99.1,
+    activeLoans: 650000,
+  },
+  {
+    id: "ws-06",
+    name: "Sylhet Sadar Branch",
+    nameBn: "সিলেট সদর শাখা",
+    code: "DS-SYL",
+    type: "Regional Hub",
+    typeBn: "আঞ্চলিক হাব",
+    manager: "Kamal Hossain",
+    managerPhone: "+880 1612-901234",
+    location: "Zindabazar, Sylhet",
+    membersCount: 0,
+    vaultBalance: 1500000,
+    status: "pending",
+    established: "Application Pending",
+    collectionRate: 0,
+    activeLoans: 0,
+  },
+  {
+    id: "ws-07",
+    name: "Savar Micro-Branch",
+    nameBn: "সাভার মাইক্রো শাখা",
+    code: "DS-SVR",
+    type: "Rural",
+    typeBn: "গ্রামীণ শাখা",
+    manager: "Anisur Rahman",
+    managerPhone: "+880 1515-678901",
+    location: "Bazar Road, Savar",
+    membersCount: 0,
+    vaultBalance: 800000,
+    status: "pending",
+    established: "Application Pending",
+    collectionRate: 0,
+    activeLoans: 0,
+  },
+];
+
+const BranchesTab: React.FC = () => {
+  const { language } = useLanguage();
+  const { success, info } = useToast();
+  const [branches, setBranches] = useState<BranchItem[]>(INITIAL_BRANCHES);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "pending">("all");
+  const [selectedBranch, setSelectedBranch] = useState<BranchItem | null>(null);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  // New branch form state
+  const [newName, setNewName] = useState("");
+  const [newCode, setNewCode] = useState("");
+  const [newType, setNewType] = useState("Commercial");
+  const [newManager, setNewManager] = useState("");
+  const [newPhone, setNewPhone] = useState("");
+  const [newLocation, setNewLocation] = useState("");
+  const [newVault, setNewVault] = useState("");
+
+  const fmt = (n: number) => n.toLocaleString("en-BD");
+
+  // Summary figures
+  const totalBranchesCount = branches.length;
+  const activeCount = branches.filter((b) => b.status === "active").length;
+  const pendingCount = branches.filter((b) => b.status === "pending").length;
+  const totalVaultSum = branches.reduce((sum, b) => sum + b.vaultBalance, 0);
+  const totalVaultDisplay = `৳${(totalVaultSum / 10000000).toFixed(2)} Cr`;
+
+  // Filtered branches
+  const filtered = branches.filter((b) => {
+    const matchesFilter =
+      filterStatus === "all" ? true : b.status === filterStatus;
+    const q = searchQuery.toLowerCase().trim();
+    const matchesSearch =
+      !q ||
+      b.name.toLowerCase().includes(q) ||
+      b.code.toLowerCase().includes(q) ||
+      b.manager.toLowerCase().includes(q) ||
+      b.location.toLowerCase().includes(q);
+    return matchesFilter && matchesSearch;
+  });
+
+  const handleApprove = (id: string, name: string) => {
+    setBranches((prev) =>
+      prev.map((b) => (b.id === id ? { ...b, status: "active", established: "Approved Today" } : b))
+    );
+    success(
+      language === "bn" ? "শাখা অনুমোদিত" : "Branch Approved",
+      `"${name}" has been approved and activated!`
+    );
+  };
+
+  const handleReject = (id: string, name: string) => {
+    setBranches((prev) => prev.filter((b) => b.id !== id));
+    info(
+      language === "bn" ? "শাখা বাতিল" : "Branch Declined",
+      `"${name}" registration request was declined.`
+    );
+  };
+
+  const handleCreateBranch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newName.trim()) return;
+
+    const code = newCode.trim() || `DS-${newName.substring(0, 3).toUpperCase()}`;
+    const newBranch: BranchItem = {
+      id: `ws-${Date.now()}`,
+      name: newName.trim(),
+      nameBn: newName.trim(),
+      code,
+      type: newType,
+      typeBn: newType === "Commercial" ? "বাণিজ্যিক" : "উপ-শাখা",
+      manager: newManager.trim() || "Unassigned",
+      managerPhone: newPhone.trim() || "+880 1700-000000",
+      location: newLocation.trim() || "Dhaka, Bangladesh",
+      membersCount: 0,
+      vaultBalance: Number(newVault) || 1000000,
+      status: "active",
+      established: "Nov 2026",
+      collectionRate: 100,
+      activeLoans: 0,
+    };
+
+    setBranches((prev) => [newBranch, ...prev]);
+    success(
+      language === "bn" ? "শাখা তৈরি সম্পন্ন" : "Branch Created",
+      `"${newBranch.name}" (${code}) has been added to the Somiti network!`
+    );
+    setIsCreateOpen(false);
+    setNewName("");
+    setNewCode("");
+    setNewManager("");
+    setNewPhone("");
+    setNewLocation("");
+    setNewVault("");
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+      {/* ── Page Header & Quick Add ── */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+        <div>
+          <h2
+            style={{
+              fontSize: 22,
+              fontWeight: 800,
+              color: "var(--color-text-primary)",
+              margin: 0,
+              fontFamily: "var(--font-heading)",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            {language === "bn" ? "শাখাসমূহ ও আঞ্চলিক হাব" : "Branches & Regional Hubs"}
+          </h2>
+          <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "4px 0 0" }}>
+            {language === "bn"
+              ? "সমিতির সকল শাখা, ক্যাশ ভল্ট ও ব্যবস্থাপকদের পরিচালনা করুন"
+              : "Manage network locations, branch vaults, and regional managers"}
+          </p>
+        </div>
+
+        <motion.button
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          onClick={() => setIsCreateOpen(true)}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "8px 14px",
+            borderRadius: "var(--radius-md)",
+            background: "var(--color-brand)",
+            color: "#FFFFFF",
+            border: "none",
+            fontSize: 12.5,
+            fontWeight: 700,
+            cursor: "pointer",
+            flexShrink: 0,
+            boxShadow: "0 4px 14px rgba(15, 91, 228, 0.35)",
+          }}
+        >
+          <Plus size={15} />
+          <span>{language === "bn" ? "নতুন শাখা" : "New Branch"}</span>
+        </motion.button>
+      </div>
+
+      {/* ── KPI Summary Grid ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
+        {/* Card 1: Total & Active Branches */}
+        <div
+          style={{
+            background: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-lg)",
+            padding: "14px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 6,
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 11.5, color: "var(--color-text-muted)", fontWeight: 600 }}>
+              {language === "bn" ? "মোট শাখা" : "Total Branches"}
+            </span>
+            <span
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: "var(--radius-md)",
+                background: "#10B98118",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#10B981",
+              }}
+            >
+              <Building2 size={15} />
+            </span>
+          </div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+            {totalBranchesCount}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+            <span
+              style={{
+                padding: "2px 7px",
+                borderRadius: 999,
+                fontSize: 10.5,
+                fontWeight: 700,
+                background: "var(--color-success-soft)",
+                color: "var(--color-success)",
+                border: "1px solid rgba(16, 185, 129, 0.25)",
+              }}
+            >
+              {activeCount} {language === "bn" ? "সক্রিয়" : "Active"}
+            </span>
+            {pendingCount > 0 && (
+              <span
+                style={{
+                  padding: "2px 7px",
+                  borderRadius: 999,
+                  fontSize: 10.5,
+                  fontWeight: 700,
+                  background: "var(--color-warning-soft)",
+                  color: "var(--color-warning)",
+                  border: "1px solid rgba(245, 158, 11, 0.25)",
+                }}
+              >
+                {pendingCount} {language === "bn" ? "অপেক্ষমান" : "Pending"}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Card 2: Combined Vault */}
+        <div
+          style={{
+            background: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-lg)",
+            padding: "14px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 6,
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 11.5, color: "var(--color-text-muted)", fontWeight: 600 }}>
+              {language === "bn" ? "মোট ভল্ট ক্যাশ" : "Combined Vault"}
+            </span>
+            <span
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: "var(--radius-md)",
+                background: "#0F5BE418",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#0F5BE4",
+              }}
+            >
+              <Wallet size={15} />
+            </span>
+          </div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+            {totalVaultDisplay}
+          </div>
+          <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+            {language === "bn" ? "সকল ভল্টের মোট অর্থ" : "Across all branches"}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Search & Filter Controls ── */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {/* Search Input */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "10px 14px",
+            borderRadius: "var(--radius-lg)",
+            background: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+          }}
+        >
+          <Search size={16} color="var(--color-text-muted)" />
+          <input
+            type="text"
+            placeholder={
+              language === "bn"
+                ? "নাম, কোড, শাখা ব্যবস্থাপক দিয়ে খুঁজুন..."
+                : "Search by branch name, code, manager, city..."
+            }
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              flex: 1,
+              background: "none",
+              border: "none",
+              outline: "none",
+              fontSize: 13,
+              color: "var(--color-text-primary)",
+              fontFamily: "var(--font-ui)",
+            }}
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-muted)", padding: 2 }}
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+
+        {/* Status Filter Chips */}
+        <div style={{ display: "flex", gap: 8, overflowX: "auto" }} className="no-scrollbar">
+          {(
+            [
+              { id: "all", label: "All", labelBn: "সকল", count: totalBranchesCount },
+              { id: "active", label: "Active", labelBn: "সক্রিয়", count: activeCount },
+              { id: "pending", label: "Pending", labelBn: "অপেক্ষমান", count: pendingCount },
+            ] as const
+          ).map((chip) => {
+            const isSelected = filterStatus === chip.id;
+            return (
+              <button
+                key={chip.id}
+                onClick={() => setFilterStatus(chip.id)}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  padding: "5px 12px",
+                  borderRadius: 999,
+                  fontSize: 12,
+                  fontWeight: isSelected ? 700 : 500,
+                  cursor: "pointer",
+                  border: isSelected ? "1px solid var(--color-brand)" : "1px solid var(--color-border)",
+                  background: isSelected ? "var(--color-brand-soft)" : "var(--color-surface)",
+                  color: isSelected ? "var(--color-brand)" : "var(--color-text-secondary)",
+                  transition: "all 0.15s ease",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <span>{language === "bn" ? chip.labelBn : chip.label}</span>
+                <span
+                  style={{
+                    padding: "1px 6px",
+                    borderRadius: 999,
+                    fontSize: 10,
+                    fontWeight: 700,
+                    background: isSelected ? "var(--color-brand)" : "var(--color-surface-hover)",
+                    color: isSelected ? "#FFFFFF" : "var(--color-text-muted)",
+                  }}
+                >
+                  {chip.count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Branch Cards List ── */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {filtered.length === 0 ? (
+          <div
+            style={{
+              padding: "40px 16px",
+              textAlign: "center",
+              background: "var(--color-surface)",
+              borderRadius: "var(--radius-lg)",
+              border: "1px solid var(--color-border)",
+              color: "var(--color-text-muted)",
+            }}
+          >
+            <Building2 size={32} style={{ opacity: 0.4, marginBottom: 8 }} />
+            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--color-text-primary)" }}>
+              {language === "bn" ? "কোন শাখা পাওয়া যায়নি" : "No branches found"}
+            </div>
+            <div style={{ fontSize: 12, marginTop: 4 }}>
+              {language === "bn"
+                ? "অনুসন্ধানের শর্ত পরিবর্তন করে আবার চেষ্টা করুন।"
+                : "Try adjusting your search query or filter."}
+            </div>
+          </div>
+        ) : (
+          filtered.map((branch) => {
+            const isPending = branch.status === "pending";
+            return (
+              <motion.div
+                key={branch.id}
+                whileHover={{ y: -2 }}
+                style={{
+                  background: "var(--color-surface)",
+                  border: isPending
+                    ? "1px solid rgba(245, 158, 11, 0.4)"
+                    : "1px solid var(--color-border)",
+                  borderRadius: "var(--radius-lg)",
+                  padding: "16px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 12,
+                  boxShadow: isPending ? "0 4px 16px rgba(245, 158, 11, 0.08)" : undefined,
+                  transition: "border-color 0.2s ease",
+                }}
+              >
+                {/* Branch Header */}
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: "var(--radius-md)",
+                        background: isPending ? "#F59E0B18" : "#10B98118",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: isPending ? "#F59E0B" : "#10B981",
+                        flexShrink: 0,
+                        position: "relative",
+                      }}
+                    >
+                      <Building2 size={20} />
+                      <span
+                        style={{
+                          position: "absolute",
+                          bottom: -2,
+                          right: -2,
+                          width: 9,
+                          height: 9,
+                          borderRadius: "50%",
+                          background: isPending ? "#F59E0B" : "#10B981",
+                          border: "2px solid var(--color-surface)",
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                        <span
+                          style={{
+                            fontSize: 14.5,
+                            fontWeight: 700,
+                            color: "var(--color-text-primary)",
+                            fontFamily: "var(--font-heading)",
+                          }}
+                        >
+                          {language === "bn" ? branch.nameBn : branch.name}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 10.5,
+                            fontWeight: 700,
+                            padding: "1px 6px",
+                            borderRadius: "var(--radius-sm)",
+                            background: "var(--color-surface-hover)",
+                            color: "var(--color-brand)",
+                            border: "1px solid var(--color-border-subtle)",
+                          }}
+                        >
+                          {branch.code}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 2 }}>
+                        {language === "bn" ? branch.typeBn : branch.type} • {branch.established}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Status Pill */}
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 4,
+                      padding: "3px 8px",
+                      borderRadius: 999,
+                      fontSize: 10.5,
+                      fontWeight: 700,
+                      background: isPending ? "var(--color-warning-soft)" : "var(--color-success-soft)",
+                      color: isPending ? "var(--color-warning)" : "var(--color-success)",
+                      border: isPending
+                        ? "1px solid rgba(245, 158, 11, 0.3)"
+                        : "1px solid rgba(16, 185, 129, 0.3)",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    ● {isPending ? (language === "bn" ? "অপেক্ষমান" : "Pending") : (language === "bn" ? "সক্রিয়" : "Active")}
+                  </span>
+                </div>
+
+                {/* Branch Metadata Grid (2x2) */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(2, 1fr)",
+                    gap: 8,
+                    padding: "10px",
+                    borderRadius: "var(--radius-md)",
+                    background: "var(--color-surface-hover)",
+                    border: "1px solid var(--color-border-subtle)",
+                  }}
+                >
+                  {/* Manager */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <span style={{ fontSize: 10, color: "var(--color-text-muted)", textTransform: "uppercase", fontWeight: 600 }}>
+                      {language === "bn" ? "ব্যবস্থাপক" : "Manager"}
+                    </span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "var(--color-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {branch.manager}
+                    </span>
+                  </div>
+
+                  {/* Location */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <span style={{ fontSize: 10, color: "var(--color-text-muted)", textTransform: "uppercase", fontWeight: 600 }}>
+                      {language === "bn" ? "অবস্থান" : "Location"}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: "var(--color-text-secondary)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 3,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      <MapPin size={11} color="var(--color-brand)" style={{ flexShrink: 0 }} />
+                      <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{branch.location}</span>
+                    </span>
+                  </div>
+
+                  {/* Vault */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <span style={{ fontSize: 10, color: "var(--color-text-muted)", textTransform: "uppercase", fontWeight: 600 }}>
+                      {language === "bn" ? "ভল্ট ক্যাশ" : "Vault Liquidity"}
+                    </span>
+                    <span style={{ fontSize: 12.5, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+                      ৳{fmt(branch.vaultBalance)}
+                    </span>
+                  </div>
+
+                  {/* Members */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <span style={{ fontSize: 10, color: "var(--color-text-muted)", textTransform: "uppercase", fontWeight: 600 }}>
+                      {language === "bn" ? "সদস্য সংখ্যা" : "Members"}
+                    </span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "var(--color-brand)", display: "flex", alignItems: "center", gap: 4 }}>
+                      <Users size={12} />
+                      {branch.membersCount} {language === "bn" ? "জন" : "members"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Footer Actions */}
+                {isPending ? (
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <button
+                      onClick={() => handleReject(branch.id, branch.name)}
+                      style={{
+                        padding: "8px 12px",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--color-border)",
+                        background: "var(--color-error-soft)",
+                        color: "var(--color-error)",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {language === "bn" ? "বাতিল" : "Decline"}
+                    </button>
+                    <button
+                      onClick={() => handleApprove(branch.id, branch.name)}
+                      style={{
+                        flex: 1,
+                        padding: "8px 12px",
+                        borderRadius: "var(--radius-md)",
+                        border: "none",
+                        background: "#10B981",
+                        color: "#FFFFFF",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 4,
+                      }}
+                    >
+                      <Check size={14} />
+                      <span>{language === "bn" ? "অনুমোদন করুন" : "Approve Branch"}</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    {/* Collection efficiency progress */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: "var(--color-success)" }}>
+                        {branch.collectionRate}%
+                      </span>
+                      <span style={{ fontSize: 10.5, color: "var(--color-text-muted)" }}>
+                        {language === "bn" ? "সময়মত আদায়" : "on-time recovery"}
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={() => setSelectedBranch(branch)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        color: "var(--color-brand)",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        padding: 0,
+                      }}
+                    >
+                      <span>{language === "bn" ? "বিস্তারিত দেখুন" : "View Details"}</span>
+                      <ChevronRight size={13} />
+                    </button>
+                  </div>
+                )}
+              </motion.div>
+            );
+          })
+        )}
+      </div>
+
+      {/* ── Modal: Branch Details Drawer ── */}
+      <AnimatePresence>
+        {selectedBranch && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0, 0, 0, 0.75)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
+              zIndex: 9999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "16px",
+            }}
+            onClick={() => setSelectedBranch(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 16 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: "100%",
+                maxWidth: 420,
+                background: "var(--color-surface)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-xl)",
+                boxShadow: "var(--shadow-modal)",
+                padding: "22px 20px",
+                maxHeight: "90vh",
+                overflowY: "auto",
+                boxSizing: "border-box",
+              }}
+            >
+              {/* Header */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div
+                    style={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: "var(--radius-md)",
+                      background: "#10B98118",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#10B981",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Building2 size={22} />
+                  </div>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+                      {language === "bn" ? selectedBranch.nameBn : selectedBranch.name}
+                    </h3>
+                    <div style={{ fontSize: 11.5, color: "var(--color-brand)", fontWeight: 600, marginTop: 2 }}>
+                      {selectedBranch.code} • {language === "bn" ? selectedBranch.typeBn : selectedBranch.type}
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setSelectedBranch(null)}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-muted)", padding: 4 }}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Financial Balance Callout */}
+              <div
+                style={{
+                  background: "linear-gradient(135deg, rgba(15, 91, 228, 0.12) 0%, rgba(107, 188, 233, 0.08) 100%)",
+                  border: "1px solid rgba(15, 91, 228, 0.25)",
+                  borderRadius: "var(--radius-lg)",
+                  padding: "16px",
+                  marginBottom: 16,
+                }}
+              >
+                <div style={{ fontSize: 11, color: "var(--color-text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>
+                  {language === "bn" ? "ভল্ট ক্যাশ ব্যালেন্স" : "Current Vault Reserve"}
+                </div>
+                <div style={{ fontSize: 26, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)", margin: "4px 0" }}>
+                  ৳{fmt(selectedBranch.vaultBalance)}
+                </div>
+                <div style={{ fontSize: 11, color: "var(--color-success)", fontWeight: 600 }}>
+                  ● 100% {language === "bn" ? "নিরাপদ ও রিজার্ভ বজায় রাখা হয়েছে" : "Audited & Liquid"}
+                </div>
+              </div>
+
+              {/* Operational Detail Rows */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, borderBottom: "1px solid var(--color-border-subtle)", paddingBottom: 6 }}>
+                  <span style={{ color: "var(--color-text-muted)" }}>{language === "bn" ? "ব্যবস্থাপক" : "Branch Manager"}</span>
+                  <span style={{ fontWeight: 700, color: "var(--color-text-primary)" }}>{selectedBranch.manager}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, borderBottom: "1px solid var(--color-border-subtle)", paddingBottom: 6 }}>
+                  <span style={{ color: "var(--color-text-muted)" }}>{language === "bn" ? "যোগাযোগ" : "Manager Phone"}</span>
+                  <span style={{ fontWeight: 600, color: "var(--color-brand)" }}>{selectedBranch.managerPhone}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, borderBottom: "1px solid var(--color-border-subtle)", paddingBottom: 6 }}>
+                  <span style={{ color: "var(--color-text-muted)" }}>{language === "bn" ? "ঠিকানা" : "Address"}</span>
+                  <span style={{ fontWeight: 500, color: "var(--color-text-secondary)", textAlign: "right", maxWidth: 220 }}>{selectedBranch.location}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, borderBottom: "1px solid var(--color-border-subtle)", paddingBottom: 6 }}>
+                  <span style={{ color: "var(--color-text-muted)" }}>{language === "bn" ? "সদস্য সংখ্যা" : "Registered Members"}</span>
+                  <span style={{ fontWeight: 700, color: "var(--color-text-primary)" }}>{selectedBranch.membersCount}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, borderBottom: "1px solid var(--color-border-subtle)", paddingBottom: 6 }}>
+                  <span style={{ color: "var(--color-text-muted)" }}>{language === "bn" ? "বকেয়া ঋণ" : "Active Loans Disbursed"}</span>
+                  <span style={{ fontWeight: 700, color: "var(--color-text-primary)" }}>৳{fmt(selectedBranch.activeLoans)}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, paddingBottom: 2 }}>
+                  <span style={{ color: "var(--color-text-muted)" }}>{language === "bn" ? "আদায় হার" : "Recovery Efficiency"}</span>
+                  <span style={{ fontWeight: 700, color: "var(--color-success)" }}>{selectedBranch.collectionRate}%</span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: "flex", gap: 10 }}>
+                <button
+                  onClick={() => {
+                    success("Vault Audit Synced", `Vault balance for ${selectedBranch.name} confirmed.`);
+                    setSelectedBranch(null);
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: "10px",
+                    borderRadius: "var(--radius-md)",
+                    background: "var(--color-brand)",
+                    color: "#FFFFFF",
+                    border: "none",
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  {language === "bn" ? "অডিট অনুমোদন করুন" : "Verify & Audit"}
+                </button>
+                <button
+                  onClick={() => setSelectedBranch(null)}
+                  style={{
+                    padding: "10px 16px",
+                    borderRadius: "var(--radius-md)",
+                    border: "1px solid var(--color-border)",
+                    background: "transparent",
+                    color: "var(--color-text-secondary)",
+                    fontSize: 12.5,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  {language === "bn" ? "বন্ধ করুন" : "Close"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Modal: Create New Branch ── */}
+      <AnimatePresence>
+        {isCreateOpen && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0, 0, 0, 0.75)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
+              zIndex: 9999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "16px",
+            }}
+            onClick={() => setIsCreateOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 16 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: "100%",
+                maxWidth: 420,
+                background: "var(--color-surface)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-xl)",
+                boxShadow: "var(--shadow-modal)",
+                padding: "22px 20px",
+                maxHeight: "90vh",
+                overflowY: "auto",
+                boxSizing: "border-box",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "var(--radius-md)",
+                      background: "#10B98118",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#10B981",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Plus size={20} />
+                  </div>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+                      {language === "bn" ? "নতুন শাখা উদ্বোধন" : "Register New Branch"}
+                    </h3>
+                    <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--color-text-muted)" }}>
+                      {language === "bn" ? "ডিজিটাল সমিতি নেটওয়ার্কে নতুন এলাকা যুক্ত করুন" : "Expand Digital Somity to a new location"}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setIsCreateOpen(false)}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-muted)", padding: 4 }}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateBranch}>
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
+                    {language === "bn" ? "শাখার নাম" : "Branch Name"} *
+                  </label>
+                  <input
+                    required
+                    placeholder="e.g., Cumilla Central Hub"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
+                      {language === "bn" ? "শাখা কোড" : "Branch Code"}
+                    </label>
+                    <input
+                      placeholder="e.g., DS-COM"
+                      value={newCode}
+                      onChange={(e) => setNewCode(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--color-border)",
+                        background: "var(--color-surface-hover)",
+                        color: "var(--color-text-primary)",
+                        fontSize: 13,
+                        outline: "none",
+                        boxSizing: "border-box",
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
+                      {language === "bn" ? "শাখার ধরন" : "Branch Type"}
+                    </label>
+                    <select
+                      value={newType}
+                      onChange={(e) => setNewType(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--color-border)",
+                        background: "var(--color-surface-hover)",
+                        color: "var(--color-text-primary)",
+                        fontSize: 13,
+                        outline: "none",
+                        boxSizing: "border-box",
+                      }}
+                    >
+                      <option value="Commercial">Commercial</option>
+                      <option value="Sub-urban">Sub-urban</option>
+                      <option value="Regional Hub">Regional Hub</option>
+                      <option value="Rural">Rural</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
+                    {language === "bn" ? "শাখা ব্যবস্থাপক" : "Assigned Branch Manager"}
+                  </label>
+                  <input
+                    placeholder="e.g., Tariqul Islam"
+                    value={newManager}
+                    onChange={(e) => setNewManager(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
+                    {language === "bn" ? "ব্যবস্থাপকের ফোন" : "Manager Contact Phone"}
+                  </label>
+                  <input
+                    placeholder="e.g., +880 1711-223344"
+                    value={newPhone}
+                    onChange={(e) => setNewPhone(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
+                    {language === "bn" ? "অবস্থান / ঠিকানা" : "Location / Address"}
+                  </label>
+                  <input
+                    placeholder="e.g., Kandirpar, Cumilla Sadar"
+                    value={newLocation}
+                    onChange={(e) => setNewLocation(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: 18 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
+                    {language === "bn" ? "প্রারম্ভিক ভল্ট তহবিল (BDT)" : "Initial Vault Reserve (BDT)"}
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="e.g., 1000000"
+                    value={newVault}
+                    onChange={(e) => setNewVault(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: "flex", gap: 10 }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsCreateOpen(false)}
+                    style={{
+                      padding: "10px 16px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "transparent",
+                      color: "var(--color-text-secondary)",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {language === "bn" ? "বাতিল" : "Cancel"}
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      flex: 1,
+                      padding: "10px 16px",
+                      borderRadius: "var(--radius-md)",
+                      border: "none",
+                      background: "var(--color-brand)",
+                      color: "#FFFFFF",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {language === "bn" ? "শাখা সংরক্ষণ করুন" : "Register Branch"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export const DashboardPage: React.FC = () => {
   const { currentUser, logout } = useAuth();
@@ -1917,6 +3132,8 @@ export const DashboardPage: React.FC = () => {
 
             <HomeContent role={currentUser.role} user={currentUser} onNavigateTab={(t) => setActiveTab(t)} />
           </>
+        ) : activeTab === "branches" ? (
+          <BranchesTab />
         ) : (
           <>
             {/* Page title for other tabs */}
