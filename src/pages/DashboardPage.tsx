@@ -313,8 +313,8 @@ const HomeContent: React.FC<{ role: string; user: { name: string; balance?: numb
           <StatCard label="Total Branches" value="7" sub="2 pending" subType="warning" icon={<Building2 size={16} />} accent="#10B981" />
           {/* 2. Total Members */}
           <StatCard label="Total Members" value="1,248" sub="+12 this month" subType="success" icon={<Users size={16} />} accent="#0F5BE4" />
-          {/* 3. Subscription Revenue */}
-          <StatCard label="Subscription Revenue" value="৳1.8L" sub="+14.2% growth" subType="success" icon={<CreditCard size={16} />} accent="#9333EA" />
+          {/* 3. Platform Value */}
+          <StatCard label="Platform Value" value={`৳${fmt(balance)}`} sub="+14.2% growth" subType="success" icon={<Wallet size={16} />} accent="#9333EA" />
           {/* 4. Monthly Revenue */}
           <StatCard label="Monthly Revenue" value="৳3.2L" sub="+8.4% vs last" subType="success" icon={<TrendingUp size={16} />} accent="#EA580C" />
         </div>
