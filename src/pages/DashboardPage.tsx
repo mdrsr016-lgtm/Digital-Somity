@@ -25,10 +25,20 @@ import {
   Sun,
   Globe,
   X,
+  UserPlus,
+  Zap,
+  CheckCircle2,
+  AlertCircle,
+  Plus,
+  Sparkles,
+  Sliders,
+  Check,
+  Download,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useToast } from "../contexts/ToastContext";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type NavItem = {
@@ -289,11 +299,981 @@ const TxRow: React.FC<{ name: string; amount: string; type: "in" | "out"; date: 
   </div>
 );
 
+// ─── Action Center Component ──────────────────────────────────────────────────
+interface ActionItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  icon: React.ReactNode;
+  accent: string;
+  badge?: string;
+  badgeColor?: string;
+}
+
+const ActionCenter: React.FC<{
+  role: string;
+  onNavigateTab?: (tab: string) => void;
+}> = ({ role, onNavigateTab }) => {
+  const { success, info } = useToast();
+  const [activeModal, setActiveModal] = useState<string | null>(null);
+  const [pendingCount, setPendingCount] = useState(2);
+  const [approvalsList, setApprovalsList] = useState([
+    {
+      id: "app-1",
+      title: "Sylhet Sadar Branch Expansion",
+      category: "Branch License • Sylhet East",
+      detail: "Manager: Kamal Hossain • Est. Members: 240",
+      status: "pending",
+    },
+    {
+      id: "app-2",
+      title: "Agro Micro-Credit (৳150,000)",
+      category: "Loan Application • Rahim Enterprise",
+      detail: "Credit Score: 820 • Collateral Verified",
+      status: "pending",
+    },
+  ]);
+
+  // Form states
+  const [branchName, setBranchName] = useState("");
+  const [branchCode, setBranchCode] = useState("");
+  const [branchManager, setBranchManager] = useState("");
+  const [branchCapital, setBranchCapital] = useState("");
+
+  const [memberName, setMemberName] = useState("");
+  const [memberPhone, setMemberPhone] = useState("");
+  const [memberNid, setMemberNid] = useState("");
+  const [memberBranch, setMemberBranch] = useState("");
+
+  const [loanMember, setLoanMember] = useState("");
+  const [loanAmount, setLoanAmount] = useState("");
+  const [loanTenure, setLoanTenure] = useState("");
+
+  const [depositMember, setDepositMember] = useState("");
+  const [depositAmount, setDepositAmount] = useState("");
+  const [depositScheme, setDepositScheme] = useState("");
+
+  const actions: ActionItem[] = [
+    {
+      id: "branch",
+      title: "New Branch",
+      subtitle: "Add & assign manager",
+      icon: <Building2 size={18} />,
+      accent: "#10B981",
+    },
+    {
+      id: "member",
+      title: "Add Member",
+      subtitle: "KYC registration",
+      icon: <UserPlus size={18} />,
+      accent: "#0F5BE4",
+    },
+    {
+      id: "loan",
+      title: "Disburse Loan",
+      subtitle: "Issue micro-credit",
+      icon: <ArrowUpRight size={18} />,
+      accent: "#EA580C",
+    },
+    {
+      id: "deposit",
+      title: "Collect Deposit",
+      subtitle: "Savings & DPS",
+      icon: <ArrowDownLeft size={18} />,
+      accent: "#059669",
+    },
+    {
+      id: "approvals",
+      title: "Approvals",
+      subtitle: `${pendingCount} items pending`,
+      icon: <ShieldCheck size={18} />,
+      accent: "#F59E0B",
+      badge: pendingCount > 0 ? `${pendingCount}` : undefined,
+      badgeColor: "#F59E0B",
+    },
+    {
+      id: "audit",
+      title: "Audit Report",
+      subtitle: "Export statements",
+      icon: <FileText size={18} />,
+      accent: "#9333EA",
+    },
+  ];
+
+  const handleApprove = (id: string, name: string) => {
+    setApprovalsList((prev) => prev.filter((item) => item.id !== id));
+    setPendingCount((c) => Math.max(0, c - 1));
+    success("Approval Confirmed", `Approved "${name}" successfully!`);
+    if (approvalsList.length <= 1) {
+      setTimeout(() => setActiveModal(null), 400);
+    }
+  };
+
+  const handleReject = (id: string, name: string) => {
+    setApprovalsList((prev) => prev.filter((item) => item.id !== id));
+    setPendingCount((c) => Math.max(0, c - 1));
+    info("Request Declined", `Declined "${name}".`);
+    if (approvalsList.length <= 1) {
+      setTimeout(() => setActiveModal(null), 400);
+    }
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "10px 12px",
+    borderRadius: "var(--radius-md)",
+    border: "1px solid var(--color-border)",
+    background: "var(--color-surface-hover)",
+    color: "var(--color-text-primary)",
+    fontSize: 13,
+    outline: "none",
+    marginBottom: 12,
+    fontFamily: "var(--font-ui)",
+    boxSizing: "border-box",
+  };
+
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    fontSize: 12,
+    fontWeight: 600,
+    color: "var(--color-text-secondary)",
+    marginBottom: 4,
+  };
+
+  return (
+    <>
+      <div
+        style={{
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: "var(--radius-lg)",
+          padding: "16px",
+          marginBottom: 20,
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 14,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: "var(--radius-md)",
+                background: "var(--color-brand-soft)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--color-brand)",
+              }}
+            >
+              <Zap size={15} />
+            </div>
+            <div>
+              <div
+                style={{
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: "var(--color-text-primary)",
+                  fontFamily: "var(--font-heading)",
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                Action Center
+              </div>
+              <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+                Quick platform operations & workflows
+              </div>
+            </div>
+          </div>
+
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              padding: "3px 8px",
+              borderRadius: 999,
+              fontSize: 10,
+              fontWeight: 600,
+              background: "var(--color-brand-soft)",
+              color: "var(--color-brand)",
+              border: "1px solid rgba(15, 91, 228, 0.25)",
+            }}
+          >
+            ⚡ 6 Fast Ops
+          </span>
+        </div>
+
+        {/* Priority Pending Strip */}
+        {pendingCount > 0 && (
+          <div
+            onClick={() => setActiveModal("approvals")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "10px 12px",
+              borderRadius: "var(--radius-md)",
+              background: "var(--color-warning-soft)",
+              border: "1px solid rgba(245, 158, 11, 0.28)",
+              marginBottom: 14,
+              cursor: "pointer",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: "var(--color-warning)",
+                  boxShadow: "0 0 8px var(--color-warning)",
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-warning)" }}>
+                {pendingCount} branch approvals awaiting your review
+              </span>
+            </div>
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: "var(--color-warning)",
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+                flexShrink: 0,
+              }}
+            >
+              Review <ChevronRight size={12} />
+            </span>
+          </div>
+        )}
+
+        {/* Action Grid (2x3) */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gap: 10,
+          }}
+        >
+          {actions.map((act) => (
+            <motion.button
+              key={act.id}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setActiveModal(act.id)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "12px",
+                background: "var(--color-surface-hover)",
+                border: "1px solid var(--color-border-subtle)",
+                borderRadius: "var(--radius-md)",
+                cursor: "pointer",
+                textAlign: "left",
+                position: "relative",
+                width: "100%",
+                boxSizing: "border-box",
+              }}
+            >
+              <div
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: "var(--radius-md)",
+                  background: `${act.accent}18`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: act.accent,
+                  flexShrink: 0,
+                }}
+              >
+                {act.icon}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: "var(--color-text-primary)",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {act.title}
+                </div>
+                <div
+                  style={{
+                    fontSize: 10,
+                    color: "var(--color-text-muted)",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {act.subtitle}
+                </div>
+              </div>
+
+              {act.badge && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: 8,
+                    right: 8,
+                    width: 18,
+                    height: 18,
+                    borderRadius: "50%",
+                    background: act.badgeColor || "var(--color-brand)",
+                    color: "#fff",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {act.badge}
+                </span>
+              )}
+            </motion.button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Action Modals ── */}
+      <AnimatePresence>
+        {activeModal && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0, 0, 0, 0.75)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
+              zIndex: 9999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "16px",
+            }}
+            onClick={() => setActiveModal(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.94, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 16 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: "100%",
+                maxWidth: 420,
+                background: "var(--color-surface)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-xl)",
+                boxShadow: "var(--shadow-modal)",
+                padding: "22px 20px",
+                maxHeight: "90vh",
+                overflowY: "auto",
+                boxSizing: "border-box",
+              }}
+            >
+              {/* Modal Header */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  justifyContent: "space-between",
+                  marginBottom: 18,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "var(--radius-md)",
+                      background:
+                        activeModal === "branch"
+                          ? "#10B98118"
+                          : activeModal === "member"
+                          ? "#0F5BE418"
+                          : activeModal === "loan"
+                          ? "#EA580C18"
+                          : activeModal === "deposit"
+                          ? "#05966918"
+                          : activeModal === "approvals"
+                          ? "#F59E0B18"
+                          : "#9333EA18",
+                      color:
+                        activeModal === "branch"
+                          ? "#10B981"
+                          : activeModal === "member"
+                          ? "#0F5BE4"
+                          : activeModal === "loan"
+                          ? "#EA580C"
+                          : activeModal === "deposit"
+                          ? "#059669"
+                          : activeModal === "approvals"
+                          ? "#F59E0B"
+                          : "#9333EA",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {activeModal === "branch" && <Building2 size={20} />}
+                    {activeModal === "member" && <UserPlus size={20} />}
+                    {activeModal === "loan" && <ArrowUpRight size={20} />}
+                    {activeModal === "deposit" && <ArrowDownLeft size={20} />}
+                    {activeModal === "approvals" && <ShieldCheck size={20} />}
+                    {activeModal === "audit" && <FileText size={20} />}
+                  </div>
+                  <div>
+                    <h3
+                      style={{
+                        margin: 0,
+                        fontSize: 16,
+                        fontWeight: 700,
+                        color: "var(--color-text-primary)",
+                        fontFamily: "var(--font-heading)",
+                      }}
+                    >
+                      {activeModal === "branch" && "Create New Branch"}
+                      {activeModal === "member" && "Register New Member"}
+                      {activeModal === "loan" && "Disburse Micro-Credit Loan"}
+                      {activeModal === "deposit" && "Collect Deposit / Savings"}
+                      {activeModal === "approvals" && `Pending Approvals (${pendingCount})`}
+                      {activeModal === "audit" && "Financial Audit & Export"}
+                    </h3>
+                    <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--color-text-muted)" }}>
+                      {activeModal === "branch" && "Expand platform operations to a new region"}
+                      {activeModal === "member" && "Onboard member with KYC and savings account"}
+                      {activeModal === "loan" && "Issue approved credit capital to member"}
+                      {activeModal === "deposit" && "Record savings or DPS cash contribution"}
+                      {activeModal === "approvals" && "Review queued branch & loan requests"}
+                      {activeModal === "audit" && "Authoritative balance sheets & statements"}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setActiveModal(null)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "var(--color-text-muted)",
+                    cursor: "pointer",
+                    padding: 4,
+                  }}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* 1. Branch Form */}
+              {activeModal === "branch" && (
+                <div>
+                  <label style={labelStyle}>Branch Name</label>
+                  <input
+                    style={inputStyle}
+                    placeholder="e.g., Dhanmondi Central Branch"
+                    value={branchName}
+                    onChange={(e) => setBranchName(e.target.value)}
+                  />
+
+                  <label style={labelStyle}>Branch Code</label>
+                  <input
+                    style={inputStyle}
+                    placeholder="e.g., BR-08 (Dhanmondi)"
+                    value={branchCode}
+                    onChange={(e) => setBranchCode(e.target.value)}
+                  />
+
+                  <label style={labelStyle}>Assigned Branch Manager</label>
+                  <input
+                    style={inputStyle}
+                    placeholder="e.g., Tareq Rahman"
+                    value={branchManager}
+                    onChange={(e) => setBranchManager(e.target.value)}
+                  />
+
+                  <label style={labelStyle}>Initial Vault Capital (BDT)</label>
+                  <input
+                    style={inputStyle}
+                    placeholder="e.g., ৳ 500,000"
+                    value={branchCapital}
+                    onChange={(e) => setBranchCapital(e.target.value)}
+                  />
+
+                  <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+                    <button
+                      onClick={() => setActiveModal(null)}
+                      style={{
+                        padding: "10px 16px",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--color-border)",
+                        background: "transparent",
+                        color: "var(--color-text-secondary)",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        success("Branch Created", `Branch "${branchName || "Dhanmondi Central"}" created successfully!`);
+                        setActiveModal(null);
+                        setBranchName("");
+                        setBranchCode("");
+                        setBranchManager("");
+                        setBranchCapital("");
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: "10px 16px",
+                        borderRadius: "var(--radius-md)",
+                        border: "none",
+                        background: "#10B981",
+                        color: "#fff",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Create Branch
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* 2. Member Form */}
+              {activeModal === "member" && (
+                <div>
+                  <label style={labelStyle}>Full Name</label>
+                  <input
+                    style={inputStyle}
+                    placeholder="e.g., Fatima Begum"
+                    value={memberName}
+                    onChange={(e) => setMemberName(e.target.value)}
+                  />
+
+                  <label style={labelStyle}>Phone Number</label>
+                  <input
+                    style={inputStyle}
+                    placeholder="e.g., +880 1712-345678"
+                    value={memberPhone}
+                    onChange={(e) => setMemberPhone(e.target.value)}
+                  />
+
+                  <label style={labelStyle}>National ID (NID)</label>
+                  <input
+                    style={inputStyle}
+                    placeholder="e.g., 1994829104829"
+                    value={memberNid}
+                    onChange={(e) => setMemberNid(e.target.value)}
+                  />
+
+                  <label style={labelStyle}>Assigned Branch</label>
+                  <input
+                    style={inputStyle}
+                    placeholder="e.g., Mirpur Main Branch"
+                    value={memberBranch}
+                    onChange={(e) => setMemberBranch(e.target.value)}
+                  />
+
+                  <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+                    <button
+                      onClick={() => setActiveModal(null)}
+                      style={{
+                        padding: "10px 16px",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--color-border)",
+                        background: "transparent",
+                        color: "var(--color-text-secondary)",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        success("Member Registered", `Member "${memberName || "Fatima Begum"}" added to Somiti roster!`);
+                        setActiveModal(null);
+                        setMemberName("");
+                        setMemberPhone("");
+                        setMemberNid("");
+                        setMemberBranch("");
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: "10px 16px",
+                        borderRadius: "var(--radius-md)",
+                        border: "none",
+                        background: "var(--color-brand)",
+                        color: "#fff",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Register Member
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* 3. Loan Disburse Form */}
+              {activeModal === "loan" && (
+                <div>
+                  <label style={labelStyle}>Select Member</label>
+                  <input
+                    style={inputStyle}
+                    placeholder="e.g., Karim Uddin (MEM-1042)"
+                    value={loanMember}
+                    onChange={(e) => setLoanMember(e.target.value)}
+                  />
+
+                  <label style={labelStyle}>Disbursement Amount (BDT)</label>
+                  <input
+                    style={inputStyle}
+                    placeholder="e.g., ৳ 50,000"
+                    value={loanAmount}
+                    onChange={(e) => setLoanAmount(e.target.value)}
+                  />
+
+                  <label style={labelStyle}>Repayment Scheme</label>
+                  <input
+                    style={inputStyle}
+                    placeholder="e.g., 12 Months (Micro-Business Plan)"
+                    value={loanTenure}
+                    onChange={(e) => setLoanTenure(e.target.value)}
+                  />
+
+                  <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+                    <button
+                      onClick={() => setActiveModal(null)}
+                      style={{
+                        padding: "10px 16px",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--color-border)",
+                        background: "transparent",
+                        color: "var(--color-text-secondary)",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        success("Loan Disbursed", `৳${loanAmount || "50,000"} issued to ${loanMember || "Karim Uddin"}.`);
+                        setActiveModal(null);
+                        setLoanMember("");
+                        setLoanAmount("");
+                        setLoanTenure("");
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: "10px 16px",
+                        borderRadius: "var(--radius-md)",
+                        border: "none",
+                        background: "#EA580C",
+                        color: "#fff",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Disburse Capital
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* 4. Deposit Form */}
+              {activeModal === "deposit" && (
+                <div>
+                  <label style={labelStyle}>Member ID / Name</label>
+                  <input
+                    style={inputStyle}
+                    placeholder="e.g., Amina Khatun (MEM-0891)"
+                    value={depositMember}
+                    onChange={(e) => setDepositMember(e.target.value)}
+                  />
+
+                  <label style={labelStyle}>Deposit Amount (BDT)</label>
+                  <input
+                    style={inputStyle}
+                    placeholder="e.g., ৳ 5,000"
+                    value={depositAmount}
+                    onChange={(e) => setDepositAmount(e.target.value)}
+                  />
+
+                  <label style={labelStyle}>Deposit Type</label>
+                  <input
+                    style={inputStyle}
+                    placeholder="e.g., Monthly DPS / Savings"
+                    value={depositScheme}
+                    onChange={(e) => setDepositScheme(e.target.value)}
+                  />
+
+                  <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+                    <button
+                      onClick={() => setActiveModal(null)}
+                      style={{
+                        padding: "10px 16px",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--color-border)",
+                        background: "transparent",
+                        color: "var(--color-text-secondary)",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        success("Deposit Recorded", `৳${depositAmount || "5,000"} credited to ${depositMember || "savings account"}!`);
+                        setActiveModal(null);
+                        setDepositMember("");
+                        setDepositAmount("");
+                        setDepositScheme("");
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: "10px 16px",
+                        borderRadius: "var(--radius-md)",
+                        border: "none",
+                        background: "#059669",
+                        color: "#fff",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Record Deposit
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* 5. Approvals List */}
+              {activeModal === "approvals" && (
+                <div>
+                  {approvalsList.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: "24px 0", color: "var(--color-text-muted)" }}>
+                      <CheckCircle2 size={36} color="var(--color-success)" style={{ marginBottom: 8 }} />
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text-primary)" }}>All Caught Up!</div>
+                      <div style={{ fontSize: 12 }}>No pending approvals remaining.</div>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      {approvalsList.map((app) => (
+                        <div
+                          key={app.id}
+                          style={{
+                            padding: "12px",
+                            background: "var(--color-surface-hover)",
+                            border: "1px solid var(--color-border)",
+                            borderRadius: "var(--radius-md)",
+                          }}
+                        >
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
+                            {app.title}
+                          </div>
+                          <div style={{ fontSize: 11, color: "var(--color-brand)", margin: "2px 0" }}>
+                            {app.category}
+                          </div>
+                          <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginBottom: 10 }}>
+                            {app.detail}
+                          </div>
+                          <div style={{ display: "flex", gap: 8 }}>
+                            <button
+                              onClick={() => handleReject(app.id, app.title)}
+                              style={{
+                                padding: "6px 12px",
+                                borderRadius: "var(--radius-sm)",
+                                border: "1px solid var(--color-border)",
+                                background: "var(--color-error-soft)",
+                                color: "var(--color-error)",
+                                fontSize: 11,
+                                fontWeight: 600,
+                                cursor: "pointer",
+                              }}
+                            >
+                              Reject
+                            </button>
+                            <button
+                              onClick={() => handleApprove(app.id, app.title)}
+                              style={{
+                                flex: 1,
+                                padding: "6px 12px",
+                                borderRadius: "var(--radius-sm)",
+                                border: "none",
+                                background: "#10B981",
+                                color: "#fff",
+                                fontSize: 11,
+                                fontWeight: 600,
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: 4,
+                              }}
+                            >
+                              <Check size={14} /> Approve
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div style={{ marginTop: 16 }}>
+                    <button
+                      onClick={() => setActiveModal(null)}
+                      style={{
+                        width: "100%",
+                        padding: "10px",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--color-border)",
+                        background: "transparent",
+                        color: "var(--color-text-secondary)",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* 6. Audit & Reports */}
+              {activeModal === "audit" && (
+                <div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {[
+                      {
+                        title: "Consolidated Financial Audit",
+                        desc: "Full balance sheet, profit/loss & reserve coverage (PDF)",
+                        type: "PDF Report",
+                      },
+                      {
+                        title: "Branch Operations & Revenue Ledger",
+                        desc: "Branch collections, loan defaults & cash flows (CSV)",
+                        type: "Excel / CSV",
+                      },
+                      {
+                        title: "Member DPS & Savings Portfolio",
+                        desc: "All active deposit contracts & dividend schedules (Excel)",
+                        type: "Spreadsheet",
+                      },
+                    ].map((rep, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => {
+                          success("Audit Downloaded", `${rep.title} generated & downloaded successfully!`);
+                          setActiveModal(null);
+                        }}
+                        style={{
+                          padding: "12px",
+                          borderRadius: "var(--radius-md)",
+                          background: "var(--color-surface-hover)",
+                          border: "1px solid var(--color-border-subtle)",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: 10,
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
+                            {rep.title}
+                          </div>
+                          <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>{rep.desc}</div>
+                        </div>
+                        <span
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 4,
+                            padding: "6px 10px",
+                            borderRadius: "var(--radius-sm)",
+                            background: "var(--color-brand-soft)",
+                            color: "var(--color-brand)",
+                            fontSize: 11,
+                            fontWeight: 600,
+                            flexShrink: 0,
+                          }}
+                        >
+                          <Download size={13} /> Export
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ marginTop: 16 }}>
+                    <button
+                      onClick={() => setActiveModal(null)}
+                      style={{
+                        width: "100%",
+                        padding: "10px",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--color-border)",
+                        background: "transparent",
+                        color: "var(--color-text-secondary)",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
 // ─── Role-specific home content ───────────────────────────────────────────────
-const HomeContent: React.FC<{ role: string; user: { name: string; balance?: number; workspace_name: string; role_color: string } }> = ({
-  role,
-  user,
-}) => {
+const HomeContent: React.FC<{
+  role: string;
+  user: { name: string; balance?: number; workspace_name: string; role_color: string };
+  onNavigateTab?: (tab: string) => void;
+}> = ({ role, user, onNavigateTab }) => {
   const balance = user.balance ?? 0;
   const fmt = (n: number) => n.toLocaleString("en-BD");
 
@@ -318,9 +1298,7 @@ const HomeContent: React.FC<{ role: string; user: { name: string; balance?: numb
           {/* 4. Monthly Revenue */}
           <StatCard label="Monthly Revenue" value="৳3.2L" sub="+8.4% vs last" subType="success" icon={<TrendingUp size={16} />} accent="#EA580C" />
         </div>
-        <SectionCard title="Recent Transactions">
-          {recentTxs.map((tx, i) => <TxRow key={i} {...tx} />)}
-        </SectionCard>
+        <ActionCenter role={role} onNavigateTab={onNavigateTab} />
       </>
     );
   }
@@ -893,7 +1871,7 @@ export const DashboardPage: React.FC = () => {
               </div>
             </div>
 
-            <HomeContent role={currentUser.role} user={currentUser} />
+            <HomeContent role={currentUser.role} user={currentUser} onNavigateTab={(t) => setActiveTab(t)} />
           </>
         ) : (
           <>
