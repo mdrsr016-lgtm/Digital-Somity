@@ -8,6 +8,29 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Hide scrollbars globally across all browsers while keeping smooth scroll */
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+html, body, * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.no-scrollbar {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
 html, body {
   height: 100%;
   width: 100%;

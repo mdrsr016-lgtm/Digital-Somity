@@ -673,7 +673,17 @@ export const DashboardPage: React.FC = () => {
       </header>
 
       {/* ── Main Content ── */}
-      <main style={{ flex: 1, overflowY: "auto", padding: "16px", WebkitOverflowScrolling: "touch" }}>
+      <main
+        className="no-scrollbar"
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          padding: "16px",
+          WebkitOverflowScrolling: "touch",
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+      >
         {activeTab === "home" ? (
           <>
             {/* ── Hero Greeting Banner (Borderless) ── */}
@@ -1004,7 +1014,16 @@ export const DashboardPage: React.FC = () => {
             </div>
 
             {/* Nav links */}
-            <div style={{ flex: 1, padding: "8px 8px", overflowY: "auto" }}>
+            <div
+              className="no-scrollbar"
+              style={{
+                flex: 1,
+                padding: "8px 8px",
+                overflowY: "auto",
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+              }}
+            >
               {navItems.map((item) => (
                 <button
                   key={item.id}
