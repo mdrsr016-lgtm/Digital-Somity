@@ -459,7 +459,7 @@ export const DashboardPage: React.FC = () => {
             }}
           >
             Digital{" "}
-            <span style={{ color: "var(--color-brand-variant)" }}>Somiti</span>
+            <span style={{ color: "var(--color-brand)" }}>Somity</span>
           </span>
         </div>
 

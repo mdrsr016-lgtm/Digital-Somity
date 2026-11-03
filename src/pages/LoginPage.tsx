@@ -576,7 +576,14 @@ export const LoginPage: React.FC = () => {
                   marginBottom: "7px",
                 }}
               >
-                {language === "bn" ? "ডিজিটাল সমিতি" : "Digital Somiti"}
+                {language === "bn" ? (
+                  "ডিজিটাল সমিতি"
+                ) : (
+                  <>
+                    Digital{" "}
+                    <span style={{ color: "var(--color-brand)" }}>Somity</span>
+                  </>
+                )}
               </div>
 
               {/* Decorative Underline Arc: 6-8px from brand, 12px to heading */}

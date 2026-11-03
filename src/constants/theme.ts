@@ -1,5 +1,5 @@
 /**
- * DIGITAL-SOMITI DESIGN SYSTEM TOKENS (v1.2)
+ * DIGITAL-SOMITY DESIGN SYSTEM TOKENS (v1.2)
  * Premium Fintech | Minimal | Royal Blue & Deep Navy
  */
 

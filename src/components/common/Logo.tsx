@@ -74,7 +74,13 @@ export const Logo: React.FC<LogoProps> = ({ size = "md", showText = true, layout
             transition: "color var(--transition-fast)",
           }}
         >
-          {language === "bn" ? "ডিজিটাল সমিতি" : "Digital Somiti"}
+          {language === "bn" ? (
+            "ডিজিটাল সমিতি"
+          ) : (
+            <>
+              Digital <span style={{ color: "var(--color-brand)" }}>Somity</span>
+            </>
+          )}
         </span>
       )}
     </div>

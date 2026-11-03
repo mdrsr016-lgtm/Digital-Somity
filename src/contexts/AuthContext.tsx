@@ -35,7 +35,7 @@ export const DEMO_USERS: Record<string, User> = {
     role_name_en: "Founder",
     role_name_bn: "প্রতিষ্ঠাতা",
     role_color: "#9333EA", // Purple as in design
-    workspace_name: "Digital Somiti HQ",
+    workspace_name: "Digital Somity HQ",
     status: "active",
     initial: "A",
     avatar_url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80",
@@ -52,7 +52,7 @@ export const DEMO_USERS: Record<string, User> = {
     role_name_en: "Admin",
     role_name_bn: "অ্যাডমিন",
     role_color: "#16A34A", // Green as in design
-    workspace_name: "Digital Somiti HQ",
+    workspace_name: "Digital Somity HQ",
     status: "active",
     initial: "R",
     avatar_url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=160&auto=format&fit=crop&q=80",

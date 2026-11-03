@@ -9,12 +9,12 @@ export type Translations = DeepStringRecord<typeof translations.en>;
 export const translations = {
   en: {
     brand: {
-      name: "Digital Somiti",
+      name: "Digital Somity",
       tagline: "Cooperative & Micro-Finance Management",
     },
     auth: {
       loginTitle: "Sign In With Your ID",
-      loginSubtitle: "Manage your cooperative records securely with Digital Somiti.",
+      loginSubtitle: "Manage your cooperative records securely with Digital Somity.",
       userIdPlaceholder: "User ID (e.g., adm00, csh01)",
       passwordPlaceholder: "Enter your password",
       loginBtn: "Sign In",
@@ -36,7 +36,7 @@ export const translations = {
       registerWithInvite: "Register with Invitation Code",
       invitationCode: "Invitation Code",
       enterInviteCode: "Enter your branch invitation code",
-      inviteOnlyNotice: "Digital Somiti is an invite-only cooperative banking platform. Please enter your invitation code to proceed.",
+      inviteOnlyNotice: "Digital Somity is an invite-only cooperative banking platform. Please enter your invitation code to proceed.",
       submitInviteCode: "Verify Code",
       quickDemo: "Quick Demo Logins",
       founder: "Founder (aye01)",
@@ -123,7 +123,7 @@ export const translations = {
     },
     modals: {
       helpTitle: "System Access Guide",
-      helpDesc: "Digital Somiti uses designated role-based user IDs for instant access.",
+      helpDesc: "Digital Somity uses designated role-based user IDs for instant access.",
       forgotPasswordTitle: "Account Recovery",
       forgotPasswordBody: "Please contact your somiti system administrator or branch manager to reset your password.",
       privacyTitle: "Privacy & Data Protection",
@@ -131,7 +131,7 @@ export const translations = {
       policyTitle: "Cooperative Policy",
       policyBody: "Operational standards, branch audit rules, and cooperative governance guidelines.",
       termsTitle: "Terms of Service",
-      termsBody: "By accessing Digital Somiti, users agree to abide by cooperative bylaws, maintain credential confidentiality, and conduct verified transactions.",
+      termsBody: "By accessing Digital Somity, users agree to abide by cooperative bylaws, maintain credential confidentiality, and conduct verified transactions.",
       conditionsTitle: "Rules & Conditions",
       conditionsBody: "Account operating terms, interest calculation guidelines, and member withdrawal rules.",
       close: "Close",
