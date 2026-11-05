@@ -1881,9 +1881,6 @@ const BranchesTab: React.FC = () => {
             gap: 10,
             padding: "12px 16px",
             borderRadius: "var(--radius-lg)",
-            background: "#FFFFFF",
-            border: "none",
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
             width: "100%",
             boxSizing: "border-box",
           }}
@@ -1907,7 +1904,6 @@ const BranchesTab: React.FC = () => {
               padding: 0,
               minHeight: "unset",
               fontSize: 13.5,
-              color: "#0F172A",
               fontFamily: "var(--font-ui)",
             }}
           />
@@ -1915,25 +1911,12 @@ const BranchesTab: React.FC = () => {
             <button
               type="button"
               onClick={() => setSearchQuery("")}
-              style={{
-                background: "rgba(0, 0, 0, 0.06)",
-                border: "none",
-                borderRadius: "50%",
-                width: 22,
-                height: 22,
-                cursor: "pointer",
-                color: "#64748B",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: 0,
-                flexShrink: 0,
-              }}
+              className="search-clear-btn"
             >
               <X size={13} />
             </button>
           )}
-          <Search size={16} color="#64748B" style={{ flexShrink: 0 }} />
+          <Search size={16} className="search-icon" />
         </div>
 
         {/* Status Filter Chips */}
@@ -3167,9 +3150,6 @@ const MembersTab: React.FC = () => {
             gap: 10,
             padding: "12px 16px",
             borderRadius: "var(--radius-lg)",
-            background: "#FFFFFF",
-            border: "none",
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
             width: "100%",
             boxSizing: "border-box",
           }}
@@ -3193,7 +3173,6 @@ const MembersTab: React.FC = () => {
               padding: 0,
               minHeight: "unset",
               fontSize: 13.5,
-              color: "#0F172A",
               fontFamily: "var(--font-ui)",
             }}
           />
@@ -3201,25 +3180,12 @@ const MembersTab: React.FC = () => {
             <button
               type="button"
               onClick={() => setSearchQuery("")}
-              style={{
-                background: "rgba(0, 0, 0, 0.06)",
-                border: "none",
-                borderRadius: "50%",
-                width: 22,
-                height: 22,
-                cursor: "pointer",
-                color: "#64748B",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: 0,
-                flexShrink: 0,
-              }}
+              className="search-clear-btn"
             >
               <X size={13} />
             </button>
           )}
-          <Search size={16} color="#64748B" style={{ flexShrink: 0 }} />
+          <Search size={16} className="search-icon" />
         </div>
 
         {/* Branch Selector & Filter Chips */}
