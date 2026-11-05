@@ -54,6 +54,7 @@ import {
   User,
   Calendar,
   Fingerprint,
+  RefreshCw,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
@@ -371,6 +372,7 @@ const ActionCenter: React.FC<{
   ]);
 
   // Form states
+  const [branchIdNo, setBranchIdNo] = useState("DS-BR-008");
   const [branchName, setBranchName] = useState("");
   const [branchCode, setBranchCode] = useState("");
   const [branchManager, setBranchManager] = useState("");
@@ -827,6 +829,17 @@ const ActionCenter: React.FC<{
               {/* 1. Branch Form */}
               {activeModal === "branch" && (
                 <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <label style={{ ...labelStyle, marginBottom: 0 }}>Branch ID No</label>
+                    <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 4, background: "rgba(16, 185, 129, 0.12)", color: "#10b981", fontWeight: 700 }}>Auto-generated</span>
+                  </div>
+                  <input
+                    style={{ ...inputStyle, fontFamily: "var(--font-mono, monospace)", fontWeight: 700 }}
+                    placeholder="e.g., DS-BR-008"
+                    value={branchIdNo}
+                    onChange={(e) => setBranchIdNo(e.target.value)}
+                  />
+
                   <label style={labelStyle}>Branch Name</label>
                   <input
                     style={inputStyle}
@@ -838,7 +851,7 @@ const ActionCenter: React.FC<{
                   <label style={labelStyle}>Branch Code</label>
                   <input
                     style={inputStyle}
-                    placeholder="e.g., BR-08 (Dhanmondi)"
+                    placeholder="e.g., DS-DHN"
                     value={branchCode}
                     onChange={(e) => setBranchCode(e.target.value)}
                   />
@@ -877,12 +890,13 @@ const ActionCenter: React.FC<{
                     </button>
                     <button
                       onClick={() => {
-                        success("Branch Created", `Branch "${branchName || "Dhanmondi Central"}" created successfully!`);
+                        success("Branch Created", `Branch "${branchName || "Dhanmondi Central"}" (${branchIdNo}) created successfully!`);
                         setActiveModal(null);
                         setBranchName("");
                         setBranchCode("");
                         setBranchManager("");
                         setBranchCapital("");
+                        setBranchIdNo("DS-BR-008");
                       }}
                       style={{
                         flex: 1,
@@ -1479,6 +1493,7 @@ const PlaceholderContent: React.FC<{ tab: string }> = ({ tab }) => (
 // ─── Branches Tab Component ───────────────────────────────────────────────────
 interface BranchItem {
   id: string;
+  branchNo: string;
   name: string;
   nameBn: string;
   code: string;
@@ -1498,6 +1513,7 @@ interface BranchItem {
 const INITIAL_BRANCHES: BranchItem[] = [
   {
     id: "ws-01",
+    branchNo: "DS-BR-001",
     name: "Central Somiti (HQ)",
     nameBn: "সেন্ট্রাল সমিতি (প্রধান কার্যালয়)",
     code: "DS-HQ",
@@ -1515,6 +1531,7 @@ const INITIAL_BRANCHES: BranchItem[] = [
   },
   {
     id: "ws-02",
+    branchNo: "DS-BR-002",
     name: "Motijheel Financial Branch",
     nameBn: "মতিঝিল ফাইন্যান্সিয়াল শাখা",
     code: "DS-MJ",
@@ -1532,6 +1549,7 @@ const INITIAL_BRANCHES: BranchItem[] = [
   },
   {
     id: "ws-03",
+    branchNo: "DS-BR-003",
     name: "Dhanmondi Cooperative Branch",
     nameBn: "ধানমন্ডি কো-অপারেটিভ শাখা",
     code: "DS-DH",
@@ -1549,6 +1567,7 @@ const INITIAL_BRANCHES: BranchItem[] = [
   },
   {
     id: "ws-04",
+    branchNo: "DS-BR-004",
     name: "Agrabad Chittagong Hub",
     nameBn: "আগ্রাবাদ চট্টগ্রাম হাব",
     code: "DS-CTG",
@@ -1566,6 +1585,7 @@ const INITIAL_BRANCHES: BranchItem[] = [
   },
   {
     id: "ws-05",
+    branchNo: "DS-BR-005",
     name: "Uttara Metropolitan Branch",
     nameBn: "উত্তরা মেট্রোপলিটন শাখা",
     code: "DS-UTT",
@@ -1583,6 +1603,7 @@ const INITIAL_BRANCHES: BranchItem[] = [
   },
   {
     id: "ws-06",
+    branchNo: "DS-BR-006",
     name: "Sylhet Sadar Branch",
     nameBn: "সিলেট সদর শাখা",
     code: "DS-SYL",
@@ -1600,6 +1621,7 @@ const INITIAL_BRANCHES: BranchItem[] = [
   },
   {
     id: "ws-07",
+    branchNo: "DS-BR-007",
     name: "Savar Micro-Branch",
     nameBn: "সাভার মাইক্রো শাখা",
     code: "DS-SVR",
@@ -1617,6 +1639,20 @@ const INITIAL_BRANCHES: BranchItem[] = [
   },
 ];
 
+const generateNextBranchId = (list: BranchItem[]) => {
+  let maxNum = 0;
+  list.forEach((b) => {
+    const raw = b.branchNo || b.id || "";
+    const match = raw.match(/(\d+)/);
+    if (match) {
+      const num = parseInt(match[1], 10);
+      if (num > maxNum) maxNum = num;
+    }
+  });
+  const nextNum = Math.max(maxNum + 1, list.length + 1);
+  return `DS-BR-${String(nextNum).padStart(3, "0")}`;
+};
+
 const BranchesTab: React.FC = () => {
   const { language } = useLanguage();
   const { success, info } = useToast();
@@ -1627,6 +1663,7 @@ const BranchesTab: React.FC = () => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   // New branch form state
+  const [newBranchId, setNewBranchId] = useState(() => generateNextBranchId(INITIAL_BRANCHES));
   const [newName, setNewName] = useState("");
   const [newCode, setNewCode] = useState("");
   const [newType, setNewType] = useState("Commercial");
@@ -1653,6 +1690,7 @@ const BranchesTab: React.FC = () => {
       !q ||
       b.name.toLowerCase().includes(q) ||
       b.code.toLowerCase().includes(q) ||
+      b.branchNo.toLowerCase().includes(q) ||
       b.manager.toLowerCase().includes(q) ||
       b.location.toLowerCase().includes(q);
     return matchesFilter && matchesSearch;
@@ -1680,9 +1718,11 @@ const BranchesTab: React.FC = () => {
     e.preventDefault();
     if (!newName.trim()) return;
 
+    const finalBranchId = newBranchId.trim() || generateNextBranchId(branches);
     const code = newCode.trim() || `DS-${newName.substring(0, 3).toUpperCase()}`;
     const newBranch: BranchItem = {
       id: `ws-${Date.now()}`,
+      branchNo: finalBranchId,
       name: newName.trim(),
       nameBn: newName.trim(),
       code,
@@ -1699,12 +1739,14 @@ const BranchesTab: React.FC = () => {
       activeLoans: 0,
     };
 
-    setBranches((prev) => [newBranch, ...prev]);
+    const updatedBranches = [newBranch, ...branches];
+    setBranches(updatedBranches);
     success(
       language === "bn" ? "শাখা তৈরি সম্পন্ন" : "Branch Created",
-      `"${newBranch.name}" (${code}) has been added to the Somiti network!`
+      `"${newBranch.name}" (${finalBranchId}) has been added to the Somiti network!`
     );
     setIsCreateOpen(false);
+    setNewBranchId(generateNextBranchId(updatedBranches));
     setNewName("");
     setNewCode("");
     setNewManager("");
@@ -1740,7 +1782,10 @@ const BranchesTab: React.FC = () => {
         <motion.button
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
-          onClick={() => setIsCreateOpen(true)}
+          onClick={() => {
+            setNewBranchId(generateNextBranchId(branches));
+            setIsCreateOpen(true);
+          }}
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -2061,6 +2106,20 @@ const BranchesTab: React.FC = () => {
                             fontWeight: 700,
                             padding: "1px 6px",
                             borderRadius: "var(--radius-sm)",
+                            background: "rgba(16, 185, 129, 0.12)",
+                            color: "#10b981",
+                            border: "1px solid rgba(16, 185, 129, 0.25)",
+                            fontFamily: "var(--font-mono, monospace)",
+                          }}
+                        >
+                          {branch.branchNo || branch.id}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 10.5,
+                            fontWeight: 700,
+                            padding: "1px 6px",
+                            borderRadius: "var(--radius-sm)",
                             background: "var(--color-surface-hover)",
                             color: "var(--color-brand)",
                             border: "1px solid var(--color-border-subtle)",
@@ -2304,8 +2363,14 @@ const BranchesTab: React.FC = () => {
                     <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
                       {language === "bn" ? selectedBranch.nameBn : selectedBranch.name}
                     </h3>
-                    <div style={{ fontSize: 11.5, color: "var(--color-brand)", fontWeight: 600, marginTop: 2 }}>
-                      {selectedBranch.code} • {language === "bn" ? selectedBranch.typeBn : selectedBranch.type}
+                    <div style={{ fontSize: 11.5, color: "var(--color-brand)", fontWeight: 600, marginTop: 3, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                      <span style={{ fontFamily: "var(--font-mono, monospace)", background: "rgba(16, 185, 129, 0.12)", color: "#10b981", padding: "1px 6px", borderRadius: 4, border: "1px solid rgba(16, 185, 129, 0.25)" }}>
+                        {selectedBranch.branchNo || selectedBranch.id}
+                      </span>
+                      <span>•</span>
+                      <span>{selectedBranch.code}</span>
+                      <span>•</span>
+                      <span>{language === "bn" ? selectedBranch.typeBn : selectedBranch.type}</span>
                     </div>
                   </div>
                 </div>
@@ -2341,6 +2406,10 @@ const BranchesTab: React.FC = () => {
 
               {/* Operational Detail Rows */}
               <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, borderBottom: "1px solid var(--color-border-subtle)", paddingBottom: 6 }}>
+                  <span style={{ color: "var(--color-text-muted)" }}>{language === "bn" ? "শাখা আইডি নং" : "Branch ID No"}</span>
+                  <span style={{ fontWeight: 700, fontFamily: "var(--font-mono, monospace)", color: "var(--color-text-primary)" }}>{selectedBranch.branchNo || selectedBranch.id}</span>
+                </div>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, borderBottom: "1px solid var(--color-border-subtle)", paddingBottom: 6 }}>
                   <span style={{ color: "var(--color-text-muted)" }}>{language === "bn" ? "ব্যবস্থাপক" : "Branch Manager"}</span>
                   <span style={{ fontWeight: 700, color: "var(--color-text-primary)" }}>{selectedBranch.manager}</span>
@@ -2485,6 +2554,80 @@ const BranchesTab: React.FC = () => {
               </div>
 
               <form onSubmit={handleCreateBranch}>
+                {/* Branch ID No (Auto-generated & Editable) */}
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)" }}>
+                      {language === "bn" ? "শাখা আইডি নং" : "Branch ID No"} *
+                    </label>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 700,
+                        color: "#10B981",
+                        background: "rgba(16, 185, 129, 0.12)",
+                        padding: "2px 7px",
+                        borderRadius: 4,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 4,
+                      }}
+                    >
+                      <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#10B981" }} />
+                      {language === "bn" ? "স্বয়ংক্রিয় (সম্পাদনাযোগ্য)" : "Auto-generated (Editable)"}
+                    </span>
+                  </div>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      required
+                      placeholder="e.g., DS-BR-008"
+                      value={newBranchId}
+                      onChange={(e) => setNewBranchId(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "10px 36px 10px 12px",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--color-border)",
+                        background: "var(--color-surface-hover)",
+                        color: "var(--color-text-primary)",
+                        fontSize: 13,
+                        fontWeight: 700,
+                        fontFamily: "var(--font-mono, monospace)",
+                        letterSpacing: "0.02em",
+                        outline: "none",
+                        boxSizing: "border-box",
+                      }}
+                    />
+                    <button
+                      type="button"
+                      title={language === "bn" ? "আইডি পুনরায় জেনারেট করুন" : "Regenerate auto ID"}
+                      onClick={() => setNewBranchId(generateNextBranchId(branches))}
+                      style={{
+                        position: "absolute",
+                        right: 8,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        background: "none",
+                        border: "none",
+                        color: "var(--color-text-muted)",
+                        cursor: "pointer",
+                        padding: 4,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: 4,
+                      }}
+                    >
+                      <RefreshCw size={13} />
+                    </button>
+                  </div>
+                  <p style={{ margin: "4px 0 0", fontSize: 11, color: "var(--color-text-muted)" }}>
+                    {language === "bn"
+                      ? "শাখার আইডি স্বয়ংক্রিয়ভাবে তৈরি হয়েছে, চাইলে সম্পাদনা করতে পারেন।"
+                      : "Generated sequentially. You can keep it or type a custom branch ID."}
+                  </p>
+                </div>
+
                 <div style={{ marginBottom: 12 }}>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
                     {language === "bn" ? "শাখার নাম" : "Branch Name"} *
