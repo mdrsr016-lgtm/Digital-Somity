@@ -301,6 +301,40 @@ select:-webkit-autofill:focus {
   transition: background-color 5000s ease-in-out 0s;
 }
 
+/* Borderless & All-White Search Input Bar */
+.borderless-search-bar {
+  background: #FFFFFF !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+.borderless-search-bar input.search-input-field {
+  background-color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  min-height: unset !important;
+  height: auto !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  color: #0F172A !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+}
+
+.borderless-search-bar input.search-input-field:focus {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.borderless-search-bar input.search-input-field::placeholder {
+  color: #64748B !important;
+  opacity: 0.85 !important;
+}
+
 /* Badges */
 .badge {
   display: inline-flex;

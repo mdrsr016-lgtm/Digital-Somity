@@ -1874,18 +1874,23 @@ const BranchesTab: React.FC = () => {
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {/* Search Input */}
         <div
+          className="borderless-search-bar"
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 8,
-            padding: "10px 14px",
+            gap: 10,
+            padding: "12px 16px",
             borderRadius: "var(--radius-lg)",
-            background: "var(--color-surface)",
-            border: "1px solid var(--color-border)",
+            background: "#FFFFFF",
+            border: "none",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+            width: "100%",
+            boxSizing: "border-box",
           }}
         >
           <input
             type="text"
+            className="search-input-field"
             placeholder={
               language === "bn"
                 ? "নাম, কোড, শাখা ব্যবস্থাপক দিয়ে খুঁজুন..."
@@ -1895,23 +1900,40 @@ const BranchesTab: React.FC = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
               flex: 1,
-              background: "none",
+              background: "transparent",
               border: "none",
               outline: "none",
-              fontSize: 13,
-              color: "var(--color-text-primary)",
+              boxShadow: "none",
+              padding: 0,
+              minHeight: "unset",
+              fontSize: 13.5,
+              color: "#0F172A",
               fontFamily: "var(--font-ui)",
             }}
           />
           {searchQuery && (
             <button
+              type="button"
               onClick={() => setSearchQuery("")}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-muted)", padding: 2, display: "flex", alignItems: "center" }}
+              style={{
+                background: "rgba(0, 0, 0, 0.06)",
+                border: "none",
+                borderRadius: "50%",
+                width: 22,
+                height: 22,
+                cursor: "pointer",
+                color: "#64748B",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 0,
+                flexShrink: 0,
+              }}
             >
-              <X size={14} />
+              <X size={13} />
             </button>
           )}
-          <Search size={16} color="var(--color-text-muted)" style={{ flexShrink: 0 }} />
+          <Search size={16} color="#64748B" style={{ flexShrink: 0 }} />
         </div>
 
         {/* Status Filter Chips */}
@@ -3138,18 +3160,23 @@ const MembersTab: React.FC = () => {
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {/* Search Bar */}
         <div
+          className="borderless-search-bar"
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 8,
-            padding: "10px 14px",
+            gap: 10,
+            padding: "12px 16px",
             borderRadius: "var(--radius-lg)",
-            background: "var(--color-surface)",
-            border: "1px solid var(--color-border)",
+            background: "#FFFFFF",
+            border: "none",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+            width: "100%",
+            boxSizing: "border-box",
           }}
         >
           <input
             type="text"
+            className="search-input-field"
             placeholder={
               language === "bn"
                 ? "নাম, সদস্য আইডি, ফোন বা এনআইডি দিয়ে খুঁজুন..."
@@ -3159,23 +3186,40 @@ const MembersTab: React.FC = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
               flex: 1,
-              background: "none",
+              background: "transparent",
               border: "none",
               outline: "none",
-              fontSize: 13,
-              color: "var(--color-text-primary)",
+              boxShadow: "none",
+              padding: 0,
+              minHeight: "unset",
+              fontSize: 13.5,
+              color: "#0F172A",
               fontFamily: "var(--font-ui)",
             }}
           />
           {searchQuery && (
             <button
+              type="button"
               onClick={() => setSearchQuery("")}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-muted)", padding: 2, display: "flex", alignItems: "center" }}
+              style={{
+                background: "rgba(0, 0, 0, 0.06)",
+                border: "none",
+                borderRadius: "50%",
+                width: 22,
+                height: 22,
+                cursor: "pointer",
+                color: "#64748B",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 0,
+                flexShrink: 0,
+              }}
             >
-              <X size={14} />
+              <X size={13} />
             </button>
           )}
-          <Search size={16} color="var(--color-text-muted)" style={{ flexShrink: 0 }} />
+          <Search size={16} color="#64748B" style={{ flexShrink: 0 }} />
         </div>
 
         {/* Branch Selector & Filter Chips */}
