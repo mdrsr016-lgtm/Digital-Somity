@@ -1728,7 +1728,7 @@ const BranchesTab: React.FC = () => {
               letterSpacing: "-0.02em",
             }}
           >
-            {language === "bn" ? "শাখাসমূহ ও আঞ্চলিক হাব" : "Branches & Regional Hubs"}
+            {language === "bn" ? "শাখাসমূহ" : "Branches"}
           </h2>
           <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "4px 0 0" }}>
             {language === "bn"
@@ -1830,7 +1830,7 @@ const BranchesTab: React.FC = () => {
           </div>
         </div>
 
-        {/* Card 2: Combined Vault */}
+        {/* Card 2: Combined Value */}
         <div
           style={{
             background: "var(--color-surface)",
@@ -1844,7 +1844,7 @@ const BranchesTab: React.FC = () => {
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ fontSize: 11.5, color: "var(--color-text-muted)", fontWeight: 600 }}>
-              {language === "bn" ? "মোট ভল্ট ক্যাশ" : "Combined Vault"}
+              {language === "bn" ? "সম্মিলিত ভ্যালু" : "Combined Value"}
             </span>
             <span
               style={{
