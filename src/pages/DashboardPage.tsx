@@ -1884,7 +1884,6 @@ const BranchesTab: React.FC = () => {
             border: "1px solid var(--color-border)",
           }}
         >
-          <Search size={16} color="var(--color-text-muted)" />
           <input
             type="text"
             placeholder={
@@ -1907,11 +1906,12 @@ const BranchesTab: React.FC = () => {
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-muted)", padding: 2 }}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-muted)", padding: 2, display: "flex", alignItems: "center" }}
             >
               <X size={14} />
             </button>
           )}
+          <Search size={16} color="var(--color-text-muted)" style={{ flexShrink: 0 }} />
         </div>
 
         {/* Status Filter Chips */}
@@ -3148,7 +3148,6 @@ const MembersTab: React.FC = () => {
             border: "1px solid var(--color-border)",
           }}
         >
-          <Search size={16} color="var(--color-text-muted)" />
           <input
             type="text"
             placeholder={
@@ -3171,11 +3170,12 @@ const MembersTab: React.FC = () => {
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-muted)", padding: 2 }}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-muted)", padding: 2, display: "flex", alignItems: "center" }}
             >
               <X size={14} />
             </button>
           )}
+          <Search size={16} color="var(--color-text-muted)" style={{ flexShrink: 0 }} />
         </div>
 
         {/* Branch Selector & Filter Chips */}
