@@ -4818,162 +4818,153 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
       id: "roles",
       title: "Roles & Permissions",
       titleBn: "ভূমিকা ও কর্মী অনুমতি",
-      badge: `${staffList.length} Staff • 4 Tiers`,
-      badgeBn: `${staffList.length} জন কর্মী • ৪টি স্তর`,
+      badge: "Active",
+      badgeBn: "সক্রিয়",
       badgeColor: "#8B5CF6",
-      desc: "Manage administrative access tiers, assign branch managers, suspend accounts, and invite new institutional staff.",
-      descBn: "প্রশাসনিক এক্সেস লেভেল পরিচালনা, শাখা ব্যবস্থাপক নির্ধারণ, অ্যাকাউন্ট স্থগিত ও নতুন কর্মকর্তা আমন্ত্রণ জানান।",
-      icon: <Shield size={22} />,
+      statValue: `${staffList.length} Personnel`,
+      statLabel: "4 Access Tiers",
+      statLabelBn: "৪টি রোল স্তর",
+      statColor: "#8B5CF6",
+      desc: "Assign branch managers, set authority tiers and invite personnel",
+      descBn: "শাখা ব্যবস্থাপক নিয়োগ, ভূমিকা নির্ধারণ ও কর্মী আমন্ত্রণ জানান",
+      icon: <Shield size={19} />,
       iconColor: "#8B5CF6",
       iconBg: "rgba(139, 92, 246, 0.12)",
-      preview: [
-        { label: "Founder", value: "1", color: "#8B5CF6" },
-        { label: "Admin", value: "1", color: "#0F5BE4" },
-        { label: "Managers", value: "2", color: "#10B981" },
-        { label: "Cashiers", value: "1", color: "#EA580C" },
-      ],
-      cta: "Work on Roles & Permissions",
-      ctaBn: "কর্মী ও ভূমিকা পরিচালনা",
+      cta: "Manage Roles",
+      ctaBn: "ভূমিকা পরিচালনা",
     },
     {
       id: "kyc",
       title: "KYC & Verification",
-      titleBn: "কেওয়াইসি ও জাতীয় পরিচয়পত্র",
-      badge: pendingKycCount > 0 ? `${pendingKycCount} in Queue` : "All Verified",
-      badgeBn: pendingKycCount > 0 ? `${pendingKycCount}টি আবেদন` : "সব যাচাই সম্পন্ন",
+      titleBn: "কেওয়াইসি ও যাচাই",
+      badge: pendingKycCount > 0 ? `${pendingKycCount} Queue` : "Verified",
+      badgeBn: pendingKycCount > 0 ? `${pendingKycCount}টি বাকি` : "সম্পন্ন",
       badgeColor: pendingKycCount > 0 ? "#F59E0B" : "#10B981",
-      desc: "Audit and verify pending national NID biometric registrations, OCR confidence match scores, and onboarding dossiers.",
-      descBn: "জাতীয় পরিচয়পত্রের বায়োমেট্রিক তথ্য, ওসিআর ম্যাচ স্কোর এবং নতুন সদস্য ও কর্মীদের আবেদন যাচাই ও অনুমোদন করুন।",
-      icon: <UserCheck size={22} />,
+      statValue: `${pendingKycCount} In Queue`,
+      statLabel: "97.2% Match Avg",
+      statLabelBn: "গড় ম্যাচ স্কোর",
+      statColor: pendingKycCount > 0 ? "#F59E0B" : "#10B981",
+      desc: "Audit national NID cards & approve biometric registrations",
+      descBn: "জাতীয় পরিচয়পত্র ও নতুন আবেদনকারী যাচাই ও অনুমোদন",
+      icon: <UserCheck size={19} />,
       iconColor: "#F59E0B",
       iconBg: "rgba(245, 158, 11, 0.12)",
-      preview: [
-        { label: "Pending", value: `${pendingKycCount}`, color: "#F59E0B" },
-        { label: "Avg Score", value: "97.2%", color: "#10B981" },
-        { label: "NID Bridge", value: "Live EC", color: "#0F5BE4" },
-      ],
-      cta: "Work on KYC Queue",
-      ctaBn: "কেওয়াইসি কিউ খুলুন",
+      cta: "Review Queue",
+      ctaBn: "কেওয়াইসি কিউ",
     },
     {
       id: "subscription",
       title: "Subscription & Quotas",
-      titleBn: "সাবস্ক্রিপশন ও রিসোর্স কোটা",
-      badge: "Enterprise Suite",
-      badgeBn: "এন্টারপ্রাইজ স্যুট",
+      titleBn: "সাবস্ক্রিপশন ও কোটা",
+      badge: "Tier 3",
+      badgeBn: "টিয়ার ৩",
       badgeColor: "#3B82F6",
-      desc: "Monitor branch expansion limits, member account allowances, SMS & WhatsApp OTP credits, and tier extensions.",
-      descBn: "শাখা সম্প্রসারণ সীমা, সদস্য লাইসেন্স কোটা, এসএমএস ও হোয়াটসঅ্যাপ ওটিপি ব্যালেন্স ও প্ল্যান রিনিউয়াল পরিচালনা করুন।",
-      icon: <Crown size={22} />,
+      statValue: "Enterprise Hub",
+      statLabel: "7 of 25 Hubs Used",
+      statLabelBn: "৭/২৫ শাখা ব্যবহৃত",
+      statColor: "#3B82F6",
+      desc: "Manage branch node licenses, quotas & recharge SMS credits",
+      descBn: "শাখা সম্প্রসারণ কোটা, লাইসেন্স ও এসএমএস ওটিপি ব্যালেন্স",
+      icon: <Crown size={19} />,
       iconColor: "#3B82F6",
       iconBg: "rgba(59, 130, 246, 0.12)",
-      preview: [
-        { label: "Branches", value: "7 / 25", color: "#3B82F6" },
-        { label: "SMS Credits", value: `${(smsCredits / 1000).toFixed(1)}k`, color: "#8B5CF6" },
-        { label: "Tier", value: "Tier 3", color: "#10B981" },
-      ],
-      cta: "Work on License & Quotas",
-      ctaBn: "লাইসেন্স ও কোটা পরিচালনা",
+      cta: "Manage License",
+      ctaBn: "লাইসেন্স পরিচালনা",
     },
     {
       id: "security",
-      title: "Security & Governance",
-      titleBn: "নিরাপত্তা ও প্রাতিষ্ঠানিক নীতি",
-      badge: "4 Policies Active",
-      badgeBn: "৪টি পলিসি সক্রিয়",
+      title: "Security & Policies",
+      titleBn: "নিরাপত্তা ও পলিসি",
+      badge: "Protected",
+      badgeBn: "সুরক্ষিত",
       badgeColor: "#10B981",
-      desc: "Enforce institutional 2FA verification, branch office IP geofencing, nightly vault locks, and dual-admin fund signoff.",
-      descBn: "বাধ্যতামূলক টু-ফ্যাক্টর অথেনটিকেশন, শাখা আইপি রেস্ট্রিকশন, নৈশ ভল্ট লক ও যৌথ ঋণ অনুমোদন পলিসি কার্যকর করুন।",
-      icon: <Lock size={22} />,
+      statValue: "4 Enforced",
+      statLabel: "2FA & IP Geofenced",
+      statLabelBn: "২এফএ ও আইপি লক",
+      statColor: "#10B981",
+      desc: "Enforce mandatory 2FA, geofenced IP locks & nightly freezes",
+      descBn: "বাধ্যতামূলক টু-ফ্যাক্টর, শাখা আইপি লক ও নৈশ ভল্ট নিরাপত্তা",
+      icon: <Lock size={19} />,
       iconColor: "#10B981",
       iconBg: "rgba(16, 185, 129, 0.12)",
-      preview: [
-        { label: "2FA", value: twoFactorEnforced ? "Enforced" : "Off", color: twoFactorEnforced ? "#10B981" : "#EF4444" },
-        { label: "Dual Approval", value: dualAdminApproval ? "Active" : "Off", color: dualAdminApproval ? "#10B981" : "#EF4444" },
-        { label: "Vault Freeze", value: "10 PM", color: "#0F5BE4" },
-      ],
-      cta: "Work on Security Policies",
-      ctaBn: "নিরাপত্তা পলিসি কনফিগার",
+      cta: "Configure Policies",
+      ctaBn: "পলিসি কনফিগার",
     },
     {
       id: "branches_case",
-      title: "Branch Nodes & Allocations",
-      titleBn: "শাখা নোড ও ভল্ট বরাদ্দ",
-      badge: "7 Active Hubs",
-      badgeBn: "৭টি সক্রিয় শাখা",
+      title: "Branch Nodes",
+      titleBn: "শাখা নোড ও বরাদ্দ",
+      badge: "7 Hubs",
+      badgeBn: "৭টি শাখা",
       badgeColor: "#0F5BE4",
-      desc: "Inspect regional branch nodes, vault balance ceilings, manager assignments, and operational licenses across Bangladesh.",
-      descBn: "আঞ্চলিক শাখা নোড, ভল্ট রিজার্ভ সিলিং, শাখা ব্যবস্থাপক বরাদ্দ ও কার্যক্ষমতা পর্যবেক্ষণ করুন।",
-      icon: <Building2 size={22} />,
+      statValue: "7 Active Hubs",
+      statLabel: "100% Online Sync",
+      statLabelBn: "১০০% লাইভ সিঙ্ক",
+      statColor: "#0F5BE4",
+      desc: "Regional branch status, manager assignments & vault ceilings",
+      descBn: "আঞ্চলিক শাখা কার্যক্ষমতা ও ব্যবস্থাপক তদারকি",
+      icon: <Building2 size={19} />,
       iconColor: "#0F5BE4",
       iconBg: "rgba(15, 91, 228, 0.12)",
-      preview: [
-        { label: "Active Hubs", value: "7 Hubs", color: "#0F5BE4" },
-        { label: "Total Vault", value: "৳2.15 Cr", color: "#10B981" },
-        { label: "Sync", value: "100%", color: "#10B981" },
-      ],
-      cta: "Work on Branch Nodes",
-      ctaBn: "শাখা নেটওয়ার্ক পর্যবেক্ষণ",
+      cta: "Inspect Nodes",
+      ctaBn: "শাখা নোড দেখুন",
     },
     {
       id: "vault_case",
-      title: "Central Vault & Liquidity",
-      titleBn: "ভল্ট রিজার্ভ ও তারল্য",
-      badge: "৳2.15 Cr Reserves",
-      badgeBn: "২.১৫ কোটি তারল্য",
+      title: "Vault & Liquidity",
+      titleBn: "ভল্ট ও তারল্য",
+      badge: "Healthy",
+      badgeBn: "স্থিতিশীল",
       badgeColor: "#10B981",
-      desc: "Oversee somiti liquidity ratios, inter-branch vault transfers, emergency reserves, and daily cash limits.",
-      descBn: "সমিতির তারল্য অনুপাত, আন্তঃশাখা ভল্ট ট্রান্সফার, জরুরি রিজার্ভ ও দৈনিক নগদ অর্থ সীমা পরিচালনা করুন।",
-      icon: <Wallet size={22} />,
+      statValue: "৳2.15 Crore",
+      statLabel: "94.2% Safe Buffer",
+      statLabelBn: "৯৪.২% নিরাপদ বাফার",
+      statColor: "#10B981",
+      desc: "Multi-branch liquidity ratios & cash reserve ceilings",
+      descBn: "আন্তঃশাখা তারল্য অনুপাত ও নগদ অর্থ রিজার্ভ",
+      icon: <Wallet size={19} />,
       iconColor: "#10B981",
       iconBg: "rgba(16, 185, 129, 0.12)",
-      preview: [
-        { label: "Combined Vault", value: "৳2.15 Cr", color: "#10B981" },
-        { label: "Safety Ratio", value: "94.2%", color: "#0F5BE4" },
-        { label: "Daily Buffer", value: "৳50L", color: "#8B5CF6" },
-      ],
-      cta: "Work on Vault & Liquidity",
-      ctaBn: "ভল্ট ও তারল্য পরিচালনা",
+      cta: "Reconcile Vault",
+      ctaBn: "ভল্ট সমন্বয়",
     },
     {
       id: "audit",
-      title: "Audit Trail & Compliance",
-      titleBn: "অডিট ট্রেইল ও কমপ্লায়েন্স",
-      badge: "Immutable Stream",
-      badgeBn: "অপরিবর্তনীয় লগ",
+      title: "Audit Trail & Logs",
+      titleBn: "অডিট ট্রেইল ও লগ",
+      badge: "Immutable",
+      badgeBn: "অপরিবর্তনীয়",
       badgeColor: "#64748B",
-      desc: "Inspect immutable audit events for role promotions, KYC decisions, branch creation, policy edits, and administrator logins.",
-      descBn: "ভূমিকা পরিবর্তন, কেওয়াইসি অনুমোদন, শাখা তৈরি, পলিসি সমন্বয় ও কর্মকর্তা লগইন সংক্রান্ত অডিট ট্রেইল পর্যালোচনা করুন।",
-      icon: <FileText size={22} />,
+      statValue: "1,248 Events",
+      statLabel: "0 Security Alerts",
+      statLabelBn: "০টি নিরাপত্তা সতর্কতা",
+      statColor: "#64748B",
+      desc: "Immutable ledger of role changes, approvals & staff logins",
+      descBn: "ভূমিকা পরিবর্তন, অনুমোদন ও প্ল্যাটফর্ম কার্যকলাপ",
+      icon: <FileText size={19} />,
       iconColor: "#64748B",
       iconBg: "rgba(100, 116, 139, 0.12)",
-      preview: [
-        { label: "Events", value: "1,248", color: "#64748B" },
-        { label: "Incidents", value: "0", color: "#10B981" },
-        { label: "Retention", value: "7 Years", color: "#0F5BE4" },
-      ],
-      cta: "Work on Audit Trail",
-      ctaBn: "অডিট ট্রেইল ও লগ দেখুন",
+      cta: "View Audit Log",
+      ctaBn: "অডিট লগ দেখুন",
     },
     {
       id: "api_case",
-      title: "API Gateways & Webhooks",
-      titleBn: "এপিআই গেটওয়ে ও ওয়েবহুক",
-      badge: "4 Live Bridges",
-      badgeBn: "৪টি লাইভ গেটওয়ে",
+      title: "API & Integrations",
+      titleBn: "এপিআই ও ওয়েবহুক",
+      badge: "4 Live",
+      badgeBn: "৪টি লাইভ",
       badgeColor: "#0F5BE4",
-      desc: "Monitor EC National NID bridge, SMS delivery gateways, MFS payout webhooks, and biometric hardware SDKs.",
-      descBn: "নির্বাচন কমিশন এনআইডি ব্রিজ, এসএমএস গেটওয়ে, বিকাশ/নগদ ওয়েবহুক ও বায়োমেট্রিক হার্ডওয়্যার সংযোগ পর্যবেক্ষণ করুন।",
-      icon: <Zap size={22} />,
+      statValue: "4 Gateways",
+      statLabel: "99.9% Live SLA",
+      statLabelBn: "৯৯.৯% লাইভ এসএলএ",
+      statColor: "#0F5BE4",
+      desc: "EC National NID bridge, SMS OTP & MFS payment rails",
+      descBn: "এনআইডি ব্রিজ, এসএমএস ওটিপি ও মোবাইল পেমেন্ট",
+      icon: <Zap size={19} />,
       iconColor: "#0F5BE4",
       iconBg: "rgba(15, 91, 228, 0.12)",
-      preview: [
-        { label: "NID EC Bridge", value: "Active", color: "#10B981" },
-        { label: "SMS Carrier", value: "99.9%", color: "#0F5BE4" },
-        { label: "MFS Payout", value: "Ready", color: "#8B5CF6" },
-      ],
-      cta: "Work on API Gateways",
-      ctaBn: "এপিআই গেটওয়ে পরিচালনা",
+      cta: "Inspect Gateways",
+      ctaBn: "গেটওয়ে পর্যবেক্ষণ",
     },
   ];
 
@@ -5029,137 +5020,163 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
             </div>
           </div>
 
-          {/* Cards Only Grid - 4 in a row */}
-          <div
-            className="console-cards-grid"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-              gap: 14,
-            }}
-          >
-            {CONSOLE_CARDS.map((card) => (
-              <motion.div
-                key={card.id}
-                whileHover={{ y: -4, boxShadow: "0 12px 28px rgba(0, 0, 0, 0.16)" }}
-                whileTap={{ scale: 0.99 }}
-                onClick={() => setActiveCase(card.id)}
-                style={{
-                  background: "var(--color-surface)",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "var(--radius-xl)",
-                  padding: "18px 16px",
-                  cursor: "pointer",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  transition: "border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease",
-                  gap: 12,
-                }}
-              >
-                {/* Top Row: Icon + Badge */}
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          {/* Cards Only Grid - Strictly 4 Cards in a Row on Every Screen */}
+          <div className="console-cards-container" style={{ width: "100%", overflowX: "auto", paddingBottom: 6 }}>
+            <div
+              className="console-cards-grid"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(4, minmax(210px, 1fr))",
+                gap: 14,
+                width: "100%",
+                boxSizing: "border-box",
+              }}
+            >
+              {CONSOLE_CARDS.map((card) => (
+                <motion.div
+                  key={card.id}
+                  whileHover={{ y: -4, borderColor: card.iconColor, boxShadow: "0 10px 24px rgba(0, 0, 0, 0.14)" }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setActiveCase(card.id)}
+                  style={{
+                    background: "var(--color-surface)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "var(--radius-xl)",
+                    padding: "16px 15px",
+                    cursor: "pointer",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+                    boxSizing: "border-box",
+                    position: "relative",
+                    overflow: "hidden",
+                    minWidth: 0,
+                  }}
+                >
+                  {/* Top accent bar */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: 3,
+                      background: card.iconColor,
+                      opacity: 0.85,
+                    }}
+                  />
+
+                  {/* Top Row: Icon + Badge */}
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, marginTop: 4 }}>
+                      <div
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: "var(--radius-md)",
+                          background: card.iconBg,
+                          color: card.iconColor,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {card.icon}
+                      </div>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          padding: "2px 7px",
+                          borderRadius: 999,
+                          background: `${card.badgeColor}18`,
+                          color: card.badgeColor,
+                          border: `1px solid ${card.badgeColor}30`,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
+                        }}
+                      >
+                        <span style={{ width: 5, height: 5, borderRadius: "50%", background: card.badgeColor }} />
+                        {language === "bn" ? card.badgeBn : card.badge}
+                      </span>
+                    </div>
+
+                    {/* Title */}
+                    <h3
+                      style={{
+                        margin: 0,
+                        fontSize: 14.5,
+                        fontWeight: 700,
+                        color: "var(--color-text-primary)",
+                        fontFamily: "var(--font-heading)",
+                        letterSpacing: "-0.01em",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                      title={language === "bn" ? card.titleBn : card.title}
+                    >
+                      {language === "bn" ? card.titleBn : card.title}
+                    </h3>
+                    <p
+                      style={{
+                        margin: "4px 0 0",
+                        fontSize: 11,
+                        color: "var(--color-text-muted)",
+                        lineHeight: 1.4,
+                        height: 30,
+                        overflow: "hidden",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                      }}
+                    >
+                      {language === "bn" ? card.descBn : card.desc}
+                    </p>
+                  </div>
+
+                  {/* Stat Highlight Box */}
+                  <div style={{ marginTop: 12 }}>
                     <div
                       style={{
-                        width: 38,
-                        height: 38,
+                        background: "var(--color-surface-hover)",
+                        padding: "8px 10px",
                         borderRadius: "var(--radius-md)",
-                        background: card.iconBg,
-                        color: card.iconColor,
+                        border: "1px solid var(--color-border-subtle)",
+                        marginBottom: 10,
+                      }}
+                    >
+                      <div style={{ fontSize: 13.5, fontWeight: 800, color: card.statColor, fontFamily: "var(--font-heading)", lineHeight: 1.2 }}>
+                        {card.statValue}
+                      </div>
+                      <div style={{ fontSize: 9.5, color: "var(--color-text-muted)", marginTop: 2, fontWeight: 500 }}>
+                        {language === "bn" ? card.statLabelBn : card.statLabel}
+                      </div>
+                    </div>
+
+                    {/* Bottom Action Footer */}
+                    <div
+                      style={{
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      {card.icon}
-                    </div>
-                    <span
-                      style={{
-                        fontSize: 10,
+                        justifyContent: "space-between",
+                        fontSize: 11.5,
                         fontWeight: 700,
-                        padding: "2px 7px",
-                        borderRadius: 999,
-                        background: `${card.badgeColor}18`,
-                        color: card.badgeColor,
-                        border: `1px solid ${card.badgeColor}30`,
+                        color: "var(--color-brand)",
+                        paddingTop: 8,
+                        borderTop: "1px solid var(--color-border-subtle)",
                       }}
                     >
-                      {language === "bn" ? card.badgeBn : card.badge}
-                    </span>
+                      <span>{language === "bn" ? card.ctaBn : card.cta}</span>
+                      <ArrowUpRight size={14} />
+                    </div>
                   </div>
-
-                  {/* Title & Description */}
-                  <h3
-                    style={{
-                      margin: 0,
-                      fontSize: 15,
-                      fontWeight: 700,
-                      color: "var(--color-text-primary)",
-                      fontFamily: "var(--font-heading)",
-                      letterSpacing: "-0.01em",
-                    }}
-                  >
-                    {language === "bn" ? card.titleBn : card.title}
-                  </h3>
-                  <p
-                    style={{
-                      margin: "5px 0 0",
-                      fontSize: 11.5,
-                      color: "var(--color-text-secondary)",
-                      lineHeight: 1.45,
-                      minHeight: 34,
-                    }}
-                  >
-                    {language === "bn" ? card.descBn : card.desc}
-                  </p>
-                </div>
-
-                {/* Mini Preview Bar */}
-                <div>
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: `repeat(${card.preview.length}, 1fr)`,
-                      gap: 6,
-                      background: "var(--color-surface-hover)",
-                      padding: "8px 10px",
-                      borderRadius: "var(--radius-md)",
-                      marginBottom: 10,
-                      border: "1px solid var(--color-border-subtle)",
-                    }}
-                  >
-                    {card.preview.map((p, idx) => (
-                      <div key={idx} style={{ textAlign: "center" }}>
-                        <div style={{ fontSize: 12, fontWeight: 800, color: p.color, fontFamily: "var(--font-heading)" }}>
-                          {p.value}
-                        </div>
-                        <div style={{ fontSize: 9.5, color: "var(--color-text-muted)", marginTop: 2, fontWeight: 500 }}>
-                          {p.label}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Bottom Action Prompt */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      fontSize: 11.5,
-                      fontWeight: 700,
-                      color: "var(--color-brand)",
-                      paddingTop: 8,
-                      borderTop: "1px solid var(--color-border-subtle)",
-                    }}
-                  >
-                    <span>{language === "bn" ? card.ctaBn : card.cta}</span>
-                    <ArrowUpRight size={15} />
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))}
+            </div>
           </div>
         </>
       ) : (

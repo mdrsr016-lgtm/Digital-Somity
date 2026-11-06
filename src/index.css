@@ -462,24 +462,21 @@ select:-webkit-autofill:focus {
 }
 
 /* ==================================================
-   Console 4-Cards in a Row Responsive Grid
+   Console 4-Cards in a Row Grid (Strictly 4 on Every Screen)
    ================================================== */
+.console-cards-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 6px;
+}
+
 .console-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 14px;
-}
-
-@media (max-width: 1240px) {
-  .console-cards-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-}
-
-@media (max-width: 640px) {
-  .console-cards-grid {
-    grid-template-columns: 1fr !important;
-  }
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(210px, 1fr)) !important;
+  gap: 14px !important;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 
