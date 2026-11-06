@@ -4939,54 +4939,23 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
 
             {/* Real-time Search Bar */}
             <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                background: "var(--color-surface)",
-                border: "1px solid var(--color-border)",
-                borderRadius: 999,
-                padding: "7px 14px",
-                minWidth: 180,
-                maxWidth: 240,
-                transition: "border-color 0.15s ease",
-              }}
-              onFocus={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = "var(--color-brand)"; }}
-              onBlur={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = "var(--color-border)"; }}
+              className="borderless-search-bar"
+              style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", width: 220, boxSizing: "border-box" }}
             >
-              <Search size={14} style={{ color: "var(--color-text-muted)", flexShrink: 0 }} />
               <input
                 type="text"
+                className="search-input-field"
                 value={cardSearch}
                 onChange={(e) => setCardSearch(e.target.value)}
                 placeholder={language === "bn" ? "মডিউল খুঁজুন..." : "Search modules..."}
-                style={{
-                  border: "none",
-                  outline: "none",
-                  background: "transparent",
-                  fontSize: 13,
-                  color: "var(--color-text-primary)",
-                  width: "100%",
-                  fontFamily: "var(--font-ui)",
-                }}
+                style={{ flex: 1, background: "transparent", border: "none", outline: "none", boxShadow: "none", padding: 0, minHeight: "unset", fontSize: 13.5, fontFamily: "var(--font-ui)" }}
               />
               {cardSearch && (
-                <button
-                  onClick={() => setCardSearch("")}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    background: "none",
-                    border: "none",
-                    padding: 0,
-                    cursor: "pointer",
-                    color: "var(--color-text-muted)",
-                    flexShrink: 0,
-                  }}
-                >
+                <button type="button" onClick={() => setCardSearch("")} className="search-clear-btn">
                   <X size={13} />
                 </button>
               )}
+              <Search size={16} className="search-icon" />
             </div>
           </div>
 
