@@ -136,6 +136,26 @@ public class AppUpdaterPlugin extends Plugin {
     }
 
     @PluginMethod
+    public void clearCache(PluginCall call) {
+        try {
+            File apkFile = new File(getContext().getCacheDir(), APK_FILE_NAME);
+            File tmpFile = new File(getContext().getCacheDir(), APK_FILE_NAME + ".tmp");
+            boolean cleared = false;
+            if (apkFile.exists()) {
+                cleared = apkFile.delete();
+            }
+            if (tmpFile.exists()) {
+                tmpFile.delete();
+            }
+            JSObject ret = new JSObject();
+            ret.put("cleared", cleared);
+            call.resolve(ret);
+        } catch (Exception e) {
+            call.reject("Failed to clear cache: " + e.getMessage());
+        }
+    }
+
+    @PluginMethod
     public void installUpdate(PluginCall call) {
         try {
             File apkFile = new File(getContext().getCacheDir(), APK_FILE_NAME);

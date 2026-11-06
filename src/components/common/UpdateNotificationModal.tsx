@@ -16,6 +16,7 @@ interface AppUpdaterPlugin {
   isUpdateReady(): Promise<{ ready: boolean; size: number }>;
   downloadUpdate(options: { url: string }): Promise<{ success: boolean; bytesDownloaded: number }>;
   installUpdate(): Promise<{ success: boolean; needPermission?: boolean }>;
+  clearCache(): Promise<{ cleared: boolean }>;
 }
 
 const AppUpdater = registerPlugin<AppUpdaterPlugin>("AppUpdater");
@@ -71,7 +72,10 @@ export const UpdateNotificationModal: React.FC = () => {
 
         // STRICT CHECK: An update is ONLY triggered if remote version > local version
         if (!remoteVer || !isNewerVersion(remoteVer, APP_VERSION)) {
-          // System is completely up-to-date — NEVER show modals or alerts
+          // System is up-to-date — clear any stale cached APK so it never causes false "ready" state
+          if (Capacitor.isNativePlatform()) {
+            try { await AppUpdater.clearCache(); } catch {}
+          }
           return;
         }
 

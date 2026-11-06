@@ -48,6 +48,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   transition: background-color var(--transition-normal), color var(--transition-normal);
   overflow-x: hidden;
+  overscroll-behavior-y: contain;
   touch-action: manipulation;
 }
 
