@@ -4812,7 +4812,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
     );
   };
 
-  // ── Console Case Cards Definition (Cards Only View) ──
+  // ── Console Case Cards Definition (4 Cards per Row Layout) ──
   const CONSOLE_CARDS = [
     {
       id: "roles",
@@ -4823,7 +4823,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
       badgeColor: "#8B5CF6",
       desc: "Manage administrative access tiers, assign branch managers, suspend accounts, and invite new institutional staff.",
       descBn: "প্রশাসনিক এক্সেস লেভেল পরিচালনা, শাখা ব্যবস্থাপক নির্ধারণ, অ্যাকাউন্ট স্থগিত ও নতুন কর্মকর্তা আমন্ত্রণ জানান।",
-      icon: <Shield size={24} />,
+      icon: <Shield size={22} />,
       iconColor: "#8B5CF6",
       iconBg: "rgba(139, 92, 246, 0.12)",
       preview: [
@@ -4833,18 +4833,18 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
         { label: "Cashiers", value: "1", color: "#EA580C" },
       ],
       cta: "Work on Roles & Permissions",
-      ctaBn: "কর্মী ও ভূমিকা পরিচালনা করুন",
+      ctaBn: "কর্মী ও ভূমিকা পরিচালনা",
     },
     {
       id: "kyc",
-      title: "KYC & Identity Verification",
-      titleBn: "কেওয়াইসি ও জাতীয় পরিচয়পত্র যাচাই",
+      title: "KYC & Verification",
+      titleBn: "কেওয়াইসি ও জাতীয় পরিচয়পত্র",
       badge: pendingKycCount > 0 ? `${pendingKycCount} in Queue` : "All Verified",
-      badgeBn: pendingKycCount > 0 ? `${pendingKycCount}টি আবেদন বাকি` : "সব যাচাই সম্পন্ন",
+      badgeBn: pendingKycCount > 0 ? `${pendingKycCount}টি আবেদন` : "সব যাচাই সম্পন্ন",
       badgeColor: pendingKycCount > 0 ? "#F59E0B" : "#10B981",
       desc: "Audit and verify pending national NID biometric registrations, OCR confidence match scores, and onboarding dossiers.",
       descBn: "জাতীয় পরিচয়পত্রের বায়োমেট্রিক তথ্য, ওসিআর ম্যাচ স্কোর এবং নতুন সদস্য ও কর্মীদের আবেদন যাচাই ও অনুমোদন করুন।",
-      icon: <UserCheck size={24} />,
+      icon: <UserCheck size={22} />,
       iconColor: "#F59E0B",
       iconBg: "rgba(245, 158, 11, 0.12)",
       preview: [
@@ -4853,18 +4853,18 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
         { label: "NID Bridge", value: "Live EC", color: "#0F5BE4" },
       ],
       cta: "Work on KYC Queue",
-      ctaBn: "কেওয়াইসি ভেরিফিকেশন কিউ খুলুন",
+      ctaBn: "কেওয়াইসি কিউ খুলুন",
     },
     {
       id: "subscription",
-      title: "Subscription & Resource Quotas",
+      title: "Subscription & Quotas",
       titleBn: "সাবস্ক্রিপশন ও রিসোর্স কোটা",
       badge: "Enterprise Suite",
       badgeBn: "এন্টারপ্রাইজ স্যুট",
       badgeColor: "#3B82F6",
       desc: "Monitor branch expansion limits, member account allowances, SMS & WhatsApp OTP credits, and tier extensions.",
       descBn: "শাখা সম্প্রসারণ সীমা, সদস্য লাইসেন্স কোটা, এসএমএস ও হোয়াটসঅ্যাপ ওটিপি ব্যালেন্স ও প্ল্যান রিনিউয়াল পরিচালনা করুন।",
-      icon: <Crown size={24} />,
+      icon: <Crown size={22} />,
       iconColor: "#3B82F6",
       iconBg: "rgba(59, 130, 246, 0.12)",
       preview: [
@@ -4873,27 +4873,27 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
         { label: "Tier", value: "Tier 3", color: "#10B981" },
       ],
       cta: "Work on License & Quotas",
-      ctaBn: "লাইসেন্স ও কোটা পরিচালনা করুন",
+      ctaBn: "লাইসেন্স ও কোটা পরিচালনা",
     },
     {
       id: "security",
-      title: "Security Policies & Governance",
+      title: "Security & Governance",
       titleBn: "নিরাপত্তা ও প্রাতিষ্ঠানিক নীতি",
       badge: "4 Policies Active",
       badgeBn: "৪টি পলিসি সক্রিয়",
       badgeColor: "#10B981",
       desc: "Enforce institutional 2FA verification, branch office IP geofencing, nightly vault locks, and dual-admin fund signoff.",
       descBn: "বাধ্যতামূলক টু-ফ্যাক্টর অথেনটিকেশন, শাখা আইপি রেস্ট্রিকশন, নৈশ ভল্ট লক ও যৌথ ঋণ অনুমোদন পলিসি কার্যকর করুন।",
-      icon: <Lock size={24} />,
+      icon: <Lock size={22} />,
       iconColor: "#10B981",
       iconBg: "rgba(16, 185, 129, 0.12)",
       preview: [
         { label: "2FA", value: twoFactorEnforced ? "Enforced" : "Off", color: twoFactorEnforced ? "#10B981" : "#EF4444" },
         { label: "Dual Approval", value: dualAdminApproval ? "Active" : "Off", color: dualAdminApproval ? "#10B981" : "#EF4444" },
-        { label: "Vault Freeze", value: "10 PM BST", color: "#0F5BE4" },
+        { label: "Vault Freeze", value: "10 PM", color: "#0F5BE4" },
       ],
       cta: "Work on Security Policies",
-      ctaBn: "নিরাপত্তা পলিসি কনফিগার করুন",
+      ctaBn: "নিরাপত্তা পলিসি কনফিগার",
     },
     {
       id: "branches_case",
@@ -4904,7 +4904,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
       badgeColor: "#0F5BE4",
       desc: "Inspect regional branch nodes, vault balance ceilings, manager assignments, and operational licenses across Bangladesh.",
       descBn: "আঞ্চলিক শাখা নোড, ভল্ট রিজার্ভ সিলিং, শাখা ব্যবস্থাপক বরাদ্দ ও কার্যক্ষমতা পর্যবেক্ষণ করুন।",
-      icon: <Building2 size={24} />,
+      icon: <Building2 size={22} />,
       iconColor: "#0F5BE4",
       iconBg: "rgba(15, 91, 228, 0.12)",
       preview: [
@@ -4913,18 +4913,38 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
         { label: "Sync", value: "100%", color: "#10B981" },
       ],
       cta: "Work on Branch Nodes",
-      ctaBn: "শাখা নেটওয়ার্ক পর্যবেক্ষণ করুন",
+      ctaBn: "শাখা নেটওয়ার্ক পর্যবেক্ষণ",
+    },
+    {
+      id: "vault_case",
+      title: "Central Vault & Liquidity",
+      titleBn: "ভল্ট রিজার্ভ ও তারল্য",
+      badge: "৳2.15 Cr Reserves",
+      badgeBn: "২.১৫ কোটি তারল্য",
+      badgeColor: "#10B981",
+      desc: "Oversee somiti liquidity ratios, inter-branch vault transfers, emergency reserves, and daily cash limits.",
+      descBn: "সমিতির তারল্য অনুপাত, আন্তঃশাখা ভল্ট ট্রান্সফার, জরুরি রিজার্ভ ও দৈনিক নগদ অর্থ সীমা পরিচালনা করুন।",
+      icon: <Wallet size={22} />,
+      iconColor: "#10B981",
+      iconBg: "rgba(16, 185, 129, 0.12)",
+      preview: [
+        { label: "Combined Vault", value: "৳2.15 Cr", color: "#10B981" },
+        { label: "Safety Ratio", value: "94.2%", color: "#0F5BE4" },
+        { label: "Daily Buffer", value: "৳50L", color: "#8B5CF6" },
+      ],
+      cta: "Work on Vault & Liquidity",
+      ctaBn: "ভল্ট ও তারল্য পরিচালনা",
     },
     {
       id: "audit",
-      title: "Audit Trail & Compliance Logs",
-      titleBn: "অডিট ট্রেইল ও কমপ্লায়েন্স লগ",
+      title: "Audit Trail & Compliance",
+      titleBn: "অডিট ট্রেইল ও কমপ্লায়েন্স",
       badge: "Immutable Stream",
       badgeBn: "অপরিবর্তনীয় লগ",
       badgeColor: "#64748B",
       desc: "Inspect immutable audit events for role promotions, KYC decisions, branch creation, policy edits, and administrator logins.",
       descBn: "ভূমিকা পরিবর্তন, কেওয়াইসি অনুমোদন, শাখা তৈরি, পলিসি সমন্বয় ও কর্মকর্তা লগইন সংক্রান্ত অডিট ট্রেইল পর্যালোচনা করুন।",
-      icon: <FileText size={24} />,
+      icon: <FileText size={22} />,
       iconColor: "#64748B",
       iconBg: "rgba(100, 116, 139, 0.12)",
       preview: [
@@ -4934,6 +4954,26 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
       ],
       cta: "Work on Audit Trail",
       ctaBn: "অডিট ট্রেইল ও লগ দেখুন",
+    },
+    {
+      id: "api_case",
+      title: "API Gateways & Webhooks",
+      titleBn: "এপিআই গেটওয়ে ও ওয়েবহুক",
+      badge: "4 Live Bridges",
+      badgeBn: "৪টি লাইভ গেটওয়ে",
+      badgeColor: "#0F5BE4",
+      desc: "Monitor EC National NID bridge, SMS delivery gateways, MFS payout webhooks, and biometric hardware SDKs.",
+      descBn: "নির্বাচন কমিশন এনআইডি ব্রিজ, এসএমএস গেটওয়ে, বিকাশ/নগদ ওয়েবহুক ও বায়োমেট্রিক হার্ডওয়্যার সংযোগ পর্যবেক্ষণ করুন।",
+      icon: <Zap size={22} />,
+      iconColor: "#0F5BE4",
+      iconBg: "rgba(15, 91, 228, 0.12)",
+      preview: [
+        { label: "NID EC Bridge", value: "Active", color: "#10B981" },
+        { label: "SMS Carrier", value: "99.9%", color: "#0F5BE4" },
+        { label: "MFS Payout", value: "Ready", color: "#8B5CF6" },
+      ],
+      cta: "Work on API Gateways",
+      ctaBn: "এপিআই গেটওয়ে পরিচালনা",
     },
   ];
 
@@ -4989,8 +5029,15 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
             </div>
           </div>
 
-          {/* Cards Only Grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16 }}>
+          {/* Cards Only Grid - 4 in a row */}
+          <div
+            className="console-cards-grid"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+              gap: 14,
+            }}
+          >
             {CONSOLE_CARDS.map((card) => (
               <motion.div
                 key={card.id}
@@ -5001,23 +5048,23 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
                   background: "var(--color-surface)",
                   border: "1px solid var(--color-border)",
                   borderRadius: "var(--radius-xl)",
-                  padding: "22px 20px",
+                  padding: "18px 16px",
                   cursor: "pointer",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
                   transition: "border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease",
-                  gap: 16,
+                  gap: 12,
                 }}
               >
                 {/* Top Row: Icon + Badge */}
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
                     <div
                       style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: "var(--radius-lg)",
+                        width: 38,
+                        height: 38,
+                        borderRadius: "var(--radius-md)",
                         background: card.iconBg,
                         color: card.iconColor,
                         display: "flex",
@@ -5029,9 +5076,9 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
                     </div>
                     <span
                       style={{
-                        fontSize: 11,
+                        fontSize: 10,
                         fontWeight: 700,
-                        padding: "3px 9px",
+                        padding: "2px 7px",
                         borderRadius: 999,
                         background: `${card.badgeColor}18`,
                         color: card.badgeColor,
@@ -5046,7 +5093,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
                   <h3
                     style={{
                       margin: 0,
-                      fontSize: 17,
+                      fontSize: 15,
                       fontWeight: 700,
                       color: "var(--color-text-primary)",
                       fontFamily: "var(--font-heading)",
@@ -5057,10 +5104,11 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
                   </h3>
                   <p
                     style={{
-                      margin: "6px 0 0",
-                      fontSize: 12.5,
+                      margin: "5px 0 0",
+                      fontSize: 11.5,
                       color: "var(--color-text-secondary)",
-                      lineHeight: 1.5,
+                      lineHeight: 1.45,
+                      minHeight: 34,
                     }}
                   >
                     {language === "bn" ? card.descBn : card.desc}
@@ -5073,20 +5121,20 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
                     style={{
                       display: "grid",
                       gridTemplateColumns: `repeat(${card.preview.length}, 1fr)`,
-                      gap: 8,
+                      gap: 6,
                       background: "var(--color-surface-hover)",
-                      padding: "10px 12px",
+                      padding: "8px 10px",
                       borderRadius: "var(--radius-md)",
-                      marginBottom: 14,
+                      marginBottom: 10,
                       border: "1px solid var(--color-border-subtle)",
                     }}
                   >
                     {card.preview.map((p, idx) => (
                       <div key={idx} style={{ textAlign: "center" }}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: p.color, fontFamily: "var(--font-heading)" }}>
+                        <div style={{ fontSize: 12, fontWeight: 800, color: p.color, fontFamily: "var(--font-heading)" }}>
                           {p.value}
                         </div>
-                        <div style={{ fontSize: 10, color: "var(--color-text-muted)", marginTop: 2, fontWeight: 500 }}>
+                        <div style={{ fontSize: 9.5, color: "var(--color-text-muted)", marginTop: 2, fontWeight: 500 }}>
                           {p.label}
                         </div>
                       </div>
@@ -5099,7 +5147,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      fontSize: 12.5,
+                      fontSize: 11.5,
                       fontWeight: 700,
                       color: "var(--color-brand)",
                       paddingTop: 8,
@@ -5107,7 +5155,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
                     }}
                   >
                     <span>{language === "bn" ? card.ctaBn : card.cta}</span>
-                    <ArrowUpRight size={16} />
+                    <ArrowUpRight size={15} />
                   </div>
                 </div>
               </motion.div>
@@ -6250,7 +6298,85 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
             </div>
           )}
 
-          {/* ── CASE 6: AUDIT TRAIL & LOGS WORKSPACE ── */}
+          {/* ── CASE 6: CENTRAL VAULT & LIQUIDITY ── */}
+          {activeCase === "vault_case" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {/* Case Header */}
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                <div>
+                  <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", margin: 0, fontFamily: "var(--font-heading)" }}>
+                    {language === "bn" ? "ভল্ট রিজার্ভ ও তারল্য ব্যবস্থাপনা" : "Central Vault & Liquidity Governance"}
+                  </h2>
+                  <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "4px 0 0" }}>
+                    {language === "bn"
+                      ? "৭টি আঞ্চলিক শাখার সম্মিলিত তারল্য, দৈনিক ক্যাশ সিলিং ও রিজার্ভ অনুপাত পর্যবেক্ষণ"
+                      : "Multi-branch liquidity reserves, cash-in-transit limits, and emergency settlement buffers"}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => success("Vault Audit Synced", "All 7 physical branch registers and central liquidity ledgers balanced.")}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 7,
+                    padding: "8px 14px",
+                    borderRadius: "var(--radius-md)",
+                    background: "var(--color-brand)",
+                    color: "#FFFFFF",
+                    border: "none",
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  <RefreshCw size={14} />
+                  <span>{language === "bn" ? "ভল্ট অডিট সমন্বয় করুন" : "Reconcile Vault Ledgers"}</span>
+                </button>
+              </div>
+
+              {/* Reserve Stat Cards */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
+                <div style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)", padding: "14px 16px" }}>
+                  <div style={{ fontSize: 11.5, color: "var(--color-text-muted)", fontWeight: 600 }}>
+                    {language === "bn" ? "মোট ভল্ট তহবিল" : "Combined Vault Reserves"}
+                  </div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: "#10B981", fontFamily: "var(--font-heading)", margin: "4px 0" }}>
+                    ৳2,15,50,000
+                  </div>
+                  <div style={{ fontSize: 10.5, color: "var(--color-text-secondary)" }}>
+                    {language === "bn" ? "৭টি আঞ্চলিক শাখায় সংরক্ষিত" : "Distributed across 7 regional hubs"}
+                  </div>
+                </div>
+
+                <div style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)", padding: "14px 16px" }}>
+                  <div style={{ fontSize: 11.5, color: "var(--color-text-muted)", fontWeight: 600 }}>
+                    {language === "bn" ? "তারল্য নিরাপত্তা অনুপাত" : "Liquidity Safety Ratio"}
+                  </div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: "#0F5BE4", fontFamily: "var(--font-heading)", margin: "4px 0" }}>
+                    94.2%
+                  </div>
+                  <div style={{ fontSize: 10.5, color: "#10B981", fontWeight: 700 }}>
+                    ● {language === "bn" ? "কেন্দ্রীয় ব্যাংকিং মানদণ্ডে নিরাপদ" : "Exceeds regulatory minimum"}
+                  </div>
+                </div>
+
+                <div style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)", padding: "14px 16px" }}>
+                  <div style={{ fontSize: 11.5, color: "var(--color-text-muted)", fontWeight: 600 }}>
+                    {language === "bn" ? "দৈনিক ক্যাশ সেটেলমেন্ট বাফার" : "Daily Settlement Buffer"}
+                  </div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: "#8B5CF6", fontFamily: "var(--font-heading)", margin: "4px 0" }}>
+                    ৳50,00,000
+                  </div>
+                  <div style={{ fontSize: 10.5, color: "var(--color-text-secondary)" }}>
+                    {language === "bn" ? "তাৎক্ষণিক সদস্য প্রত্যাহারের জন্য প্রস্তুত" : "Available for instant withdrawals"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── CASE 7: AUDIT TRAIL & LOGS WORKSPACE ── */}
           {activeCase === "audit" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {/* Case Header */}
@@ -6420,6 +6546,116 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
                       </div>
                     ))}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── CASE 8: API GATEWAYS & WEBHOOKS ── */}
+          {activeCase === "api_case" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {/* Case Header */}
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                <div>
+                  <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", margin: 0, fontFamily: "var(--font-heading)" }}>
+                    {language === "bn" ? "এপিআই গেটওয়ে ও ইন্টিগ্রেশন ওয়েবহুক" : "API Gateways & External Integrations"}
+                  </h2>
+                  <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "4px 0 0" }}>
+                    {language === "bn"
+                      ? "এনআইডি ভেরিফিকেশন ব্রিজ, এসএমএস নোটিফিকেশন ক্যারিয়ার ও মোবাইল ফিনান্সিয়াল সার্ভিস গেটওয়ে"
+                      : "Telemetry status and webhook health across national identity, SMS, and MFS payment rails"}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => success("Gateways Pinged", "All 4 external microservice webhooks responded with 200 OK.")}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 7,
+                    padding: "8px 14px",
+                    borderRadius: "var(--radius-md)",
+                    background: "var(--color-brand)",
+                    color: "#FFFFFF",
+                    border: "none",
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  <Zap size={14} />
+                  <span>{language === "bn" ? "সংযোগ পরীক্ষা করুন" : "Ping Microservices"}</span>
+                </button>
+              </div>
+
+              {/* Integration Gateway Cards */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12 }}>
+                {[
+                  {
+                    name: "EC National NID Verification API",
+                    nameBn: "জাতীয় নির্বাচন কমিশন এনআইডি ব্রিজ",
+                    status: "Connected",
+                    latency: "42ms",
+                    uptime: "99.85%",
+                    desc: "Automated optical recognition & biometric identity matching against Election Commission server.",
+                  },
+                  {
+                    name: "Multi-Carrier SMS & OTP Gateway",
+                    nameBn: "এসএমএস ও ওটিপি সার্ভিস গেটওয়ে",
+                    status: "Connected",
+                    latency: "85ms",
+                    uptime: "99.92%",
+                    desc: "Grameenphone, Banglalink, and Robi SMPP pipes delivering transaction receipts and 2FA OTPs.",
+                  },
+                  {
+                    name: "bKash & Nagad MFS Payout Webhook",
+                    nameBn: "বিকাশ ও নগদ ডিজিটাল সেটেলমেন্ট",
+                    status: "Synchronized",
+                    latency: "110ms",
+                    uptime: "99.99%",
+                    desc: "Automated instant loan disbursements and savings collections via mobile financial wallets.",
+                  },
+                  {
+                    name: "Biometric Fingerprint SDK v2.4",
+                    nameBn: "বায়োমেট্রিক ফিঙ্গারপ্রিন্ট ড্রাইভার",
+                    status: "Operational",
+                    latency: "12ms",
+                    uptime: "100%",
+                    desc: "Branch hardware scanner bridge for member loan signing and withdrawal authentications.",
+                  },
+                ].map((item, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      background: "var(--color-surface)",
+                      border: "1px solid var(--color-border)",
+                      borderRadius: "var(--radius-lg)",
+                      padding: "16px 18px",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      gap: 10,
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                        <span style={{ fontSize: 13.5, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+                          {language === "bn" ? item.nameBn : item.name}
+                        </span>
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 4, background: "rgba(16, 185, 129, 0.12)", color: "#10B981" }}>
+                          {item.status}
+                        </span>
+                      </div>
+                      <p style={{ margin: 0, fontSize: 11.5, color: "var(--color-text-muted)", lineHeight: 1.45 }}>
+                        {item.desc}
+                      </p>
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--color-text-secondary)", borderTop: "1px solid var(--color-border-subtle)", paddingTop: 8 }}>
+                      <span>Latency: <strong style={{ color: "#10B981" }}>{item.latency}</strong></span>
+                      <span>Uptime: <strong style={{ color: "#0F5BE4" }}>{item.uptime}</strong></span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
