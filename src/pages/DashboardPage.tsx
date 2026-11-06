@@ -4620,12 +4620,17 @@ const INITIAL_BRANCH_NODES: BranchNodeItem[] = [
   { id: "DS-BR-007", name: "Savar Micro-Branch", nameBn: "সাভার মাইক্রো শাখা", manager: "Salma Khatun", managerBn: "সালমা খাতুন", vault: 650000, members: 150, activeLoans: 600000, collectionRate: 97.0, status: "Active" },
 ];
 
-const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNavigateTab }) => {
+const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?: (id: string) => void; initialCase?: string | null }> = ({ onNavigateTab, onCardClick, initialCase }) => {
   const { language } = useLanguage();
   const { success, info } = useToast();
 
   // Active case state: null = cards-only landing page; string = dedicated case page
   const [activeCase, setActiveCase] = useState<string | null>(null);
+
+  // Sync initialCase prop → open that case immediately (used when navigating from sheet)
+  useEffect(() => {
+    if (initialCase != null) setActiveCase(initialCase);
+  }, [initialCase]);
 
   // Data states
   const [staffList, setStaffList] = useState<StaffUser[]>(INITIAL_STAFF);
@@ -5001,7 +5006,13 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
                       key={card.id}
                       whileHover={{ borderColor: card.iconColor, boxShadow: `0 0 0 1.5px ${card.iconColor}40` }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => setActiveCase(card.id)}
+                      onClick={() => {
+                        if (onCardClick) {
+                          onCardClick(card.id);
+                        } else {
+                          setActiveCase(card.id);
+                        }
+                      }}
                       style={{
                         background: "var(--color-surface)",
                         border: "1px solid var(--color-border)",
@@ -9309,6 +9320,7 @@ export const DashboardPage: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [consoleSheetOpen, setConsoleSheetOpen] = useState(false);
+  const [consoleInitialCase, setConsoleInitialCase] = useState<string | null>(null);
 
   // ── Sliding pill refs & state ──
   const navRef = useRef<HTMLDivElement>(null);
@@ -9905,7 +9917,7 @@ export const DashboardPage: React.FC = () => {
         ) : activeTab === "members" ? (
           <MembersTab />
         ) : activeTab === "console" || activeTab === "system" ? (
-          <ConsoleTab onNavigateTab={(t) => setActiveTab(t)} />
+          <ConsoleTab onNavigateTab={(t) => setActiveTab(t)} initialCase={consoleInitialCase} />
         ) : activeTab === "settings" ? (
           <SettingsTab />
         ) : activeTab === "profile" ? (
@@ -10364,7 +10376,14 @@ export const DashboardPage: React.FC = () => {
                   WebkitOverflowScrolling: "touch",
                 }}
               >
-                <ConsoleTab onNavigateTab={(t) => { setConsoleSheetOpen(false); setActiveTab(t); }} />
+                <ConsoleTab
+                  onNavigateTab={(t) => { setConsoleSheetOpen(false); setActiveTab(t); }}
+                  onCardClick={(id) => {
+                    setConsoleSheetOpen(false);
+                    setConsoleInitialCase(id);
+                    setActiveTab("console");
+                  }}
+                />
               </div>
             </motion.div>
           </>
