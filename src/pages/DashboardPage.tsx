@@ -61,6 +61,7 @@ import {
   Terminal,
   Wifi,
   Cpu,
+  LayoutGrid,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
@@ -81,14 +82,14 @@ const NAV_BY_ROLE: Record<string, NavItem[]> = {
     { id: "home", icon: <Home size={22} />, label: "Overview", labelBn: "সংক্ষিপ্ত" },
     { id: "branches", icon: <Building2 size={22} />, label: "Branches", labelBn: "শাখাসমূহ" },
     { id: "members", icon: <Users size={22} />, label: "Members", labelBn: "সদস্যগণ" },
-    { id: "console", icon: <Terminal size={22} />, label: "Console", labelBn: "কনসোল" },
+    { id: "console", icon: <LayoutGrid size={22} />, label: "Console", labelBn: "কনসোল" },
     { id: "reports", icon: <FileText size={22} />, label: "Reports", labelBn: "প্রতিবেদন" },
     { id: "settings", icon: <Settings size={22} />, label: "Settings", labelBn: "সেটিংস" },
   ],
   admin: [
     { id: "home", icon: <Home size={22} />, label: "Overview", labelBn: "সংক্ষিপ্ত" },
     { id: "members", icon: <Users size={22} />, label: "Members", labelBn: "সদস্যগণ" },
-    { id: "console", icon: <Terminal size={22} />, label: "Console", labelBn: "কনসোল" },
+    { id: "console", icon: <LayoutGrid size={22} />, label: "Console", labelBn: "কনসোল" },
     { id: "reports", icon: <FileText size={22} />, label: "Reports", labelBn: "প্রতিবেদন" },
     { id: "settings", icon: <Settings size={22} />, label: "Settings", labelBn: "সেটিংস" },
   ],
