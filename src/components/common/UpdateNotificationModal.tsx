@@ -1,62 +1,58 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Capacitor } from "@capacitor/core";
+import { Capacitor, registerPlugin } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
-import { Sparkles, ArrowUpCircle, Loader2, CheckCircle2, X } from "lucide-react";
+import { Sparkles, Download, CheckCircle2, Loader2, RefreshCw, X, ArrowUpCircle } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import {
   APP_VERSION,
+  CURRENT_BUILD_SHA,
   GITHUB_REPO_OWNER,
   GITHUB_REPO_NAME,
   APK_DOWNLOAD_URL,
   VERSION_CHECK_URL,
 } from "../../constants/appVersion";
 
-type UpdateState = "idle" | "checking" | "downloading" | "ready" | "dismissed";
-
-/** Compare semver strings — returns true if remote > local */
-function isNewer(remote: string, local: string): boolean {
-  const parse = (v: string) => v.replace(/^v/, "").split(".").map(Number);
-  const [rMaj, rMin, rPat] = parse(remote);
-  const [lMaj, lMin, lPat] = parse(local);
-  if (rMaj !== lMaj) return rMaj > lMaj;
-  if (rMin !== lMin) return rMin > lMin;
-  return rPat > lPat;
+// ── Native AppUpdater Plugin Interface ──────────────────────────────────────
+interface AppUpdaterPlugin {
+  isUpdateReady(): Promise<{ ready: boolean; size: number }>;
+  downloadUpdate(options: { url: string }): Promise<{ success: boolean; bytesDownloaded: number }>;
+  installUpdate(): Promise<{ success: boolean; needPermission?: boolean }>;
 }
+
+const AppUpdater = registerPlugin<AppUpdaterPlugin>("AppUpdater");
+
+type ModalState = "hidden" | "downloading" | "ready_to_install" | "web_reload_ready" | "installing";
 
 export const UpdateNotificationModal: React.FC = () => {
   const { language } = useLanguage();
-  const [state, setState] = useState<UpdateState>("idle");
-  const [remoteVersion, setRemoteVersion] = useState<string>("");
-  const [commitMsg, setCommitMsg] = useState<string>("");
-  const downloadTriggeredRef = useRef(false);
+  const [modalState, setModalState] = useState<ModalState>("hidden");
+  const [targetVersion, setTargetVersion] = useState<string>("");
+  const [commitSummary, setCommitSummary] = useState<string>("");
+  const downloadStartedRef = useRef(false);
 
   useEffect(() => {
-    // Only run on native Android APK
-    if (!Capacitor.isNativePlatform()) return;
-
     let isMounted = true;
-    setState("checking");
 
-    const checkAndUpdate = async () => {
+    const checkUpdates = async () => {
       try {
-        // ── Step 1: Fetch version.json from GitHub ──────────────────────────
-        const vRes = await fetch(`${VERSION_CHECK_URL}?t=${Date.now()}`, {
-          headers: { "Cache-Control": "no-cache" },
-        });
-        if (!vRes.ok) { setState("idle"); return; }
-        const vData = await vRes.json();
-        const remoteVer: string = vData?.version || "";
+        // 1. Fetch remote version info
+        let remoteVer = "";
+        let remoteSha = "";
 
-        if (!remoteVer || !isNewer(remoteVer, APP_VERSION)) {
-          // Already up to date
-          if (isMounted) setState("idle");
-          return;
+        try {
+          const vRes = await fetch(`${VERSION_CHECK_URL}?_nocache=${Date.now()}`, {
+            headers: { "Cache-Control": "no-cache" },
+          });
+          if (vRes.ok) {
+            const vData = await vRes.json();
+            remoteVer = vData?.version || "";
+            remoteSha = vData?.sha || "";
+          }
+        } catch {
+          // Fallback if version.json cannot be reached
         }
 
-        if (!isMounted) return;
-        setRemoteVersion(remoteVer);
-
-        // ── Step 2: Fetch latest commit message ─────────────────────────────
+        // 2. Also query latest commit message for changelog display
         try {
           const cRes = await fetch(
             `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commits/main`,
@@ -64,272 +60,400 @@ export const UpdateNotificationModal: React.FC = () => {
           );
           if (cRes.ok) {
             const cData = await cRes.json();
-            setCommitMsg(cData?.commit?.message?.split("\n")[0] || "");
+            if (!remoteSha) remoteSha = cData?.sha || "";
+            const msg = cData?.commit?.message?.split("\n")[0] || "";
+            if (isMounted) setCommitSummary(msg);
           }
-        } catch { /* non-critical */ }
+        } catch {}
 
-        // ── Step 3: Show system notification ───────────────────────────────
+        if (!remoteVer) {
+          remoteVer = APP_VERSION;
+        }
+
+        // 3. Determine if an update exists
+        const isVersionDifferent = remoteVer !== APP_VERSION;
+        const isShaDifferent = Boolean(remoteSha && remoteSha !== CURRENT_BUILD_SHA);
+
+        if (!isVersionDifferent && !isShaDifferent) {
+          // No update available
+          return;
+        }
+
+        const displayVer = isVersionDifferent ? remoteVer : `v${APP_VERSION}+`;
+        if (isMounted) setTargetVersion(displayVer);
+
+        // ── 4A. WEB VERSION: Show reload option ──────────────────────────────
+        if (!Capacitor.isNativePlatform()) {
+          if (isMounted) setModalState("web_reload_ready");
+          return;
+        }
+
+        // ── 4B. ANDROID APK VERSION: Auto-download & prompt to install ────────
+        // Check if previously downloaded APK is already on disk
         try {
-          const perm = await LocalNotifications.checkPermissions();
-          if (perm.display !== "granted") await LocalNotifications.requestPermissions();
-          await LocalNotifications.schedule({
-            notifications: [
-              {
-                id: 992,
-                title: `⬇ Digital Somity v${remoteVer} Available`,
-                body: "Downloading update now. Tap to install when ready.",
-                schedule: { at: new Date(Date.now() + 600) },
-                smallIcon: "ic_launcher_foreground",
-              },
-            ],
-          });
-        } catch { /* non-critical */ }
+          const status = await AppUpdater.isUpdateReady();
+          if (status?.ready) {
+            if (isMounted) setModalState("ready_to_install");
+            return;
+          }
+        } catch {}
 
-        // ── Step 4: Auto-trigger background download immediately ────────────
-        // Android DownloadManager intercepts this via MainActivity setDownloadListener.
-        // The BroadcastReceiver in MainActivity will auto-launch the system installer
-        // when the download finishes — no button needed from JS.
-        if (!downloadTriggeredRef.current) {
-          downloadTriggeredRef.current = true;
-          if (isMounted) setState("downloading");
+        // Auto-download in background (do NOT ask user to download)
+        if (!downloadStartedRef.current) {
+          downloadStartedRef.current = true;
+          if (isMounted) setModalState("downloading");
+
+          // Status bar notification that download is underway
+          try {
+            const perm = await LocalNotifications.checkPermissions();
+            if (perm.display !== "granted") await LocalNotifications.requestPermissions();
+            await LocalNotifications.schedule({
+              notifications: [
+                {
+                  id: 991,
+                  title: `⚡ Digital Somity ${displayVer}`,
+                  body: language === "bn" ? "নতুন আপডেট ডাউনলোড হচ্ছে..." : "Downloading update in background...",
+                  schedule: { at: new Date(Date.now() + 500) },
+                  smallIcon: "ic_launcher_foreground",
+                },
+              ],
+            });
+          } catch {}
 
           try {
-            window.location.href = APK_DOWNLOAD_URL;
-          } catch {
-            const a = document.createElement("a");
-            a.href = APK_DOWNLOAD_URL;
-            a.click();
+            const dlResult = await AppUpdater.downloadUpdate({ url: APK_DOWNLOAD_URL });
+            if (dlResult?.success && isMounted) {
+              setModalState("ready_to_install");
+
+              // Status bar notification that it's ready to install
+              try {
+                await LocalNotifications.schedule({
+                  notifications: [
+                    {
+                      id: 992,
+                      title: `🎉 Digital Somity ${displayVer} Ready`,
+                      body: language === "bn" ? "আপডেট ডাউনলোড শেষ। ইনস্টল করতে ট্যাপ করুন।" : "Update downloaded. Tap to install now.",
+                      schedule: { at: new Date(Date.now() + 500) },
+                      smallIcon: "ic_launcher_foreground",
+                    },
+                  ],
+                });
+              } catch {}
+            }
+          } catch (dlErr) {
+            console.warn("Background auto-download failed:", dlErr);
+            if (isMounted) setModalState("hidden");
           }
         }
       } catch (err) {
-        console.warn("[UpdateChecker] check failed:", err);
-        if (isMounted) setState("idle");
+        console.warn("Update check failed:", err);
       }
     };
 
-    // Slight delay so app renders first
-    const timer = setTimeout(checkAndUpdate, 2000);
+    const timer = setTimeout(checkUpdates, 1500);
+
     return () => {
       isMounted = false;
       clearTimeout(timer);
     };
-  }, []);
+  }, [language]);
 
-  const handleDismiss = () => setState("dismissed");
+  const handleInstallClick = async () => {
+    setModalState("installing");
+    try {
+      const res = await AppUpdater.installUpdate();
+      if (!res?.success && !res?.needPermission) {
+        setModalState("ready_to_install");
+      }
+    } catch (err) {
+      console.error("Install launch error:", err);
+      setModalState("ready_to_install");
+    }
+  };
 
-  // Don't render anything if idle, dismissed, or checking silently
-  if (state === "idle" || state === "dismissed" || state === "checking") return null;
+  const handleReloadClick = () => {
+    // Clear cache & hard reload on web
+    try {
+      if ("caches" in window) {
+        caches.keys().then((names) => {
+          names.forEach((name) => caches.delete(name));
+        });
+      }
+    } catch {}
+    window.location.reload();
+  };
 
-  const isDownloading = state === "downloading";
-  const title = isDownloading
-    ? (language === "bn" ? `v${remoteVersion} ডাউনলোড হচ্ছে...` : `Downloading v${remoteVersion}...`)
-    : (language === "bn" ? `v${remoteVersion} ডাউনলোড সম্পন্ন` : `v${remoteVersion} Download Complete`);
-
-  const subtitle = isDownloading
-    ? (language === "bn"
-        ? "আপডেট ডাউনলোড হচ্ছে। নোটিফিকেশন বারে অগ্রগতি দেখুন। ডাউনলোড শেষ হলে Android স্বয়ংক্রিয়ভাবে ইনস্টল করার অনুরোধ করবে।"
-        : "Update downloading in the background. Watch the notification bar for progress. Android will prompt you to install when complete.")
-    : (language === "bn"
-        ? "ডাউনলোড শেষ। Android ইনস্টল ডায়ালগ খুলবে।"
-        : "Download complete. Android install dialog should open.");
+  if (modalState === "hidden") return null;
 
   return (
     <div
       style={{
         position: "fixed",
         inset: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.72)",
-        backdropFilter: "blur(10px)",
+        backgroundColor: "rgba(0, 0, 0, 0.78)",
+        backdropFilter: "blur(8px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         zIndex: 999999,
         padding: "20px",
-        animation: "fadeInScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        animation: "fadeIn 0.25s ease-out",
+        userSelect: "none",
       }}
     >
       <div
         style={{
           width: "100%",
-          maxWidth: "340px",
+          maxWidth: "350px",
           backgroundColor: "var(--color-surface, #0E131F)",
-          border: "1px solid rgba(15, 91, 228, 0.3)",
-          boxShadow: "0 24px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(15, 91, 228, 0.2)",
+          border: "1px solid rgba(15, 91, 228, 0.35)",
+          boxShadow: "0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(15, 91, 228, 0.25)",
           borderRadius: "22px",
-          padding: "24px 20px 20px",
+          padding: "26px 22px 22px",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           textAlign: "center",
           gap: "14px",
-          userSelect: "none",
           position: "relative",
         }}
       >
-        {/* Dismiss button */}
-        <button
-          onClick={handleDismiss}
-          style={{
-            position: "absolute",
-            top: "12px",
-            right: "12px",
-            background: "rgba(255,255,255,0.06)",
-            border: "none",
-            borderRadius: "50%",
-            width: "28px",
-            height: "28px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            color: "var(--color-text-muted, #64748B)",
-          }}
-          title="Dismiss"
-        >
-          <X size={14} />
-        </button>
+        {/* Dismiss button (for web reload or downloading dismiss) */}
+        {!Capacitor.isNativePlatform() && (
+          <button
+            type="button"
+            onClick={() => setModalState("hidden")}
+            style={{
+              position: "absolute",
+              top: "14px",
+              right: "14px",
+              background: "rgba(255, 255, 255, 0.06)",
+              border: "none",
+              borderRadius: "50%",
+              width: "28px",
+              height: "28px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              color: "var(--color-text-muted, #94A3B8)",
+            }}
+            title="Dismiss"
+          >
+            <X size={15} />
+          </button>
+        )}
 
-        {/* Animated Icon */}
+        {/* Dynamic State Icon */}
         <div
           style={{
-            width: "64px",
-            height: "64px",
+            width: "66px",
+            height: "66px",
             borderRadius: "18px",
-            background: "linear-gradient(135deg, rgba(15,91,228,0.25) 0%, rgba(56,189,248,0.18) 100%)",
-            border: "1px solid rgba(56,189,248,0.35)",
+            background: "linear-gradient(135deg, rgba(15, 91, 228, 0.25) 0%, rgba(56, 189, 248, 0.2) 100%)",
+            border: "1px solid rgba(56, 189, 248, 0.4)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             color: "var(--color-brand-variant, #38BDF8)",
-            boxShadow: "0 8px 24px rgba(15,91,228,0.3)",
-            animation: isDownloading ? "pulse 2s infinite" : "none",
+            boxShadow: "0 10px 25px rgba(15, 91, 228, 0.35)",
           }}
         >
-          {isDownloading ? <Loader2 size={30} style={{ animation: "spin 1s linear infinite" }} /> : <CheckCircle2 size={30} />}
+          {modalState === "downloading" ? (
+            <Loader2 size={32} style={{ animation: "spin 1.2s linear infinite" }} />
+          ) : modalState === "ready_to_install" || modalState === "installing" ? (
+            <CheckCircle2 size={34} style={{ color: "#10B981" }} />
+          ) : (
+            <ArrowUpCircle size={34} />
+          )}
         </div>
 
-        {/* Badge */}
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "5px",
-            padding: "3px 10px",
-            borderRadius: "999px",
-            backgroundColor: "rgba(15,91,228,0.14)",
-            color: "#38BDF8",
-            fontSize: "11px",
-            fontWeight: 600,
-          }}
-        >
-          <Sparkles size={11} />
-          <span>
-            {language === "bn" ? "নতুন আপডেট" : "New Update"} &nbsp;
-            <span style={{ opacity: 0.7, fontWeight: 400 }}>
-              v{APP_VERSION} → v{remoteVersion}
-            </span>
-          </span>
-        </div>
-
-        {/* Title */}
+        {/* Version Badge & Title */}
         <div>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "4px 10px",
+              borderRadius: "999px",
+              backgroundColor: "rgba(15, 91, 228, 0.15)",
+              color: "#38BDF8",
+              fontSize: "12px",
+              fontWeight: 600,
+              marginBottom: "8px",
+            }}
+          >
+            <Sparkles size={12} />
+            <span>
+              {modalState === "web_reload_ready"
+                ? (language === "bn" ? `নতুন ভার্সন ${targetVersion}` : `New Version ${targetVersion}`)
+                : modalState === "downloading"
+                ? (language === "bn" ? `ভার্সন ${targetVersion} ডাউনলোড হচ্ছে` : `Downloading ${targetVersion}`)
+                : (language === "bn" ? `ভার্সন ${targetVersion} প্রস্তুত` : `Version ${targetVersion} Ready`)}
+            </span>
+          </div>
+
           <h3
             style={{
-              margin: "0 0 6px",
-              fontSize: "18px",
+              margin: 0,
+              fontSize: "19px",
               fontWeight: 700,
               color: "var(--color-text-primary, #FFFFFF)",
               letterSpacing: "-0.01em",
             }}
           >
-            {title}
+            {modalState === "web_reload_ready"
+              ? (language === "bn" ? "নতুন আপডেট উপলব্ধ" : "Web Update Available")
+              : modalState === "downloading"
+              ? (language === "bn" ? "স্বয়ংক্রিয় ডাউনলোড চলছে" : "Downloading Update")
+              : (language === "bn" ? "আপডেট ইনস্টল করতে প্রস্তুত" : "Ready to Install")}
           </h3>
-
-          {/* Commit message */}
-          {commitMsg && (
-            <p
-              style={{
-                margin: "0 0 4px",
-                fontSize: "12px",
-                color: "var(--color-text-secondary, #94A3B8)",
-                backgroundColor: "rgba(255,255,255,0.03)",
-                padding: "8px 12px",
-                borderRadius: "10px",
-                border: "1px solid rgba(255,255,255,0.05)",
-                wordBreak: "break-word",
-                lineHeight: "1.4",
-              }}
-            >
-              {commitMsg}
-            </p>
-          )}
         </div>
 
-        {/* Subtitle */}
-        <p
-          style={{
-            margin: 0,
-            fontSize: "12px",
-            lineHeight: "1.5",
-            color: "var(--color-text-muted, #64748B)",
-          }}
-        >
-          {subtitle}
-        </p>
-
-        {/* Downloading progress bar */}
-        {isDownloading && (
-          <div
+        {/* Commit / Update Details */}
+        {commitSummary && (
+          <p
             style={{
+              margin: 0,
+              fontSize: "12.5px",
+              lineHeight: "1.45",
+              color: "var(--color-text-secondary, #94A3B8)",
+              backgroundColor: "rgba(255, 255, 255, 0.03)",
+              padding: "9px 12px",
+              borderRadius: "10px",
+              border: "1px solid rgba(255, 255, 255, 0.05)",
               width: "100%",
-              height: "3px",
-              backgroundColor: "rgba(15,91,228,0.15)",
-              borderRadius: "999px",
-              overflow: "hidden",
+              wordBreak: "break-word",
             }}
           >
+            {commitSummary}
+          </p>
+        )}
+
+        {/* ── State 1: DOWNLOADING (APK) ── */}
+        {modalState === "downloading" && (
+          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "10px", marginTop: "2px" }}>
             <div
               style={{
-                height: "100%",
-                width: "40%",
-                backgroundColor: "#0F5BE4",
+                width: "100%",
+                height: "4px",
+                backgroundColor: "rgba(15, 91, 228, 0.15)",
                 borderRadius: "999px",
-                animation: "shimmer 1.4s infinite ease-in-out",
+                overflow: "hidden",
+                position: "relative",
               }}
-            />
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  bottom: 0,
+                  width: "45%",
+                  backgroundColor: "#0F5BE4",
+                  borderRadius: "999px",
+                  animation: "downloadShimmer 1.2s infinite ease-in-out",
+                }}
+              />
+            </div>
+            <span style={{ fontSize: "12px", color: "var(--color-text-muted, #64748B)" }}>
+              {language === "bn"
+                ? "ব্যাকগ্রাউন্ডে ডাউনলোড হচ্ছে... শেষ হলে ইনস্টল করতে বলা হবে।"
+                : "Downloading in background... You will be prompted to install once ready."}
+            </span>
           </div>
         )}
 
-        {/* Info row */}
-        <p
-          style={{
-            margin: 0,
-            fontSize: "11px",
-            color: "rgba(255,255,255,0.25)",
-          }}
-        >
-          {language === "bn"
-            ? "Android স্বয়ংক্রিয়ভাবে ইনস্টল ডায়ালগ খুলবে"
-            : "Android will auto-open the install dialog"}
-        </p>
+        {/* ── State 2: READY TO INSTALL (APK) — Only asks to install, starts install directly ── */}
+        {(modalState === "ready_to_install" || modalState === "installing") && (
+          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
+            <button
+              type="button"
+              onClick={handleInstallClick}
+              disabled={modalState === "installing"}
+              style={{
+                width: "100%",
+                padding: "14px 18px",
+                background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+                color: "#FFFFFF",
+                border: "none",
+                borderRadius: "12px",
+                fontSize: "15px",
+                fontWeight: 700,
+                cursor: modalState === "installing" ? "wait" : "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                boxShadow: "0 6px 20px rgba(16, 185, 129, 0.4)",
+                outline: "none",
+                transition: "all 0.2s ease",
+              }}
+            >
+              <Download size={18} />
+              <span>
+                {modalState === "installing"
+                  ? (language === "bn" ? "ইনস্টলার খুলছে..." : "Opening Installer...")
+                  : (language === "bn" ? `ইনস্টল করুন (${targetVersion})` : `Install Update (${targetVersion})`)}
+              </span>
+            </button>
+            <span style={{ fontSize: "11px", color: "var(--color-text-muted, #64748B)" }}>
+              {language === "bn"
+                ? "ট্যাপ করলে অ্যান্ড্রয়েড প্যাকেজ ইনস্টলার চালু হবে।"
+                : "Tapping will start the Android package installer."}
+            </span>
+          </div>
+        )}
+
+        {/* ── State 3: WEB RELOAD (Web version) ── */}
+        {modalState === "web_reload_ready" && (
+          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
+            <button
+              type="button"
+              onClick={handleReloadClick}
+              style={{
+                width: "100%",
+                padding: "13px 18px",
+                background: "linear-gradient(135deg, #0F5BE4 0%, #2563EB 100%)",
+                color: "#FFFFFF",
+                border: "none",
+                borderRadius: "12px",
+                fontSize: "14px",
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                boxShadow: "0 6px 20px rgba(15, 91, 228, 0.4)",
+                outline: "none",
+              }}
+            >
+              <RefreshCw size={16} />
+              <span>{language === "bn" ? `রিলোড করুন (${targetVersion})` : `Reload Page (${targetVersion})`}</span>
+            </button>
+            <span style={{ fontSize: "11px", color: "var(--color-text-muted, #64748B)" }}>
+              {language === "bn"
+                ? "নতুন ফিচার ও উন্নয়ন পেতে পেজটি রিলোড করুন।"
+                : "Reload the page to apply the latest features and fixes."}
+            </span>
+          </div>
+        )}
       </div>
 
       <style>{`
-        @keyframes fadeInScale {
-          from { opacity: 0; transform: scale(0.93); }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.96); }
           to   { opacity: 1; transform: scale(1); }
         }
         @keyframes spin {
           from { transform: rotate(0deg); }
           to   { transform: rotate(360deg); }
         }
-        @keyframes shimmer {
-          0%   { margin-left: -40%; }
-          100% { margin-left: 100%; }
-        }
-        @keyframes pulse {
-          0%, 100% { box-shadow: 0 8px 24px rgba(15,91,228,0.3); }
-          50%       { box-shadow: 0 8px 36px rgba(15,91,228,0.6); }
+        @keyframes downloadShimmer {
+          0%   { left: -45%; width: 45%; }
+          50%  { width: 60%; }
+          100% { left: 100%; width: 45%; }
         }
       `}</style>
     </div>
