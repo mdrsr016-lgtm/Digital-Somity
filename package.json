@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc && vite build",
+    "build": "node scripts/stamp-version.cjs && node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc && vite build",
     "preview": "vite preview",
     "cap:sync": "npm run build && npx cap sync android && node -e \"const fs=require('fs');const p='android/app/src/main/assets/public/digitalsomity.apk';if(fs.existsSync(p))fs.unlinkSync(p);\"",
     "generate:assets": "node scripts/generate-android-assets.cjs",
@@ -15,6 +15,7 @@
   "dependencies": {
     "@capacitor/android": "^8.6.0",
     "@capacitor/core": "^8.6.0",
+    "@capacitor/local-notifications": "^8.3.1",
     "@supabase/supabase-js": "^2.48.0",
     "framer-motion": "^11.18.2",
     "lucide-react": "^0.475.0",

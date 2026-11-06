@@ -7,6 +7,7 @@ import { ToastProvider } from "./contexts/ToastContext";
 import { LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { Logo } from "./components/common/Logo";
+import { UpdateNotificationModal } from "./components/common/UpdateNotificationModal";
 
 // ─── APK-Only Opening Splash Screen ──────────────────────────────────────────
 const ApkSplashScreen: React.FC<{ onFinish: () => void }> = ({ onFinish }) => {
@@ -95,6 +96,7 @@ const AppRouter: React.FC = () => {
 
   return (
     <>
+      <UpdateNotificationModal />
       {showApkSplash && <ApkSplashScreen onFinish={() => setShowApkSplash(false)} />}
       {currentUser ? <DashboardPage /> : <LoginPage />}
     </>
