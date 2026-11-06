@@ -10260,7 +10260,7 @@ export const DashboardPage: React.FC = () => {
               initial={{ y: "100%" }}
               animate={{ y: "0%" }}
               exit={{ y: "100%" }}
-              transition={{ type: "spring", stiffness: 340, damping: 36, mass: 0.9 }}
+              transition={{ type: "spring", stiffness: 240, damping: 28, mass: 1.1 }}
               style={{
                 position: "fixed",
                 bottom: 0,
@@ -10269,8 +10269,8 @@ export const DashboardPage: React.FC = () => {
                 height: "70dvh",
                 zIndex: 41,
                 background: "var(--color-bg)",
-                borderTopLeftRadius: 24,
-                borderTopRightRadius: 24,
+                borderTopLeftRadius: 32,
+                borderTopRightRadius: 32,
                 display: "flex",
                 flexDirection: "column",
                 overflow: "hidden",
