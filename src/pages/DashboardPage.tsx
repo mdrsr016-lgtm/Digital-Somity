@@ -81,14 +81,14 @@ const NAV_BY_ROLE: Record<string, NavItem[]> = {
     { id: "home", icon: <Home size={22} />, label: "Overview", labelBn: "সংক্ষিপ্ত" },
     { id: "branches", icon: <Building2 size={22} />, label: "Branches", labelBn: "শাখাসমূহ" },
     { id: "members", icon: <Users size={22} />, label: "Members", labelBn: "সদস্যগণ" },
-    { id: "system", icon: <Server size={22} />, label: "System", labelBn: "সিস্টেম" },
+    { id: "console", icon: <Terminal size={22} />, label: "Console", labelBn: "কনসোল" },
     { id: "reports", icon: <FileText size={22} />, label: "Reports", labelBn: "প্রতিবেদন" },
     { id: "settings", icon: <Settings size={22} />, label: "Settings", labelBn: "সেটিংস" },
   ],
   admin: [
     { id: "home", icon: <Home size={22} />, label: "Overview", labelBn: "সংক্ষিপ্ত" },
     { id: "members", icon: <Users size={22} />, label: "Members", labelBn: "সদস্যগণ" },
-    { id: "system", icon: <Server size={22} />, label: "System", labelBn: "সিস্টেম" },
+    { id: "console", icon: <Terminal size={22} />, label: "Console", labelBn: "কনসোল" },
     { id: "reports", icon: <FileText size={22} />, label: "Reports", labelBn: "প্রতিবেদন" },
     { id: "settings", icon: <Settings size={22} />, label: "Settings", labelBn: "সেটিংস" },
   ],
@@ -4429,7 +4429,7 @@ const INITIAL_LOGS: SystemAuditLog[] = [
   },
 ];
 
-const SystemTab: React.FC = () => {
+const ConsoleTab: React.FC = () => {
   const { language } = useLanguage();
   const { success, info } = useToast();
 
@@ -4537,12 +4537,12 @@ const SystemTab: React.FC = () => {
               letterSpacing: "-0.02em",
             }}
           >
-            {language === "bn" ? "সিস্টেম কার্যক্রম" : "System Operations"}
+            {language === "bn" ? "কনসোল কার্যক্রম" : "Console Operations"}
           </h2>
           <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "4px 0 0" }}>
             {language === "bn"
-              ? "ক্লাউড ইনফ্রাস্ট্রাকচার, নোড টেলিমেট্রি ও রিয়েল-টাইম অডিট পর্যবেক্ষণ"
-              : "Cloud infrastructure, telemetry, microservice health, and audit streaming"}
+              ? "ক্লাউড ইনফ্রাস্ট্রাকচার, নোড টেলিমেট্রি ও রিয়েল-টাইম কনসোল পর্যবেক্ষণ"
+              : "Cloud infrastructure, telemetry, microservice health, and console audit"}
           </p>
           <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <span
@@ -5119,6 +5119,8 @@ const SystemTab: React.FC = () => {
     </div>
   );
 };
+
+const SystemTab = ConsoleTab;
 
 const SettingsTab: React.FC = () => {
   const { currentUser, logout } = useAuth();
@@ -8218,8 +8220,8 @@ export const DashboardPage: React.FC = () => {
           <BranchesTab />
         ) : activeTab === "members" ? (
           <MembersTab />
-        ) : activeTab === "system" ? (
-          <SystemTab />
+        ) : activeTab === "console" || activeTab === "system" ? (
+          <ConsoleTab />
         ) : activeTab === "settings" ? (
           <SettingsTab />
         ) : activeTab === "profile" ? (
