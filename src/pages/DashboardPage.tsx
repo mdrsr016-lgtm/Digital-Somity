@@ -10300,10 +10300,14 @@ export const DashboardPage: React.FC = () => {
                 background: "var(--color-bg)",
                 borderTopLeftRadius: 32,
                 borderTopRightRadius: 32,
+                borderTop: "1.5px solid var(--color-border)",
+                borderLeft: "1.5px solid var(--color-border)",
+                borderRight: "1.5px solid var(--color-border)",
+                borderBottom: "none",
                 display: "flex",
                 flexDirection: "column",
                 overflow: "hidden",
-                boxShadow: "0 -12px 48px rgba(0, 0, 0, 0.45)",
+                boxShadow: "0 -16px 48px rgba(0, 0, 0, 0.75), 0 0 0 1px var(--color-border-subtle)",
               }}
             >
               {/* Drag Handle */}
@@ -10333,7 +10337,7 @@ export const DashboardPage: React.FC = () => {
                   alignItems: "center",
                   justifyContent: "space-between",
                   padding: "8px 16px 12px",
-                  borderBottom: "1px solid var(--color-border-subtle)",
+                  borderBottom: "1px solid var(--color-border)",
                   flexShrink: 0,
                 }}
               >
