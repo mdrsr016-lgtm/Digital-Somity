@@ -4812,13 +4812,13 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
     );
   };
 
-  // ── Console Case Cards (Icon and Name Only) ──
+  // ── Console Case Cards (Icon and Name Only - Scaled Down) ──
   const CONSOLE_CARDS = [
     {
       id: "roles",
       title: "Roles & Permissions",
       titleBn: "ভূমিকা ও কর্মী অনুমতি",
-      icon: <Shield size={24} />,
+      icon: <Shield size={17} />,
       iconColor: "#8B5CF6",
       iconBg: "rgba(139, 92, 246, 0.12)",
     },
@@ -4826,7 +4826,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
       id: "kyc",
       title: "KYC & Verification",
       titleBn: "কেওয়াইসি ও যাচাই",
-      icon: <UserCheck size={24} />,
+      icon: <UserCheck size={17} />,
       iconColor: "#F59E0B",
       iconBg: "rgba(245, 158, 11, 0.12)",
     },
@@ -4834,7 +4834,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
       id: "subscription",
       title: "Subscription & Quotas",
       titleBn: "সাবস্ক্রিপশন ও কোটা",
-      icon: <Crown size={24} />,
+      icon: <Crown size={17} />,
       iconColor: "#3B82F6",
       iconBg: "rgba(59, 130, 246, 0.12)",
     },
@@ -4842,7 +4842,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
       id: "security",
       title: "Security & Policies",
       titleBn: "নিরাপত্তা ও পলিসি",
-      icon: <Lock size={24} />,
+      icon: <Lock size={17} />,
       iconColor: "#10B981",
       iconBg: "rgba(16, 185, 129, 0.12)",
     },
@@ -4850,7 +4850,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
       id: "branches_case",
       title: "Branch Nodes",
       titleBn: "শাখা নোড ও বরাদ্দ",
-      icon: <Building2 size={24} />,
+      icon: <Building2 size={17} />,
       iconColor: "#0F5BE4",
       iconBg: "rgba(15, 91, 228, 0.12)",
     },
@@ -4858,7 +4858,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
       id: "vault_case",
       title: "Vault & Liquidity",
       titleBn: "ভল্ট ও তারল্য",
-      icon: <Wallet size={24} />,
+      icon: <Wallet size={17} />,
       iconColor: "#10B981",
       iconBg: "rgba(16, 185, 129, 0.12)",
     },
@@ -4866,7 +4866,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
       id: "audit",
       title: "Audit Trail & Logs",
       titleBn: "অডিট ট্রেইল ও লগ",
-      icon: <FileText size={24} />,
+      icon: <FileText size={17} />,
       iconColor: "#64748B",
       iconBg: "rgba(100, 116, 139, 0.12)",
     },
@@ -4874,7 +4874,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
       id: "api_case",
       title: "API & Integrations",
       titleBn: "এপিআই ও ওয়েবহুক",
-      icon: <Zap size={24} />,
+      icon: <Zap size={17} />,
       iconColor: "#0F5BE4",
       iconBg: "rgba(15, 91, 228, 0.12)",
     },
@@ -4932,14 +4932,14 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
             </div>
           </div>
 
-          {/* Cards Grid - 4 in a row on EVERY screen (Icon and Names Only) */}
-          <div className="console-cards-container" style={{ width: "100%", overflowX: "auto", paddingBottom: 6 }}>
+          {/* Cards Grid - 4 in a row on EVERY screen (Scaled Down) */}
+          <div className="console-cards-container" style={{ width: "100%", overflowX: "auto", paddingBottom: 4 }}>
             <div
               className="console-cards-grid"
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(4, minmax(180px, 1fr))",
-                gap: 14,
+                gridTemplateColumns: "repeat(4, minmax(130px, 1fr))",
+                gap: 8,
                 width: "100%",
                 boxSizing: "border-box",
               }}
@@ -4947,66 +4947,72 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
               {CONSOLE_CARDS.map((card) => (
                 <motion.div
                   key={card.id}
-                  whileHover={{ y: -4, borderColor: card.iconColor, boxShadow: "0 10px 24px rgba(0, 0, 0, 0.12)" }}
+                  whileHover={{ y: -2, borderColor: card.iconColor, boxShadow: "0 6px 16px rgba(0, 0, 0, 0.1)" }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setActiveCase(card.id)}
                   style={{
                     background: "var(--color-surface)",
                     border: "1px solid var(--color-border)",
-                    borderRadius: "var(--radius-xl)",
-                    padding: "24px 16px",
+                    borderRadius: "var(--radius-lg)",
+                    padding: "12px 10px",
                     cursor: "pointer",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
                     textAlign: "center",
-                    gap: 12,
-                    transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+                    gap: 6,
+                    transition: "all 0.18s cubic-bezier(0.16, 1, 0.3, 1)",
                     boxSizing: "border-box",
                     minWidth: 0,
-                    minHeight: 130,
+                    minHeight: 76,
                   }}
                 >
                   {/* Icon */}
                   <div
                     style={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: "var(--radius-lg)",
+                      width: 32,
+                      height: 32,
+                      borderRadius: "var(--radius-md)",
                       background: card.iconBg,
                       color: card.iconColor,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
-                      transition: "transform 0.2s ease",
                     }}
                   >
                     {card.icon}
                   </div>
 
                   {/* Name only */}
-                  <div>
+                  <div style={{ maxWidth: "100%", overflow: "hidden" }}>
                     <h3
                       style={{
                         margin: 0,
-                        fontSize: 14.5,
+                        fontSize: 12.5,
                         fontWeight: 700,
                         color: "var(--color-text-primary)",
                         fontFamily: "var(--font-heading)",
                         letterSpacing: "-0.01em",
-                        lineHeight: 1.3,
+                        lineHeight: 1.25,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
                       }}
+                      title={language === "bn" ? card.titleBn : card.title}
                     >
                       {language === "bn" ? card.titleBn : card.title}
                     </h3>
                     <span
                       style={{
-                        fontSize: 11,
+                        fontSize: 10,
                         color: "var(--color-text-muted)",
                         display: "block",
-                        marginTop: 3,
+                        marginTop: 1,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
                       }}
                     >
                       {language === "bn" ? card.title : card.titleBn}
