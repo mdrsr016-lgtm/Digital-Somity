@@ -27,10 +27,10 @@ function renderSvg(svgString, width, height) {
 function getForegroundSvg(size) {
   // Foreground size is typically 108dp to 432px.
   // Safe zone is center circle of diameter size * 0.66
-  const logoWidth = size * 0.38;
+  const logoWidth = size * 0.28;
   const logoHeight = logoWidth * (4008 / 5000);
-  const fontSize = Math.round(size * 0.088);
-  const gap = size * 0.04;
+  const fontSize = Math.round(size * 0.068);
+  const gap = size * 0.035;
 
   const totalHeight = logoHeight + gap + (fontSize * 0.75);
   const startY = (size - totalHeight) / 2;
@@ -47,13 +47,13 @@ function getForegroundSvg(size) {
       <stop offset="100%" stop-color="#38BDF8" />
     </linearGradient>
     <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="${size * 0.012}" stdDeviation="${size * 0.018}" flood-color="#0F5BE4" flood-opacity="0.25"/>
+      <feDropShadow dx="0" dy="${size * 0.01}" stdDeviation="${size * 0.015}" flood-color="#0F5BE4" flood-opacity="0.25"/>
     </filter>
   </defs>
   <g transform="translate(${logoX}, ${logoY}) scale(${logoWidth / 5000})" filter="url(#shadow)">
     <path fill="url(#logoGrad)" d="${pathD}" />
   </g>
-  <text x="${size / 2}" y="${textY}" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="${fontSize}" font-weight="800" fill="#0F172A" letter-spacing="0.2">
+  <text x="${size / 2}" y="${textY}" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="${fontSize}" font-weight="800" fill="#0F172A" letter-spacing="0.3">
     Digital <tspan fill="#0F5BE4">Somity</tspan>
   </text>
 </svg>`;
@@ -61,10 +61,10 @@ function getForegroundSvg(size) {
 
 // 3. Generate Legacy App Drawer Icon (Squircle / Rounded on White background, smaller logo + logo text)
 function getLegacyIconSvg(size, isRound = false) {
-  const logoWidth = size * 0.44;
+  const logoWidth = size * 0.32;
   const logoHeight = logoWidth * (4008 / 5000);
-  const fontSize = Math.round(size * 0.105);
-  const gap = size * 0.045;
+  const fontSize = Math.round(size * 0.078);
+  const gap = size * 0.035;
   const radius = isRound ? size / 2 : Math.round(size * 0.22);
 
   const totalHeight = logoHeight + gap + (fontSize * 0.75);
@@ -82,14 +82,14 @@ function getLegacyIconSvg(size, isRound = false) {
       <stop offset="100%" stop-color="#38BDF8" />
     </linearGradient>
     <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="${size * 0.015}" stdDeviation="${size * 0.02}" flood-color="#0F5BE4" flood-opacity="0.2"/>
+      <feDropShadow dx="0" dy="${size * 0.012}" stdDeviation="${size * 0.018}" flood-color="#0F5BE4" flood-opacity="0.2"/>
     </filter>
   </defs>
   <rect width="${size}" height="${size}" rx="${radius}" fill="#FFFFFF" />
   <g transform="translate(${logoX}, ${logoY}) scale(${logoWidth / 5000})" filter="url(#shadow)">
     <path fill="url(#logoGrad)" d="${pathD}" />
   </g>
-  <text x="${size / 2}" y="${textY}" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="${fontSize}" font-weight="800" fill="#0F172A" letter-spacing="0.2">
+  <text x="${size / 2}" y="${textY}" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="${fontSize}" font-weight="800" fill="#0F172A" letter-spacing="0.3">
     Digital <tspan fill="#0F5BE4">Somity</tspan>
   </text>
 </svg>`;
