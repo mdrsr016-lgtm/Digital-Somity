@@ -8,6 +8,7 @@
     "build": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc && vite build",
     "preview": "vite preview",
     "cap:sync": "npm run build && npx cap sync android && node -e \"const fs=require('fs');const p='android/app/src/main/assets/public/digitalsomity.apk';if(fs.existsSync(p))fs.unlinkSync(p);\"",
+    "generate:assets": "node scripts/generate-android-assets.cjs",
     "cap:open": "npx cap open android",
     "build:apk": "npm run cap:sync && cd android && .\\gradlew.bat assembleDebug"
   },
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^8.6.0",
+    "@resvg/resvg-js": "^2.6.2",
     "@types/node": "^22.13.4",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
