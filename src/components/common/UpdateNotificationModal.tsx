@@ -5,7 +5,6 @@ import { Sparkles, Download, CheckCircle2, Loader2, RefreshCw, X, ArrowUpCircle 
 import { useLanguage } from "../../contexts/LanguageContext";
 import {
   APP_VERSION,
-  CURRENT_BUILD_SHA,
   GITHUB_REPO_OWNER,
   GITHUB_REPO_NAME,
   APK_DOWNLOAD_URL,
@@ -23,6 +22,27 @@ const AppUpdater = registerPlugin<AppUpdaterPlugin>("AppUpdater");
 
 type ModalState = "hidden" | "downloading" | "ready_to_install" | "web_reload_ready" | "installing";
 
+/**
+ * Returns true ONLY if remote semver is strictly newer than local semver.
+ * E.g. 1.2.2 > 1.2.1 -> true
+ *      1.2.1 > 1.2.1 -> false (DO NOT UPDATE)
+ *      1.2.0 > 1.2.1 -> false (DO NOT UPDATE)
+ */
+function isNewerVersion(remote: string, local: string): boolean {
+  if (!remote || !local) return false;
+  const clean = (v: string) => v.trim().replace(/^v/i, "").split("-")[0];
+  const rParts = clean(remote).split(".").map((n) => parseInt(n, 10) || 0);
+  const lParts = clean(local).split(".").map((n) => parseInt(n, 10) || 0);
+
+  for (let i = 0; i < 3; i++) {
+    const r = rParts[i] ?? 0;
+    const l = lParts[i] ?? 0;
+    if (r > l) return true;
+    if (r < l) return false;
+  }
+  return false;
+}
+
 export const UpdateNotificationModal: React.FC = () => {
   const { language } = useLanguage();
   const [modalState, setModalState] = useState<ModalState>("hidden");
@@ -31,28 +51,37 @@ export const UpdateNotificationModal: React.FC = () => {
   const downloadStartedRef = useRef(false);
 
   useEffect(() => {
+    // 0. NEVER trigger updater in development mode (e.g. localhost, vite dev)
+    if (import.meta.env.DEV) {
+      return;
+    }
+
     let isMounted = true;
 
     const checkUpdates = async () => {
       try {
-        // 1. Fetch remote version info
-        let remoteVer = "";
-        let remoteSha = "";
+        // 1. Fetch remote version info with cache-buster
+        const vRes = await fetch(`${VERSION_CHECK_URL}?_t=${Date.now()}`, {
+          headers: { "Cache-Control": "no-cache" },
+        });
+        if (!vRes.ok) return;
 
-        try {
-          const vRes = await fetch(`${VERSION_CHECK_URL}?_nocache=${Date.now()}`, {
-            headers: { "Cache-Control": "no-cache" },
-          });
-          if (vRes.ok) {
-            const vData = await vRes.json();
-            remoteVer = vData?.version || "";
-            remoteSha = vData?.sha || "";
-          }
-        } catch {
-          // Fallback if version.json cannot be reached
+        const vData = await vRes.json();
+        const remoteVer: string = vData?.version || "";
+
+        // STRICT CHECK: An update is ONLY triggered if remote version > local version
+        if (!remoteVer || !isNewerVersion(remoteVer, APP_VERSION)) {
+          // System is completely up-to-date — NEVER show modals or alerts
+          return;
         }
 
-        // 2. Also query latest commit message for changelog display
+        // On Web: if the user already dismissed this specific version in this session, don't nag
+        if (!Capacitor.isNativePlatform()) {
+          const dismissed = sessionStorage.getItem(`ds_dismissed_v_${remoteVer}`);
+          if (dismissed) return;
+        }
+
+        // 2. Fetch commit message for changelog display (optional)
         try {
           const cRes = await fetch(
             `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commits/main`,
@@ -60,50 +89,36 @@ export const UpdateNotificationModal: React.FC = () => {
           );
           if (cRes.ok) {
             const cData = await cRes.json();
-            if (!remoteSha) remoteSha = cData?.sha || "";
             const msg = cData?.commit?.message?.split("\n")[0] || "";
             if (isMounted) setCommitSummary(msg);
           }
         } catch {}
 
-        if (!remoteVer) {
-          remoteVer = APP_VERSION;
-        }
+        if (!isMounted) return;
+        const displayVer = `v${remoteVer}`;
+        setTargetVersion(displayVer);
 
-        // 3. Determine if an update exists
-        const isVersionDifferent = remoteVer !== APP_VERSION;
-        const isShaDifferent = Boolean(remoteSha && remoteSha !== CURRENT_BUILD_SHA);
-
-        if (!isVersionDifferent && !isShaDifferent) {
-          // No update available
-          return;
-        }
-
-        const displayVer = isVersionDifferent ? remoteVer : `v${APP_VERSION}+`;
-        if (isMounted) setTargetVersion(displayVer);
-
-        // ── 4A. WEB VERSION: Show reload option ──────────────────────────────
+        // ── 3A. WEB VERSION: Show reload option ──────────────────────────────
         if (!Capacitor.isNativePlatform()) {
-          if (isMounted) setModalState("web_reload_ready");
+          setModalState("web_reload_ready");
           return;
         }
 
-        // ── 4B. ANDROID APK VERSION: Auto-download & prompt to install ────────
-        // Check if previously downloaded APK is already on disk
+        // ── 3B. ANDROID APK VERSION: Auto-download & prompt to install ────────
         try {
           const status = await AppUpdater.isUpdateReady();
           if (status?.ready) {
-            if (isMounted) setModalState("ready_to_install");
+            setModalState("ready_to_install");
             return;
           }
         } catch {}
 
-        // Auto-download in background (do NOT ask user to download)
+        // Start background auto-download (do NOT ask user to download)
         if (!downloadStartedRef.current) {
           downloadStartedRef.current = true;
-          if (isMounted) setModalState("downloading");
+          setModalState("downloading");
 
-          // Status bar notification that download is underway
+          // Status bar notification
           try {
             const perm = await LocalNotifications.checkPermissions();
             if (perm.display !== "granted") await LocalNotifications.requestPermissions();
@@ -112,7 +127,7 @@ export const UpdateNotificationModal: React.FC = () => {
                 {
                   id: 991,
                   title: `⚡ Digital Somity ${displayVer}`,
-                  body: language === "bn" ? "নতুন আপডেট ডাউনলোড হচ্ছে..." : "Downloading update in background...",
+                  body: language === "bn" ? "নতুন ভার্সন ডাউনলোড হচ্ছে..." : "Downloading new version in background...",
                   schedule: { at: new Date(Date.now() + 500) },
                   smallIcon: "ic_launcher_foreground",
                 },
@@ -125,14 +140,13 @@ export const UpdateNotificationModal: React.FC = () => {
             if (dlResult?.success && isMounted) {
               setModalState("ready_to_install");
 
-              // Status bar notification that it's ready to install
               try {
                 await LocalNotifications.schedule({
                   notifications: [
                     {
                       id: 992,
                       title: `🎉 Digital Somity ${displayVer} Ready`,
-                      body: language === "bn" ? "আপডেট ডাউনলোড শেষ। ইনস্টল করতে ট্যাপ করুন।" : "Update downloaded. Tap to install now.",
+                      body: language === "bn" ? "ডাউনলোড শেষ। ইনস্টল করতে ট্যাপ করুন।" : "Download complete. Tap to install now.",
                       schedule: { at: new Date(Date.now() + 500) },
                       smallIcon: "ic_launcher_foreground",
                     },
@@ -150,7 +164,7 @@ export const UpdateNotificationModal: React.FC = () => {
       }
     };
 
-    const timer = setTimeout(checkUpdates, 1500);
+    const timer = setTimeout(checkUpdates, 2000);
 
     return () => {
       isMounted = false;
@@ -172,7 +186,7 @@ export const UpdateNotificationModal: React.FC = () => {
   };
 
   const handleReloadClick = () => {
-    // Clear cache & hard reload on web
+    // Clear browser cache & reload
     try {
       if ("caches" in window) {
         caches.keys().then((names) => {
@@ -181,6 +195,14 @@ export const UpdateNotificationModal: React.FC = () => {
       }
     } catch {}
     window.location.reload();
+  };
+
+  const handleDismissWeb = () => {
+    if (targetVersion) {
+      const v = targetVersion.replace(/^v/, "");
+      sessionStorage.setItem(`ds_dismissed_v_${v}`, "true");
+    }
+    setModalState("hidden");
   };
 
   if (modalState === "hidden") return null;
@@ -218,11 +240,11 @@ export const UpdateNotificationModal: React.FC = () => {
           position: "relative",
         }}
       >
-        {/* Dismiss button (for web reload or downloading dismiss) */}
+        {/* Dismiss button (for web reload) */}
         {!Capacitor.isNativePlatform() && (
           <button
             type="button"
-            onClick={() => setModalState("hidden")}
+            onClick={handleDismissWeb}
             style={{
               position: "absolute",
               top: "14px",

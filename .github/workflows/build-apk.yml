@@ -15,9 +15,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # ─── 1. Deploy Web to GitHub Pages (Live Auto-Update Backend) ───
+  # ─── 1. Deploy Web to GitHub Pages (Fast: ~30s on every push) ───
   deploy-pages:
-    name: Deploy to GitHub Pages (Auto-Updates)
+    name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -53,10 +53,19 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-  # ─── 2. Build Native Android APK (Standalone 404-Free Offline & Online) ───
+  # ─── 2. Build Native Android APK (Runs ONLY when necessary) ───
+  # Triggered when:
+  # - Manual run (workflow_dispatch)
+  # - Commit message contains '[apk]' or 'release' or 'v1.'
+  # - package.json is modified
   build-apk:
     name: Build Standalone APK
     runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.head_commit.message, '[apk]') ||
+      contains(github.event.head_commit.message, 'release') ||
+      contains(github.event.head_commit.message, 'feat(updater)')
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -96,6 +105,6 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Digital-Somity-OneTime-APK
+          name: Digital-Somity-Release-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
