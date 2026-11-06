@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { ChevronDown } from "lucide-react";
 
 // Finger or mouse travel required before a release reloads this page.
 const PULL_THRESHOLD = 168;
 // How far the current page slides down.
 const MAX_SHIFT = 140;
-const SIZE = 28;
+const SIZE = 36;
 const STROKE = 2.5;
-const RADIUS = 10;
+const RADIUS = 12;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export const PullToRefresh: React.FC = () => {
   const [pull, setPull] = useState(0);
   const [gesture, setGesture] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
+  const [ready, setReady] = useState(false);
 
   const startYRef = useRef(0);
   const startXRef = useRef(0);
@@ -53,6 +55,7 @@ export const PullToRefresh: React.FC = () => {
       pointerIdRef.current = null;
       setPull(0);
       setGesture(0);
+      setReady(false);
     };
 
     const begin = (x: number, y: number, target: EventTarget | null) => {
@@ -99,6 +102,7 @@ export const PullToRefresh: React.FC = () => {
       const over = diffY >= PULL_THRESHOLD;
       if (over !== readyRef.current) {
         readyRef.current = over;
+        setReady(over);
         if (over && !vibratedRef.current) {
           vibratedRef.current = true;
           try {
@@ -126,6 +130,7 @@ export const PullToRefresh: React.FC = () => {
       if (readyRef.current) {
         refreshingRef.current = true;
         readyRef.current = false;
+        setReady(false);
         setRefreshing(true);
         setGesture(1);
         setPull(MAX_SHIFT);
@@ -139,7 +144,7 @@ export const PullToRefresh: React.FC = () => {
         // Reload the page already on screen. Auth stays in local storage.
         window.setTimeout(() => {
           window.location.reload();
-        }, 560);
+        }, 900);
       } else {
         resetPull();
       }
@@ -216,9 +221,10 @@ export const PullToRefresh: React.FC = () => {
   }, []);
 
   const visible = shift > 4 || refreshing;
-  const drop = Math.max(8, shift / 2 - SIZE / 2);
-  const opacity = refreshing ? 1 : Math.min(1, Math.max(0, (pull - 16) / 36));
-  const arcOffset = refreshing ? CIRCUMFERENCE * 0.72 : CIRCUMFERENCE * (1 - progress);
+  const drop = Math.max(10, shift / 2 - SIZE / 2);
+  const opacity = refreshing ? 1 : Math.min(1, Math.max(0, (pull - 12) / 28));
+  const scale = refreshing ? 1 : 0.72 + progress * 0.28;
+  const arcOffset = refreshing ? CIRCUMFERENCE * 0.7 : CIRCUMFERENCE * (1 - progress);
 
   return (
     <>
@@ -231,50 +237,86 @@ export const PullToRefresh: React.FC = () => {
           zIndex: 999998,
           pointerEvents: "none",
           opacity,
-          transform: `translateX(-50%) translateY(${drop}px)`,
+          transform: `translateX(-50%) translateY(${drop}px) scale(${scale})`,
           transition: isPullingRef.current
             ? "none"
-            : "transform 0.55s cubic-bezier(0.22, 1.1, 0.36, 1), opacity 0.25s ease",
+            : "transform 0.55s cubic-bezier(0.22, 1.15, 0.36, 1), opacity 0.25s ease",
         }}
       >
-        <svg
-          width={SIZE}
-          height={SIZE}
-          viewBox={`0 0 ${SIZE} ${SIZE}`}
+        <div
           style={{
-            display: "block",
-            animation: refreshing ? "ptrSpin 0.75s linear infinite" : undefined,
+            width: SIZE,
+            height: SIZE,
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "color-mix(in srgb, var(--color-surface, #111116) 88%, transparent)",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.28)",
+            animation: refreshing ? "ptrSettle 0.45s cubic-bezier(0.22, 1.2, 0.36, 1)" : undefined,
           }}
         >
-          <circle
-            cx={SIZE / 2}
-            cy={SIZE / 2}
-            r={RADIUS}
-            fill="none"
-            stroke="var(--color-brand-soft, rgba(15, 91, 228, 0.18))"
-            strokeWidth={STROKE}
+          <svg
+            width={SIZE}
+            height={SIZE}
+            viewBox={`0 0 ${SIZE} ${SIZE}`}
+            style={{
+              position: "absolute",
+              animation: refreshing ? "ptrSpin 0.7s linear infinite" : undefined,
+            }}
+          >
+            <circle
+              cx={SIZE / 2}
+              cy={SIZE / 2}
+              r={RADIUS}
+              fill="none"
+              stroke="var(--color-brand-soft, rgba(15, 91, 228, 0.2))"
+              strokeWidth={STROKE}
+            />
+            <circle
+              cx={SIZE / 2}
+              cy={SIZE / 2}
+              r={RADIUS}
+              fill="none"
+              stroke="var(--color-brand, #0F5BE4)"
+              strokeWidth={STROKE}
+              strokeLinecap="round"
+              strokeDasharray={CIRCUMFERENCE}
+              strokeDashoffset={arcOffset}
+              transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}
+              style={{
+                transition: isPullingRef.current ? "none" : "stroke-dashoffset 0.35s ease",
+              }}
+            />
+          </svg>
+
+          <ChevronDown
+            size={16}
+            strokeWidth={2.5}
+            style={{
+              color: ready || refreshing ? "var(--color-brand, #0F5BE4)" : "var(--color-text-muted, #94A3B8)",
+              opacity: refreshing ? 0 : 1,
+              transform: `rotate(${progress * 180}deg)`,
+              transition: isPullingRef.current
+                ? "opacity 0.2s ease, color 0.2s ease"
+                : "transform 0.45s cubic-bezier(0.22, 1.2, 0.36, 1), opacity 0.2s ease, color 0.2s ease",
+            }}
           />
-          <circle
-            cx={SIZE / 2}
-            cy={SIZE / 2}
-            r={RADIUS}
-            fill="none"
-            stroke="var(--color-brand, #0F5BE4)"
-            strokeWidth={STROKE}
-            strokeLinecap="round"
-            strokeDasharray={CIRCUMFERENCE}
-            strokeDashoffset={arcOffset}
-            transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}
-          />
-        </svg>
+        </div>
       </div>
 
       <style>{`
         @keyframes ptrSpin {
           to { transform: rotate(360deg); }
         }
+        @keyframes ptrSettle {
+          0% { transform: scale(0.86); }
+          60% { transform: scale(1.06); }
+          100% { transform: scale(1); }
+        }
         @media (prefers-reduced-motion: reduce) {
           @keyframes ptrSpin { to { transform: none; } }
+          @keyframes ptrSettle { to { transform: none; } }
         }
       `}</style>
     </>
