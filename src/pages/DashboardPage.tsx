@@ -9308,6 +9308,7 @@ export const DashboardPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [consoleSheetOpen, setConsoleSheetOpen] = useState(false);
 
   // ── Sliding pill refs & state ──
   const navRef = useRef<HTMLDivElement>(null);
@@ -9989,7 +9990,13 @@ export const DashboardPage: React.FC = () => {
               <button
                 key={item.id}
                 ref={(el) => { btnRefs.current[idx] = el; }}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => {
+                  if (item.id === "console" && activeTab !== "console") {
+                    setConsoleSheetOpen(true);
+                  } else {
+                    setActiveTab(item.id);
+                  }
+                }}
                 style={{
                   position: "relative",
                   zIndex: 1,
@@ -10225,6 +10232,145 @@ export const DashboardPage: React.FC = () => {
           </div>
         </>
       )}
+      {/* ── Console Bottom Sheet ── */}
+      <AnimatePresence>
+        {consoleSheetOpen && (
+          <>
+            {/* Blurred Backdrop */}
+            <motion.div
+              key="console-sheet-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={() => setConsoleSheetOpen(false)}
+              style={{
+                position: "fixed",
+                inset: 0,
+                zIndex: 40,
+                background: "rgba(0, 0, 0, 0.45)",
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)",
+              }}
+            />
+
+            {/* Sheet Panel — slides up from bottom, 70% height */}
+            <motion.div
+              key="console-sheet-panel"
+              initial={{ y: "100%" }}
+              animate={{ y: "0%" }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", stiffness: 340, damping: 36, mass: 0.9 }}
+              style={{
+                position: "fixed",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: "70dvh",
+                zIndex: 41,
+                background: "var(--color-bg)",
+                borderTopLeftRadius: 24,
+                borderTopRightRadius: 24,
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden",
+                boxShadow: "0 -12px 48px rgba(0, 0, 0, 0.45)",
+              }}
+            >
+              {/* Drag Handle */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  paddingTop: 12,
+                  paddingBottom: 4,
+                  flexShrink: 0,
+                }}
+              >
+                <div
+                  style={{
+                    width: 40,
+                    height: 4,
+                    borderRadius: 999,
+                    background: "var(--color-border)",
+                  }}
+                />
+              </div>
+
+              {/* Sheet Header */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "8px 16px 12px",
+                  borderBottom: "1px solid var(--color-border-subtle)",
+                  flexShrink: 0,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <LayoutGrid size={18} style={{ color: "var(--color-brand)" }} />
+                  <span style={{ fontSize: 16, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+                    Console
+                  </span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <button
+                    onClick={() => { setConsoleSheetOpen(false); setActiveTab("console"); }}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 5,
+                      padding: "5px 12px",
+                      borderRadius: 999,
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface)",
+                      color: "var(--color-brand)",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <ArrowUpRight size={13} />
+                    Open full
+                  </button>
+                  <button
+                    onClick={() => setConsoleSheetOpen(false)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: 30,
+                      height: 30,
+                      borderRadius: "50%",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface)",
+                      color: "var(--color-text-muted)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <X size={15} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Scrollable Console Content */}
+              <div
+                className="no-scrollbar"
+                style={{
+                  flex: 1,
+                  overflowY: "auto",
+                  padding: "16px",
+                  WebkitOverflowScrolling: "touch",
+                }}
+              >
+                <ConsoleTab onNavigateTab={(t) => { setConsoleSheetOpen(false); setActiveTab(t); }} />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 };
