@@ -29,6 +29,8 @@ public class AppUpdaterPlugin extends Plugin {
         conn.setConnectTimeout(20000);
         conn.setReadTimeout(60000);
         conn.setRequestProperty("User-Agent", "Mozilla/5.0 DigitalSomity-AppUpdater");
+        conn.setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
+        conn.setRequestProperty("Pragma", "no-cache");
 
         int status = conn.getResponseCode();
         if (status == HttpURLConnection.HTTP_MOVED_TEMP 

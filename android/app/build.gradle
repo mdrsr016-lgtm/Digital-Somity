@@ -1,5 +1,23 @@
 apply plugin: 'com.android.application'
 
+def getAppVersionName() {
+    def packageJsonFile = file('../../package.json')
+    if (packageJsonFile.exists()) {
+        def parsed = new groovy.json.JsonSlurper().parse(packageJsonFile)
+        return parsed.version
+    }
+    return "1.0.0"
+}
+
+def getAppVersionCode() {
+    def versionStr = getAppVersionName()
+    def parts = versionStr.tokenize('.').collect { it.replaceAll("[^0-9]", "") as int }
+    int major = parts.size() > 0 ? parts[0] : 1
+    int minor = parts.size() > 1 ? parts[1] : 0
+    int patch = parts.size() > 2 ? parts[2] : 0
+    return (major * 10000) + (minor * 100) + patch
+}
+
 android {
     namespace = "com.digitalsomity.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -7,8 +25,8 @@ android {
         applicationId "com.digitalsomity.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode getAppVersionCode()
+        versionName getAppVersionName()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

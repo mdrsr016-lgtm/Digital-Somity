@@ -79,11 +79,9 @@ export const UpdateNotificationModal: React.FC = () => {
           return;
         }
 
-        // On Web: if the user already dismissed this specific version in this session, don't nag
-        if (!Capacitor.isNativePlatform()) {
-          const dismissed = sessionStorage.getItem(`ds_dismissed_v_${remoteVer}`);
-          if (dismissed) return;
-        }
+        // If the user already dismissed or started installing this version in this session, don't nag
+        const dismissed = sessionStorage.getItem(`ds_dismissed_v_${remoteVer}`);
+        if (dismissed) return;
 
         // 2. Fetch commit message for changelog display (optional)
         try {
@@ -140,7 +138,7 @@ export const UpdateNotificationModal: React.FC = () => {
           } catch {}
 
           try {
-            const dlResult = await AppUpdater.downloadUpdate({ url: APK_DOWNLOAD_URL });
+            const dlResult = await AppUpdater.downloadUpdate({ url: `${APK_DOWNLOAD_URL}?_t=${Date.now()}` });
             if (dlResult?.success && isMounted) {
               setModalState("ready_to_install");
 
@@ -178,9 +176,18 @@ export const UpdateNotificationModal: React.FC = () => {
 
   const handleInstallClick = async () => {
     setModalState("installing");
+    if (targetVersion) {
+      const v = targetVersion.replace(/^v/, "");
+      sessionStorage.setItem(`ds_dismissed_v_${v}`, "true");
+    }
     try {
       const res = await AppUpdater.installUpdate();
-      if (!res?.success && !res?.needPermission) {
+      if (res?.success) {
+        // Successfully launched installer — hide modal after brief feedback
+        setTimeout(() => {
+          setModalState("hidden");
+        }, 1200);
+      } else if (!res?.needPermission) {
         setModalState("ready_to_install");
       }
     } catch (err) {
@@ -201,7 +208,7 @@ export const UpdateNotificationModal: React.FC = () => {
     window.location.reload();
   };
 
-  const handleDismissWeb = () => {
+  const handleDismiss = () => {
     if (targetVersion) {
       const v = targetVersion.replace(/^v/, "");
       sessionStorage.setItem(`ds_dismissed_v_${v}`, "true");
@@ -244,31 +251,29 @@ export const UpdateNotificationModal: React.FC = () => {
           position: "relative",
         }}
       >
-        {/* Dismiss button (for web reload) */}
-        {!Capacitor.isNativePlatform() && (
-          <button
-            type="button"
-            onClick={handleDismissWeb}
-            style={{
-              position: "absolute",
-              top: "14px",
-              right: "14px",
-              background: "rgba(255, 255, 255, 0.06)",
-              border: "none",
-              borderRadius: "50%",
-              width: "28px",
-              height: "28px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              color: "var(--color-text-muted, #94A3B8)",
-            }}
-            title="Dismiss"
-          >
-            <X size={15} />
-          </button>
-        )}
+        {/* Dismiss button */}
+        <button
+          type="button"
+          onClick={handleDismiss}
+          style={{
+            position: "absolute",
+            top: "14px",
+            right: "14px",
+            background: "rgba(255, 255, 255, 0.06)",
+            border: "none",
+            borderRadius: "50%",
+            width: "28px",
+            height: "28px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            color: "var(--color-text-muted, #94A3B8)",
+          }}
+          title="Dismiss"
+        >
+          <X size={15} />
+        </button>
 
         {/* Dynamic State Icon */}
         <div
@@ -428,6 +433,27 @@ export const UpdateNotificationModal: React.FC = () => {
                 ? "ট্যাপ করলে অ্যান্ড্রয়েড প্যাকেজ ইনস্টলার চালু হবে।"
                 : "Tapping will start the Android package installer."}
             </span>
+            <button
+              type="button"
+              onClick={handleDismiss}
+              style={{
+                width: "100%",
+                padding: "8px",
+                background: "transparent",
+                color: "var(--color-text-muted, #94A3B8)",
+                border: "none",
+                fontSize: "12px",
+                fontWeight: 600,
+                cursor: "pointer",
+                marginTop: "2px",
+                borderRadius: "8px",
+                transition: "color 0.2s ease",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-text-primary, #FFFFFF)")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-text-muted, #94A3B8)")}
+            >
+              {language === "bn" ? "পরে করুন (বাতিল)" : "Later (Dismiss)"}
+            </button>
           </div>
         )}
 
