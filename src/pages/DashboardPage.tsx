@@ -63,6 +63,7 @@ import {
   Cpu,
   LayoutGrid,
 } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -9785,6 +9786,9 @@ export const DashboardPage: React.FC = () => {
                     <DropdownItem icon={<Globe size={15} />} label={language === "bn" ? "English" : "বাংলা"} onClick={() => { toggleLanguage(); setProfileOpen(false); }} />
                     <DropdownItem icon={theme === "dark" ? <Sun size={15} /> : <Moon size={15} />} label={theme === "dark" ? (language === "bn" ? "লাইট মোড" : "Light Mode") : (language === "bn" ? "ডার্ক মোড" : "Dark Mode")} onClick={() => { toggleTheme(); setProfileOpen(false); }} />
                     <DropdownItem icon={<Settings size={15} />} label={language === "bn" ? "সেটিংস" : "Settings"} onClick={() => { setActiveTab("settings"); setProfileOpen(false); }} />
+                    {!Capacitor.isNativePlatform() && (
+                      <DropdownItem icon={<RefreshCw size={15} />} label={language === "bn" ? "রিলোড" : "Reload"} onClick={() => { setProfileOpen(false); window.location.reload(); }} />
+                    )}
                   </div>
 
                   {/* Logout */}
