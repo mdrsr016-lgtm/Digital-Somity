@@ -4916,50 +4916,48 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
       {activeCase === null ? (
         <>
           {/* Page Header */}
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-            <div>
-              <h2
-                style={{
-                  fontSize: 24,
-                  fontWeight: 800,
-                  color: "var(--color-text-primary)",
-                  margin: 0,
-                  fontFamily: "var(--font-heading)",
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                {language === "bn" ? "কনসোল" : "Console"}
-              </h2>
-              <p style={{ fontSize: 13, color: "var(--color-text-muted)", margin: "4px 0 0" }}>
-                {language === "bn"
-                  ? "অ্যাডমিন ওয়ার্কস্পেস কন্ট্রোল সেন্টার — যেকোনো মডিউলে ক্লিক করে কাজ শুরু করুন"
-                  : "Admin workspace control center — click any module below to launch that workspace"}
-              </p>
-            </div>
-
-            {/* Real-time Search Bar */}
-            <div
-              className="borderless-search-bar"
-              style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", width: 220, boxSizing: "border-box" }}
+          <div>
+            <h2
+              style={{
+                fontSize: 24,
+                fontWeight: 800,
+                color: "var(--color-text-primary)",
+                margin: 0,
+                fontFamily: "var(--font-heading)",
+                letterSpacing: "-0.02em",
+              }}
             >
-              <input
-                type="text"
-                className="search-input-field"
-                value={cardSearch}
-                onChange={(e) => setCardSearch(e.target.value)}
-                placeholder={language === "bn" ? "মডিউল খুঁজুন..." : "Search modules..."}
-                style={{ flex: 1, background: "transparent", border: "none", outline: "none", boxShadow: "none", padding: 0, minHeight: "unset", fontSize: 13.5, fontFamily: "var(--font-ui)" }}
-              />
-              {cardSearch && (
-                <button type="button" onClick={() => setCardSearch("")} className="search-clear-btn">
-                  <X size={13} />
-                </button>
-              )}
-              <Search size={16} className="search-icon" />
-            </div>
+              {language === "bn" ? "কনসোল" : "Console"}
+            </h2>
+            <p style={{ fontSize: 13, color: "var(--color-text-muted)", margin: "4px 0 0" }}>
+              {language === "bn"
+                ? "অ্যাডমিন ওয়ার্কস্পেস কন্ট্রোল সেন্টার — যেকোনো মডিউলে ক্লিক করে কাজ শুরু করুন"
+                : "Admin workspace control center — click any module below to launch that workspace"}
+            </p>
           </div>
 
-          {/* Category-grouped card sections */}
+          {/* Real-time Search Bar — full width */}
+          <div
+            className="borderless-search-bar"
+            style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", width: "100%", boxSizing: "border-box" }}
+          >
+            <input
+              type="text"
+              className="search-input-field"
+              value={cardSearch}
+              onChange={(e) => setCardSearch(e.target.value)}
+              placeholder={language === "bn" ? "মডিউল খুঁজুন..." : "Search modules..."}
+              style={{ flex: 1, background: "transparent", border: "none", outline: "none", boxShadow: "none", padding: 0, minHeight: "unset", fontSize: 13.5, fontFamily: "var(--font-ui)" }}
+            />
+            {cardSearch && (
+              <button type="button" onClick={() => setCardSearch("")} className="search-clear-btn">
+                <X size={13} />
+              </button>
+            )}
+            <Search size={16} className="search-icon" />
+          </div>
+
+                    {/* Category-grouped card sections */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {/* No results message */}
             {filteredCategories.length === 0 && (
