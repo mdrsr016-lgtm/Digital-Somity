@@ -9,6 +9,7 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { Logo } from "./components/common/Logo";
 import { UpdateNotificationModal } from "./components/common/UpdateNotificationModal";
 import { PullToRefresh } from "./components/common/PullToRefresh";
+import { APP_VERSION } from "./constants/appVersion";
 
 // ─── APK-Only Opening Splash Screen ──────────────────────────────────────────
 const ApkSplashScreen: React.FC<{ onFinish: () => void }> = ({ onFinish }) => {
@@ -78,6 +79,42 @@ const ApkSplashScreen: React.FC<{ onFinish: () => void }> = ({ onFinish }) => {
             }}
           />
         </div>
+
+        {/* APK Version Pill */}
+        <div
+          style={{
+            marginTop: "6px",
+            fontSize: "12px",
+            fontWeight: 700,
+            letterSpacing: "0.06em",
+            color: "var(--color-brand-variant, #38BDF8)",
+            padding: "3px 10px",
+            borderRadius: "999px",
+            backgroundColor: "rgba(15, 91, 228, 0.1)",
+            border: "1px solid rgba(56, 189, 248, 0.25)",
+            display: "inline-flex",
+            alignItems: "center",
+            boxShadow: "0 2px 10px rgba(15, 91, 228, 0.15)",
+          }}
+        >
+          <span>v{APP_VERSION}</span>
+        </div>
+      </div>
+
+      {/* Subtle Bottom Footer */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: "calc(26px + env(safe-area-inset-bottom, 0px))",
+          fontSize: "11.5px",
+          fontWeight: 600,
+          letterSpacing: "0.08em",
+          color: "var(--color-text-muted, #64748B)",
+          opacity: 0.75,
+          textTransform: "uppercase",
+        }}
+      >
+        Digital Somity • v{APP_VERSION}
       </div>
       <style>{`
         @keyframes apkSplashShimmer {
