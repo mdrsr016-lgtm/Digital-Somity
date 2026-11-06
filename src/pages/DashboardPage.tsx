@@ -55,6 +55,12 @@ import {
   Calendar,
   Fingerprint,
   RefreshCw,
+  Server,
+  Activity,
+  HardDrive,
+  Terminal,
+  Wifi,
+  Cpu,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
@@ -75,14 +81,14 @@ const NAV_BY_ROLE: Record<string, NavItem[]> = {
     { id: "home", icon: <Home size={22} />, label: "Overview", labelBn: "সংক্ষিপ্ত" },
     { id: "branches", icon: <Building2 size={22} />, label: "Branches", labelBn: "শাখাসমূহ" },
     { id: "members", icon: <Users size={22} />, label: "Members", labelBn: "সদস্যগণ" },
-    { id: "finance", icon: <TrendingUp size={22} />, label: "Finance", labelBn: "অর্থায়ন" },
+    { id: "system", icon: <Server size={22} />, label: "System", labelBn: "সিস্টেম" },
     { id: "reports", icon: <FileText size={22} />, label: "Reports", labelBn: "প্রতিবেদন" },
     { id: "settings", icon: <Settings size={22} />, label: "Settings", labelBn: "সেটিংস" },
   ],
   admin: [
     { id: "home", icon: <Home size={22} />, label: "Overview", labelBn: "সংক্ষিপ্ত" },
     { id: "members", icon: <Users size={22} />, label: "Members", labelBn: "সদস্যগণ" },
-    { id: "finance", icon: <TrendingUp size={22} />, label: "Finance", labelBn: "অর্থায়ন" },
+    { id: "system", icon: <Server size={22} />, label: "System", labelBn: "সিস্টেম" },
     { id: "reports", icon: <FileText size={22} />, label: "Reports", labelBn: "প্রতিবেদন" },
     { id: "settings", icon: <Settings size={22} />, label: "Settings", labelBn: "সেটিংস" },
   ],
@@ -99,13 +105,13 @@ const NAV_BY_ROLE: Record<string, NavItem[]> = {
   ],
   investor: [
     { id: "home", icon: <Home size={22} />, label: "Portfolio", labelBn: "পোর্টফোলিও" },
-    { id: "finance", icon: <PieChart size={22} />, label: "Returns", labelBn: "আয়" },
+    { id: "returns", icon: <PieChart size={22} />, label: "Returns", labelBn: "আয়" },
     { id: "transactions", icon: <CreditCard size={22} />, label: "Transactions", labelBn: "লেনদেন" },
   ],
   member: [
     { id: "home", icon: <Home size={22} />, label: "My Account", labelBn: "আমার অ্যাকাউন্ট" },
     { id: "transactions", icon: <CreditCard size={22} />, label: "Transactions", labelBn: "লেনদেন" },
-    { id: "finance", icon: <Wallet size={22} />, label: "Savings", labelBn: "সঞ্চয়" },
+    { id: "savings", icon: <Wallet size={22} />, label: "Savings", labelBn: "সঞ্চয়" },
   ],
 };
 
@@ -4289,6 +4295,831 @@ const SettingToggle: React.FC<{
   </div>
 );
 
+// ─── System Tab Component ───────────────────────────────────────────────────
+interface ServiceNode {
+  id: string;
+  name: string;
+  nameBn: string;
+  category: string;
+  status: "operational" | "degraded" | "standby";
+  version: string;
+  uptime: string;
+  latency: string;
+  icon: React.ReactNode;
+}
+
+interface SystemAuditLog {
+  id: string;
+  time: string;
+  level: "info" | "warn" | "security" | "success";
+  category: "SYSTEM" | "DATABASE" | "SECURITY" | "NETWORK" | "AUTH";
+  message: string;
+  messageBn: string;
+}
+
+const INITIAL_SERVICES: ServiceNode[] = [
+  {
+    id: "srv-01",
+    name: "Central Ledger Engine",
+    nameBn: "সেন্ট্রাল লেজার ইঞ্জিন",
+    category: "Core Engine",
+    status: "operational",
+    version: "v2.4.8-p1",
+    uptime: "99.99%",
+    latency: "6ms",
+    icon: <Database size={17} />,
+  },
+  {
+    id: "srv-02",
+    name: "Branch WebSocket Replicator",
+    nameBn: "শাখা ওয়েবসকেট রেপ্লিকেটর",
+    category: "Realtime Sync",
+    status: "operational",
+    version: "v1.9.2",
+    uptime: "99.96%",
+    latency: "14ms",
+    icon: <Wifi size={17} />,
+  },
+  {
+    id: "srv-03",
+    name: "KYC & EC NID Bridge",
+    nameBn: "কেওয়াইসি ও এনআইডি গেটওয়ে",
+    category: "Identity API",
+    status: "operational",
+    version: "v3.1.0",
+    uptime: "99.85%",
+    latency: "42ms",
+    icon: <ShieldCheck size={17} />,
+  },
+  {
+    id: "srv-04",
+    name: "Automated DPS & Profit Daemon",
+    nameBn: "স্বয়ংক্রিয় ডিপিএস ও মুনাফা হিসাবক",
+    category: "Batch Worker",
+    status: "operational",
+    version: "v2.1.4",
+    uptime: "100%",
+    latency: "Next: 00:00",
+    icon: <Clock size={17} />,
+  },
+  {
+    id: "srv-05",
+    name: "Multi-channel SMS & OTP Gateway",
+    nameBn: "এসএমএস ও ওটিপি গেটওয়ে",
+    category: "Notification",
+    status: "operational",
+    version: "v1.4.0",
+    uptime: "99.92%",
+    latency: "85ms",
+    icon: <Zap size={17} />,
+  },
+  {
+    id: "srv-06",
+    name: "Coldline Encrypted Vault Mirror",
+    nameBn: "এনক্রিপ্টেড কোল্ডলাইন ভল্ট মিরর",
+    category: "Disaster Recovery",
+    status: "operational",
+    version: "v4.0.1",
+    uptime: "100%",
+    latency: "Synced",
+    icon: <HardDrive size={17} />,
+  },
+];
+
+const INITIAL_LOGS: SystemAuditLog[] = [
+  {
+    id: "log-1",
+    time: "11:21:04 PM",
+    level: "success",
+    category: "SYSTEM",
+    message: "Automated root ledger checksum verified: 14,210 transactions synchronized across 7 branches.",
+    messageBn: "স্বয়ংক্রিয় মূল লেজার চেকসাম যাচাই সম্পন্ন: ৭টি শাখায় ১৪,২১০টি লেনদেন সিঙ্ক হয়েছে।",
+  },
+  {
+    id: "log-2",
+    time: "11:15:32 PM",
+    level: "info",
+    category: "DATABASE",
+    message: "Incremental differential snapshot #DS-SNAP-9841 sealed and replicated to GCS Coldline (62.4 MB).",
+    messageBn: "ডিফারেনশিয়াল স্ন্যাপশট #DS-SNAP-9841 সম্পন্ন ও ক্লাউড মিররে সংরক্ষিত হয়েছে (৬২.৪ মেগাবাইট)।",
+  },
+  {
+    id: "log-3",
+    time: "11:02:18 PM",
+    level: "security",
+    category: "SECURITY",
+    message: "TLS 1.3 mutual auth handshake validated for Branch Hub (ws-04 Agrabad).",
+    messageBn: "শাখা হাব (ws-04 আগ্রাবাদ)-এর জন্য টিএলএস ১.৩ সিকিউর হ্যান্ডশেক নিশ্চিত করা হয়েছে।",
+  },
+  {
+    id: "log-4",
+    time: "10:48:50 PM",
+    level: "info",
+    category: "NETWORK",
+    message: "Real-time socket heartbeat acknowledged across all 7 regional nodes with 12ms average jitter.",
+    messageBn: "সকল ৭টি আঞ্চলিক নোডে রিয়েল-টাইম সকেট হার্টবিট সফলভাবে স্বীকৃত হয়েছে।",
+  },
+  {
+    id: "log-5",
+    time: "10:30:12 PM",
+    level: "security",
+    category: "AUTH",
+    message: "Primary administrative session authenticated from 103.114.98.12 (Founder: Aeysha Shahriyar).",
+    messageBn: "প্রশাসনিক সেশন যাচাই সম্পন্ন: ১০৩.১১৪.৯৮.১২ (ফাউন্ডার: আয়েশা শাহরিয়ার)।",
+  },
+];
+
+const SystemTab: React.FC = () => {
+  const { language } = useLanguage();
+  const { success, info } = useToast();
+
+  const [isDiagnosing, setIsDiagnosing] = useState(false);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [lastBackup, setLastBackup] = useState("14 mins ago");
+  const [logFilter, setLogFilter] = useState<"ALL" | "SYSTEM" | "DATABASE" | "SECURITY">("ALL");
+  const [logs, setLogs] = useState<SystemAuditLog[]>(INITIAL_LOGS);
+
+  const handleRunDiagnostics = () => {
+    setIsDiagnosing(true);
+    setTimeout(() => {
+      setIsDiagnosing(false);
+      success(
+        language === "bn" ? "ডায়াগনস্টিক সম্পন্ন" : "Diagnostics Complete",
+        language === "bn"
+          ? "সকল ৬টি কোর মাইক্রোসার্ভিস ও ডাটাবেস ক্লাস্টার শতভাগ কার্যকর ও সক্রিয়।"
+          : "All 6 microservices and primary database nodes passed with 100% integrity."
+      );
+      const newLog: SystemAuditLog = {
+        id: `log-${Date.now()}`,
+        time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+        level: "success",
+        category: "SYSTEM",
+        message: "Manual full-spectrum system diagnostic passed (Latency: 12ms, 0 packet loss).",
+        messageBn: "ম্যানুয়াল ফুল-স্পেকট্রাম সিস্টেম ডায়াগনস্টিক সফল (ল্যাটেন্সি: ১২মি.সে., ০ প্যাকেট লস)।",
+      };
+      setLogs((prev) => [newLog, ...prev]);
+    }, 900);
+  };
+
+  const handleBackupNow = () => {
+    const snapId = `DS-SNAP-${Math.floor(1000 + Math.random() * 9000)}`;
+    setLastBackup("Just now");
+    success(
+      language === "bn" ? "ব্যাকআপ তৈরি সম্পন্ন" : "Backup Snapshot Sealed",
+      language === "bn"
+        ? `এনক্রিপ্টেড ডাটাবেস স্ন্যাপশট #${snapId} ক্লাউড কোল্ডলাইনে সংরক্ষিত হয়েছে।`
+        : `Encrypted ledger snapshot #${snapId} sealed and synchronized to GCS Coldline.`
+    );
+    const newLog: SystemAuditLog = {
+      id: `log-${Date.now()}`,
+      time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+      level: "info",
+      category: "DATABASE",
+      message: `Manual database backup #${snapId} stored successfully (AES-GCM-256).`,
+      messageBn: `ম্যানুয়াল ডাটাবেস ব্যাকআপ #${snapId} সফলভাবে তৈরি ও সংরক্ষিত হয়েছে (AES-GCM-256)।`,
+    };
+    setLogs((prev) => [newLog, ...prev]);
+  };
+
+  const handlePurgeCache = () => {
+    info(
+      language === "bn" ? "ক্যাশ মেমোরি খালি করা হয়েছে" : "System Cache Purged",
+      language === "bn"
+        ? "রেডিস কোয়েরি ক্যাশ ও অস্থায়ী সেশন মেমোরি সফলভাবে ফ্লাশ করা হয়েছে।"
+        : "Redis query cache and 1,240 temporary key-value session stores flushed."
+    );
+    const newLog: SystemAuditLog = {
+      id: `log-${Date.now()}`,
+      time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+      level: "warn",
+      category: "SYSTEM",
+      message: "Application cache purged by system administrator. Memory reclaimed: 184 MB.",
+      messageBn: "সিস্টেম অ্যাডমিন কর্তৃক ক্যাশ মেমোরি খালি করা হয়েছে। রিক্লেইমড মেমোরি: ১৮৪ মেগাবাইট।",
+    };
+    setLogs((prev) => [newLog, ...prev]);
+  };
+
+  const handleVerifyIntegrity = () => {
+    success(
+      language === "bn" ? "লেজার চেকসাম যাচাই সম্পন্ন" : "Ledger Integrity Verified",
+      language === "bn"
+        ? "সকল শাখা ভল্ট ও মূল লেজারের মাঝে কোনো অমিল বা অসঙ্গতি পাওয়া যায়নি।"
+        : "Root balance matches branch vault ledgers. Zero discrepancies found."
+    );
+    const newLog: SystemAuditLog = {
+      id: `log-${Date.now()}`,
+      time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+      level: "success",
+      category: "SECURITY",
+      message: "Mathematical balance reconciliation passed: ৳38,100,000 verified across 7 vaults.",
+      messageBn: "গাণিতিক ব্যালেন্স রিকনসিলিয়েশন সফল: ৭টি ভল্টে ৳৩,৮১,০০,০০০ যাচাই সম্পন্ন।",
+    };
+    setLogs((prev) => [newLog, ...prev]);
+  };
+
+  const filteredLogs = logs.filter((l) => {
+    if (logFilter === "ALL") return true;
+    return l.category === logFilter;
+  });
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+      {/* ── Page Header & Quick Diagnostics ── */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+        <div>
+          <h2
+            style={{
+              fontSize: 22,
+              fontWeight: 800,
+              color: "var(--color-text-primary)",
+              margin: 0,
+              fontFamily: "var(--font-heading)",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            {language === "bn" ? "সিস্টেম কার্যক্রম" : "System Operations"}
+          </h2>
+          <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "4px 0 0" }}>
+            {language === "bn"
+              ? "ক্লাউড ইনফ্রাস্ট্রাকচার, নোড টেলিমেট্রি ও রিয়েল-টাইম অডিট পর্যবেক্ষণ"
+              : "Cloud infrastructure, telemetry, microservice health, and audit streaming"}
+          </p>
+          <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                padding: "3px 9px",
+                borderRadius: 999,
+                background: "rgba(16, 185, 129, 0.12)",
+                color: "#10b981",
+                border: "1px solid rgba(16, 185, 129, 0.25)",
+                fontSize: 11,
+                fontWeight: 700,
+              }}
+            >
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px #10b981" }} />
+              {language === "bn" ? "সব সিস্টেম সক্রিয় (৯৯.৯৮% আপটাইম)" : "All Systems Operational (99.98% Uptime)"}
+            </span>
+            <span
+              style={{
+                fontSize: 11,
+                color: "var(--color-text-muted)",
+                fontFamily: "var(--font-mono, monospace)",
+              }}
+            >
+              BST: Dhaka UTC+6
+            </span>
+          </div>
+        </div>
+
+        <motion.button
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          onClick={handleRunDiagnostics}
+          disabled={isDiagnosing}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 7,
+            padding: "8px 14px",
+            borderRadius: "var(--radius-md)",
+            background: "var(--color-brand)",
+            color: "#FFFFFF",
+            border: "none",
+            fontSize: 12.5,
+            fontWeight: 700,
+            cursor: isDiagnosing ? "wait" : "pointer",
+            flexShrink: 0,
+            boxShadow: "0 4px 14px var(--color-brand-glow)",
+          }}
+        >
+          <Activity size={15} style={{ animation: isDiagnosing ? "spin 1s linear infinite" : "none" }} />
+          <span>{isDiagnosing ? (language === "bn" ? "যাচাই চলছে..." : "Checking...") : (language === "bn" ? "হেলথ চেক রান করুন" : "Run Health Check")}</span>
+        </motion.button>
+      </div>
+
+      {/* ── Top Telemetry & Resource KPIs ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
+        {/* Metric 1: CPU */}
+        <div
+          style={{
+            background: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-lg)",
+            padding: "14px 16px",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--color-text-muted)" }}>
+              {language === "bn" ? "প্রসেসর লোড (CPU)" : "Server CPU Load"}
+            </span>
+            <span style={{ color: "var(--color-brand)", background: "var(--color-brand-soft)", padding: 4, borderRadius: 6 }}>
+              <Cpu size={15} />
+            </span>
+          </div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)", margin: "4px 0" }}>
+            18.4%
+          </div>
+          <div style={{ width: "100%", height: 5, borderRadius: 99, background: "var(--color-surface-hover)", overflow: "hidden", margin: "6px 0" }}>
+            <div style={{ width: "18.4%", height: "100%", background: "#10b981", borderRadius: 99 }} />
+          </div>
+          <span style={{ fontSize: 10.5, color: "#10b981", fontWeight: 700 }}>
+            ● {language === "bn" ? "স্বাভাবিক (৪ কোর EPYC)" : "Optimal (4 Cores EPYC)"}
+          </span>
+        </div>
+
+        {/* Metric 2: Memory */}
+        <div
+          style={{
+            background: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-lg)",
+            padding: "14px 16px",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--color-text-muted)" }}>
+              {language === "bn" ? "মেমোরি ব্যবহার (RAM)" : "RAM Consumption"}
+            </span>
+            <span style={{ color: "#3B82F6", background: "rgba(59, 130, 246, 0.12)", padding: 4, borderRadius: 6 }}>
+              <Activity size={15} />
+            </span>
+          </div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)", margin: "4px 0" }}>
+            4.6 GB
+          </div>
+          <div style={{ width: "100%", height: 5, borderRadius: 99, background: "var(--color-surface-hover)", overflow: "hidden", margin: "6px 0" }}>
+            <div style={{ width: "28.7%", height: "100%", background: "#3B82F6", borderRadius: 99 }} />
+          </div>
+          <span style={{ fontSize: 10.5, color: "var(--color-text-secondary)", fontWeight: 600 }}>
+            {language === "bn" ? "মোট ১৬ জিবি (২৮.৭% ব্যবহৃত)" : "Total 16 GB (28.7% Allocated)"}
+          </span>
+        </div>
+
+        {/* Metric 3: DB Latency */}
+        <div
+          style={{
+            background: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-lg)",
+            padding: "14px 16px",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--color-text-muted)" }}>
+              {language === "bn" ? "ডাটাবেস ল্যাটেন্সি" : "Database Latency"}
+            </span>
+            <span style={{ color: "#10B981", background: "rgba(16, 185, 129, 0.12)", padding: 4, borderRadius: 6 }}>
+              <Database size={15} />
+            </span>
+          </div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)", margin: "4px 0" }}>
+            12 ms
+          </div>
+          <div style={{ fontSize: 10.5, color: "var(--color-text-secondary)", marginTop: 6, fontWeight: 600 }}>
+            PostgreSQL HA • Dhaka DC-01
+          </div>
+          <span style={{ fontSize: 10.5, color: "#10b981", fontWeight: 700 }}>
+            ● {language === "bn" ? "সিঙ্ক স্ট্যাটাস সক্রিয়" : "Synchronized & Liquid"}
+          </span>
+        </div>
+
+        {/* Metric 4: Backup */}
+        <div
+          style={{
+            background: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-lg)",
+            padding: "14px 16px",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--color-text-muted)" }}>
+              {language === "bn" ? "ক্লাউড ভল্ট ব্যাকআপ" : "Cloud Vault Mirror"}
+            </span>
+            <span style={{ color: "#8B5CF6", background: "rgba(139, 92, 246, 0.12)", padding: 4, borderRadius: 6 }}>
+              <HardDrive size={15} />
+            </span>
+          </div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)", margin: "4px 0" }}>
+            AES-256
+          </div>
+          <div style={{ fontSize: 10.5, color: "var(--color-text-secondary)", marginTop: 6, fontWeight: 600 }}>
+            {language === "bn" ? `সর্বশেষ: ${lastBackup}` : `Last sync: ${lastBackup}`}
+          </div>
+          <span style={{ fontSize: 10.5, color: "#10b981", fontWeight: 700 }}>
+            ● {language === "bn" ? "অটো প্রতি ঘণ্টায় সংরক্ষিত" : "Hourly Automated Mirror"}
+          </span>
+        </div>
+      </div>
+
+      {/* ── Subsystems & Microservices Health Grid ── */}
+      <div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+          <h3 style={{ fontSize: 14.5, fontWeight: 700, color: "var(--color-text-primary)", margin: 0, fontFamily: "var(--font-heading)" }}>
+            {language === "bn" ? "কোর মাইক্রোসার্ভিস নোডসমূহ" : "Core Subsystems & Microservices"}
+          </h3>
+          <span style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
+            6/6 {language === "bn" ? "নোড সক্রিয়" : "Nodes Active"}
+          </span>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 10 }}>
+          {INITIAL_SERVICES.map((srv) => (
+            <div
+              key={srv.id}
+              style={{
+                background: "var(--color-surface)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-lg)",
+                padding: "14px 16px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div
+                    style={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: "var(--radius-md)",
+                      background: "rgba(15, 91, 228, 0.1)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "var(--color-brand)",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {srv.icon}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+                      {language === "bn" ? srv.nameBn : srv.name}
+                    </div>
+                    <div style={{ fontSize: 10.5, color: "var(--color-text-muted)", marginTop: 2 }}>
+                      {srv.category} • <span style={{ fontFamily: "var(--font-mono, monospace)" }}>{srv.version}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    padding: "2px 7px",
+                    borderRadius: 999,
+                    fontSize: 10,
+                    fontWeight: 700,
+                    background: "rgba(16, 185, 129, 0.12)",
+                    color: "#10b981",
+                    border: "1px solid rgba(16, 185, 129, 0.25)",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  ● {language === "bn" ? "সক্রিয়" : "Operational"}
+                </span>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "6px 10px",
+                  borderRadius: "var(--radius-md)",
+                  background: "var(--color-surface-hover)",
+                  fontSize: 11,
+                  color: "var(--color-text-secondary)",
+                }}
+              >
+                <span>{language === "bn" ? "আপটাইম" : "Uptime"}: <strong style={{ color: "var(--color-text-primary)" }}>{srv.uptime}</strong></span>
+                <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
+                  {language === "bn" ? "ল্যাটেন্সি" : "Ping"}: <strong style={{ color: "#10b981" }}>{srv.latency}</strong>
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Maintenance & Disaster Recovery Operations ── */}
+      <div>
+        <h3 style={{ fontSize: 14.5, fontWeight: 700, color: "var(--color-text-primary)", margin: "0 0 10px", fontFamily: "var(--font-heading)" }}>
+          {language === "bn" ? "অ্যাডমিন রক্ষণাবেক্ষণ ও ব্যাকআপ অ্যাকশন" : "System Administration & Maintenance Operations"}
+        </h3>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
+          {/* Action 1: Manual Backup */}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleBackupNow}
+            style={{
+              padding: "14px 16px",
+              borderRadius: "var(--radius-lg)",
+              background: "var(--color-surface)",
+              border: "1px solid var(--color-border)",
+              textAlign: "left",
+              cursor: "pointer",
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--color-brand)" }}>
+              <HardDrive size={16} />
+              <span style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
+                {language === "bn" ? "ডাটাবেস ব্যাকআপ তৈরি" : "Create Snapshot"}
+              </span>
+            </div>
+            <p style={{ margin: 0, fontSize: 11, color: "var(--color-text-muted)" }}>
+              {language === "bn" ? "ম্যানুয়াল ডিফারেনশিয়াল ভল্ট ব্যাকআপ নিন" : "Generate manual encrypted ledger snapshot"}
+            </p>
+          </motion.button>
+
+          {/* Action 2: Purge Cache */}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handlePurgeCache}
+            style={{
+              padding: "14px 16px",
+              borderRadius: "var(--radius-lg)",
+              background: "var(--color-surface)",
+              border: "1px solid var(--color-border)",
+              textAlign: "left",
+              cursor: "pointer",
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#F59E0B" }}>
+              <Zap size={16} />
+              <span style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
+                {language === "bn" ? "ক্যাশ মেমোরি খালি" : "Purge Redis Cache"}
+              </span>
+            </div>
+            <p style={{ margin: 0, fontSize: 11, color: "var(--color-text-muted)" }}>
+              {language === "bn" ? "কোয়েরি ক্যাশ ও টেম্পোরারি সেশন ফ্লাশ করুন" : "Flush query cache and session buffers"}
+            </p>
+          </motion.button>
+
+          {/* Action 3: Verify Integrity */}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleVerifyIntegrity}
+            style={{
+              padding: "14px 16px",
+              borderRadius: "var(--radius-lg)",
+              background: "var(--color-surface)",
+              border: "1px solid var(--color-border)",
+              textAlign: "left",
+              cursor: "pointer",
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#10B981" }}>
+              <ShieldCheck size={16} />
+              <span style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
+                {language === "bn" ? "লেজার চেকসাম যাচাই" : "Verify Integrity"}
+              </span>
+            </div>
+            <p style={{ margin: 0, fontSize: 11, color: "var(--color-text-muted)" }}>
+              {language === "bn" ? "শাখা ও মূল ভল্টের চেকসাম মেলান" : "Reconcile checksums across 7 branches"}
+            </p>
+          </motion.button>
+
+          {/* Action 4: Maintenance Toggle */}
+          <div
+            style={{
+              padding: "14px 16px",
+              borderRadius: "var(--radius-lg)",
+              background: "var(--color-surface)",
+              border: "1px solid var(--color-border)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 10,
+            }}
+          >
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
+                {language === "bn" ? "রক্ষণাবেক্ষণ মোড" : "Maintenance Mode"}
+              </div>
+              <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--color-text-muted)" }}>
+                {maintenanceMode
+                  ? (language === "bn" ? "রিড-অনলি মোড সক্রিয়" : "Read-only mode active")
+                  : (language === "bn" ? "সব ট্রানজ্যাকশন স্বাভাবিক" : "Normal operations")}
+              </p>
+            </div>
+            <div
+              onClick={() => {
+                const next = !maintenanceMode;
+                setMaintenanceMode(next);
+                if (next) {
+                  info(
+                    language === "bn" ? "রক্ষণাবেক্ষণ মোড চালু" : "Maintenance Mode On",
+                    language === "bn" ? "শাখা নোডগুলো রিড-অনলি মোডে রয়েছে।" : "Branches restricted to read-only."
+                  );
+                } else {
+                  success(
+                    language === "bn" ? "স্বাভাবিক মোড সক্রিয়" : "Normal Mode Resumed",
+                    language === "bn" ? "সকল নোড লেনদেনের জন্য উন্মুক্ত।" : "All network nodes accepting transactions."
+                  );
+                }
+              }}
+              style={{
+                width: 42,
+                height: 24,
+                borderRadius: 999,
+                background: maintenanceMode ? "#F59E0B" : "var(--color-border)",
+                padding: 2,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                transition: "background 0.2s ease",
+                flexShrink: 0,
+              }}
+            >
+              <motion.div
+                animate={{ x: maintenanceMode ? 18 : 0 }}
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: "50%",
+                  background: "#FFFFFF",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.25)",
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Security & System Audit Log Stream ── */}
+      <div
+        style={{
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: "var(--radius-xl)",
+          padding: "18px 20px",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Terminal size={18} style={{ color: "var(--color-brand)" }} />
+            <h3 style={{ fontSize: 14.5, fontWeight: 700, color: "var(--color-text-primary)", margin: 0, fontFamily: "var(--font-heading)" }}>
+              {language === "bn" ? "রিয়েল-টাইম সিস্টেম অডিট ও সিকিউরিটি লগ" : "Real-time System Audit & Security Logs"}
+            </h3>
+            <span
+              style={{
+                fontSize: 10.5,
+                fontWeight: 700,
+                padding: "1px 7px",
+                borderRadius: 999,
+                background: "var(--color-surface-hover)",
+                color: "var(--color-text-secondary)",
+                border: "1px solid var(--color-border-subtle)",
+                fontFamily: "var(--font-mono, monospace)",
+              }}
+            >
+              {filteredLogs.length} events
+            </span>
+          </div>
+
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {(["ALL", "SYSTEM", "DATABASE", "SECURITY"] as const).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setLogFilter(cat)}
+                style={{
+                  padding: "4px 10px",
+                  borderRadius: "var(--radius-md)",
+                  border: logFilter === cat ? "1px solid var(--color-brand)" : "1px solid var(--color-border-subtle)",
+                  background: logFilter === cat ? "var(--color-brand-soft)" : "transparent",
+                  color: logFilter === cat ? "var(--color-brand)" : "var(--color-text-secondary)",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  fontFamily: "var(--font-mono, monospace)",
+                }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Terminal log window */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+            fontFamily: "var(--font-mono, monospace)",
+            fontSize: 11.5,
+            maxHeight: 280,
+            overflowY: "auto",
+            paddingRight: 4,
+          }}
+        >
+          {filteredLogs.map((log) => {
+            const levelColor =
+              log.level === "success"
+                ? "#10B981"
+                : log.level === "security"
+                ? "#8B5CF6"
+                : log.level === "warn"
+                ? "#F59E0B"
+                : "var(--color-brand)";
+            const levelBg =
+              log.level === "success"
+                ? "rgba(16, 185, 129, 0.1)"
+                : log.level === "security"
+                ? "rgba(139, 92, 246, 0.1)"
+                : log.level === "warn"
+                ? "rgba(245, 158, 11, 0.1)"
+                : "rgba(15, 91, 228, 0.1)";
+
+            return (
+              <div
+                key={log.id}
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 10,
+                  padding: "8px 12px",
+                  borderRadius: "var(--radius-md)",
+                  background: "var(--color-surface-hover)",
+                  border: "1px solid var(--color-border-subtle)",
+                }}
+              >
+                <span style={{ color: "var(--color-text-muted)", fontSize: 10.5, whiteSpace: "nowrap", paddingTop: 1 }}>
+                  {log.time}
+                </span>
+                <span
+                  style={{
+                    fontSize: 9.5,
+                    fontWeight: 700,
+                    padding: "1px 6px",
+                    borderRadius: 4,
+                    background: levelBg,
+                    color: levelColor,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {log.category}
+                </span>
+                <span style={{ color: "var(--color-text-primary)", fontSize: 11.5, flex: 1, lineHeight: 1.4 }}>
+                  {language === "bn" ? log.messageBn : log.message}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ marginTop: 12, display: "flex", justifyContent: "flex-end" }}>
+          <button
+            onClick={() => {
+              success(
+                language === "bn" ? "লগ ফাইল এক্সপোর্ট করা হয়েছে" : "Audit Logs Exported",
+                language === "bn" ? "ds_system_audit.json ডাউনলোড প্রস্তুত।" : "ds_system_audit.json is ready."
+              );
+            }}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 12px",
+              borderRadius: "var(--radius-md)",
+              border: "1px solid var(--color-border)",
+              background: "transparent",
+              color: "var(--color-text-secondary)",
+              fontSize: 11.5,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            <Download size={13} />
+            <span>{language === "bn" ? "লগ এক্সপোর্ট (.JSON)" : "Export Logs (.JSON)"}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const SettingsTab: React.FC = () => {
   const { currentUser, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -7387,6 +8218,8 @@ export const DashboardPage: React.FC = () => {
           <BranchesTab />
         ) : activeTab === "members" ? (
           <MembersTab />
+        ) : activeTab === "system" ? (
+          <SystemTab />
         ) : activeTab === "settings" ? (
           <SettingsTab />
         ) : activeTab === "profile" ? (
