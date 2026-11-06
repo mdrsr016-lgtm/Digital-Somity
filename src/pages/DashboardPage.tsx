@@ -4296,137 +4296,230 @@ const SettingToggle: React.FC<{
   </div>
 );
 
-// ─── System Tab Component ───────────────────────────────────────────────────
-interface ServiceNode {
+// ─── Workspace Console Component (Admin & Founder Hub) ─────────────────────────
+interface StaffUser {
   id: string;
   name: string;
   nameBn: string;
-  category: string;
-  status: "operational" | "degraded" | "standby";
-  version: string;
-  uptime: string;
-  latency: string;
-  icon: React.ReactNode;
+  email: string;
+  phone: string;
+  role: "founder" | "admin" | "manager" | "cashier";
+  roleBn: string;
+  branch: string;
+  branchBn: string;
+  status: "active" | "suspended";
+  lastActive: string;
 }
 
-interface SystemAuditLog {
+interface KycApplication {
   id: string;
-  time: string;
-  level: "info" | "warn" | "security" | "success";
-  category: "SYSTEM" | "DATABASE" | "SECURITY" | "NETWORK" | "AUTH";
-  message: string;
-  messageBn: string;
+  applicantName: string;
+  applicantNameBn: string;
+  type: "member" | "staff";
+  typeBn: string;
+  phone: string;
+  nid: string;
+  branch: string;
+  branchBn: string;
+  submittedAt: string;
+  score: number;
+  status: "pending" | "approved" | "rejected";
 }
 
-const INITIAL_SERVICES: ServiceNode[] = [
+interface WorkspacePlan {
+  id: string;
+  tier: string;
+  tierBn: string;
+  price: string;
+  period: string;
+  branchLimit: number;
+  memberLimit: string;
+  smsCredits: string;
+  current: boolean;
+  features: string[];
+}
+
+const INITIAL_STAFF: StaffUser[] = [
   {
-    id: "srv-01",
-    name: "Central Ledger Engine",
-    nameBn: "সেন্ট্রাল লেজার ইঞ্জিন",
-    category: "Core Engine",
-    status: "operational",
-    version: "v2.4.8-p1",
-    uptime: "99.99%",
-    latency: "6ms",
-    icon: <Database size={17} />,
+    id: "usr-01",
+    name: "Aeysha Shahriyar",
+    nameBn: "আয়েশা শাহরিয়ার",
+    email: "founder@dsbd.com",
+    phone: "+880 1711-000001",
+    role: "founder",
+    roleBn: "প্রতিষ্ঠাতা",
+    branch: "Central Somiti (HQ)",
+    branchBn: "প্রধান কার্যালয়",
+    status: "active",
+    lastActive: "Active now",
   },
   {
-    id: "srv-02",
-    name: "Branch WebSocket Replicator",
-    nameBn: "শাখা ওয়েবসকেট রেপ্লিকেটর",
-    category: "Realtime Sync",
-    status: "operational",
-    version: "v1.9.2",
-    uptime: "99.96%",
-    latency: "14ms",
-    icon: <Wifi size={17} />,
+    id: "usr-02",
+    name: "Rashidul Hasan",
+    nameBn: "রাশিদুল হাসান",
+    email: "admin@dsbd.com",
+    phone: "+880 1723-890123",
+    role: "admin",
+    roleBn: "প্রশাসক",
+    branch: "Central Somiti (HQ)",
+    branchBn: "প্রধান কার্যালয়",
+    status: "active",
+    lastActive: "12m ago",
   },
   {
-    id: "srv-03",
-    name: "KYC & EC NID Bridge",
-    nameBn: "কেওয়াইসি ও এনআইডি গেটওয়ে",
-    category: "Identity API",
-    status: "operational",
-    version: "v3.1.0",
-    uptime: "99.85%",
-    latency: "42ms",
-    icon: <ShieldCheck size={17} />,
+    id: "usr-03",
+    name: "Tareq Rahman",
+    nameBn: "তারেক রহমান",
+    email: "tareq.m@dsbd.com",
+    phone: "+880 1712-456789",
+    role: "manager",
+    roleBn: "শাখা ব্যবস্থাপক",
+    branch: "Motijheel Financial Branch",
+    branchBn: "মতিঝিল শাখা",
+    status: "active",
+    lastActive: "1h ago",
   },
   {
-    id: "srv-04",
-    name: "Automated DPS & Profit Daemon",
-    nameBn: "স্বয়ংক্রিয় ডিপিএস ও মুনাফা হিসাবক",
-    category: "Batch Worker",
-    status: "operational",
-    version: "v2.1.4",
-    uptime: "100%",
-    latency: "Next: 00:00",
-    icon: <Clock size={17} />,
+    id: "usr-04",
+    name: "Nadia Sultana",
+    nameBn: "নদিয়া সুলতানা",
+    email: "nadia.s@dsbd.com",
+    phone: "+880 1819-234567",
+    role: "manager",
+    roleBn: "শাখা ব্যবস্থাপক",
+    branch: "Dhanmondi Cooperative",
+    branchBn: "ধানমন্ডি শাখা",
+    status: "active",
+    lastActive: "4h ago",
   },
   {
-    id: "srv-05",
-    name: "Multi-channel SMS & OTP Gateway",
-    nameBn: "এসএমএস ও ওটিপি গেটওয়ে",
-    category: "Notification",
-    status: "operational",
-    version: "v1.4.0",
-    uptime: "99.92%",
-    latency: "85ms",
-    icon: <Zap size={17} />,
-  },
-  {
-    id: "srv-06",
-    name: "Coldline Encrypted Vault Mirror",
-    nameBn: "এনক্রিপ্টেড কোল্ডলাইন ভল্ট মিরর",
-    category: "Disaster Recovery",
-    status: "operational",
-    version: "v4.0.1",
-    uptime: "100%",
-    latency: "Synced",
-    icon: <HardDrive size={17} />,
+    id: "usr-05",
+    name: "Karim Uddin",
+    nameBn: "করিম উদ্দিন",
+    email: "karim.c@dsbd.com",
+    phone: "+880 1711-987654",
+    role: "cashier",
+    roleBn: "ক্যাশিয়ার",
+    branch: "Motijheel Financial Branch",
+    branchBn: "মতিঝিল শাখা",
+    status: "active",
+    lastActive: "Active now",
   },
 ];
 
-const INITIAL_LOGS: SystemAuditLog[] = [
+const INITIAL_KYC_APPLICATIONS: KycApplication[] = [
   {
-    id: "log-1",
-    time: "11:21:04 PM",
-    level: "success",
-    category: "SYSTEM",
-    message: "Automated root ledger checksum verified: 14,210 transactions synchronized across 7 branches.",
-    messageBn: "স্বয়ংক্রিয় মূল লেজার চেকসাম যাচাই সম্পন্ন: ৭টি শাখায় ১৪,২১০টি লেনদেন সিঙ্ক হয়েছে।",
+    id: "kyc-101",
+    applicantName: "Mohammad Arifuzzaman",
+    applicantNameBn: "মোহাম্মদ আরিফুজ্জামান",
+    type: "member",
+    typeBn: "নতুন সদস্য",
+    phone: "+880 1711-238472",
+    nid: "1991-8273948192",
+    branch: "Cumilla Central Hub",
+    branchBn: "কুমিল্লা হাব",
+    submittedAt: "Today, 10:14 AM",
+    score: 98.4,
+    status: "pending",
   },
   {
-    id: "log-2",
-    time: "11:15:32 PM",
-    level: "info",
-    category: "DATABASE",
-    message: "Incremental differential snapshot #DS-SNAP-9841 sealed and replicated to GCS Coldline (62.4 MB).",
-    messageBn: "ডিফারেনশিয়াল স্ন্যাপশট #DS-SNAP-9841 সম্পন্ন ও ক্লাউড মিররে সংরক্ষিত হয়েছে (৬২.৪ মেগাবাইট)।",
+    id: "kyc-102",
+    applicantName: "Nasreen Akter",
+    applicantNameBn: "নাসরীন আক্তার",
+    type: "staff",
+    typeBn: "শাখা ক্যাশিয়ার",
+    phone: "+880 1812-998877",
+    nid: "1988-5678239011",
+    branch: "Agrabad Chittagong Hub",
+    branchBn: "আগ্রাবাদ হাব",
+    submittedAt: "Yesterday",
+    score: 99.1,
+    status: "pending",
   },
   {
-    id: "log-3",
-    time: "11:02:18 PM",
-    level: "security",
-    category: "SECURITY",
-    message: "TLS 1.3 mutual auth handshake validated for Branch Hub (ws-04 Agrabad).",
-    messageBn: "শাখা হাব (ws-04 আগ্রাবাদ)-এর জন্য টিএলএস ১.৩ সিকিউর হ্যান্ডশেক নিশ্চিত করা হয়েছে।",
+    id: "kyc-103",
+    applicantName: "Tanvir Hossain",
+    applicantNameBn: "তানভীর হোসেন",
+    type: "member",
+    typeBn: "নতুন সদস্য",
+    phone: "+880 1995-102938",
+    nid: "1995-1029384756",
+    branch: "Dhanmondi Branch",
+    branchBn: "ধানমন্ডি শাখা",
+    submittedAt: "2 days ago",
+    score: 94.2,
+    status: "pending",
   },
   {
-    id: "log-4",
-    time: "10:48:50 PM",
-    level: "info",
-    category: "NETWORK",
-    message: "Real-time socket heartbeat acknowledged across all 7 regional nodes with 12ms average jitter.",
-    messageBn: "সকল ৭টি আঞ্চলিক নোডে রিয়েল-টাইম সকেট হার্টবিট সফলভাবে স্বীকৃত হয়েছে।",
+    id: "kyc-104",
+    applicantName: "Rokeya Begum",
+    applicantNameBn: "রোকেয়া বেগম",
+    type: "member",
+    typeBn: "নতুন সদস্য",
+    phone: "+880 1720-334455",
+    nid: "1984-7788990011",
+    branch: "Sylhet Sadar Branch",
+    branchBn: "সিলেট সদর শাখা",
+    submittedAt: "3 days ago",
+    score: 97.6,
+    status: "pending",
+  },
+];
+
+const PLANS: WorkspacePlan[] = [
+  {
+    id: "plan-standard",
+    tier: "Standard Somiti",
+    tierBn: "স্ট্যান্ডার্ড সমিতি",
+    price: "৳ 25,000",
+    period: "/ year",
+    branchLimit: 3,
+    memberLimit: "500 Members",
+    smsCredits: "5,000 SMS / yr",
+    current: false,
+    features: [
+      "Up to 3 branch vaults",
+      "500 member ledger accounts",
+      "Standard financial audit",
+      "SMS transaction receipts",
+    ],
   },
   {
-    id: "log-5",
-    time: "10:30:12 PM",
-    level: "security",
-    category: "AUTH",
-    message: "Primary administrative session authenticated from 103.114.98.12 (Founder: Aeysha Shahriyar).",
-    messageBn: "প্রশাসনিক সেশন যাচাই সম্পন্ন: ১০৩.১১৪.৯৮.১২ (ফাউন্ডার: আয়েশা শাহরিয়ার)।",
+    id: "plan-growth",
+    tier: "Growth Co-operative",
+    tierBn: "গ্রোথ কো-অপারেটিভ",
+    price: "৳ 65,000",
+    period: "/ year",
+    branchLimit: 10,
+    memberLimit: "5,000 Members",
+    smsCredits: "25,000 SMS / yr",
+    current: false,
+    features: [
+      "Up to 10 regional branch hubs",
+      "5,000 member savings & loans",
+      "Automated daily ledger reconciliation",
+      "SMS & WhatsApp OTP alerts",
+      "RBAC staff role management",
+    ],
+  },
+  {
+    id: "plan-enterprise",
+    tier: "Enterprise Multi-Hub",
+    tierBn: "এন্টারপ্রাইজ মাল্টি-হাব",
+    price: "৳ 120,000",
+    period: "/ year",
+    branchLimit: 25,
+    memberLimit: "Unlimited Members",
+    smsCredits: "50,000 SMS / yr",
+    current: true,
+    features: [
+      "Up to 25 regional branches & hubs",
+      "Unlimited member ledgers & DPS",
+      "Instant dual-admin loan approvals",
+      "Automated EC NID verification pipeline",
+      "Dedicated coldline vault encryption",
+      "Priority 24/7 bank-grade SLA",
+    ],
   },
 ];
 
@@ -4434,98 +4527,115 @@ const ConsoleTab: React.FC = () => {
   const { language } = useLanguage();
   const { success, info } = useToast();
 
-  const [isDiagnosing, setIsDiagnosing] = useState(false);
-  const [maintenanceMode, setMaintenanceMode] = useState(false);
-  const [lastBackup, setLastBackup] = useState("14 mins ago");
-  const [logFilter, setLogFilter] = useState<"ALL" | "SYSTEM" | "DATABASE" | "SECURITY">("ALL");
-  const [logs, setLogs] = useState<SystemAuditLog[]>(INITIAL_LOGS);
+  const [activeSubTab, setActiveSubTab] = useState<"overview" | "roles" | "kyc" | "subscription" | "security">("overview");
+  const [staffList, setStaffList] = useState<StaffUser[]>(INITIAL_STAFF);
+  const [kycList, setKycList] = useState<KycApplication[]>(INITIAL_KYC_APPLICATIONS);
+  const [plans, setPlans] = useState<WorkspacePlan[]>(PLANS);
+  const [smsCredits, setSmsCredits] = useState(42500);
 
-  const handleRunDiagnostics = () => {
-    setIsDiagnosing(true);
-    setTimeout(() => {
-      setIsDiagnosing(false);
-      success(
-        language === "bn" ? "ডায়াগনস্টিক সম্পন্ন" : "Diagnostics Complete",
-        language === "bn"
-          ? "সকল ৬টি কোর মাইক্রোসার্ভিস ও ডাটাবেস ক্লাস্টার শতভাগ কার্যকর ও সক্রিয়।"
-          : "All 6 microservices and primary database nodes passed with 100% integrity."
-      );
-      const newLog: SystemAuditLog = {
-        id: `log-${Date.now()}`,
-        time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
-        level: "success",
-        category: "SYSTEM",
-        message: "Manual full-spectrum system diagnostic passed (Latency: 12ms, 0 packet loss).",
-        messageBn: "ম্যানুয়াল ফুল-স্পেকট্রাম সিস্টেম ডায়াগনস্টিক সফল (ল্যাটেন্সি: ১২মি.সে., ০ প্যাকেট লস)।",
-      };
-      setLogs((prev) => [newLog, ...prev]);
-    }, 900);
-  };
+  // Invite modal state
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const [inviteName, setInviteName] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [invitePhone, setInvitePhone] = useState("");
+  const [inviteRole, setInviteRole] = useState<"admin" | "manager" | "cashier">("manager");
+  const [inviteBranch, setInviteBranch] = useState("Motijheel Financial Branch");
 
-  const handleBackupNow = () => {
-    const snapId = `DS-SNAP-${Math.floor(1000 + Math.random() * 9000)}`;
-    setLastBackup("Just now");
+  // Security Toggles
+  const [twoFactorEnforced, setTwoFactorEnforced] = useState(true);
+  const [ipLockEnabled, setIpLockEnabled] = useState(false);
+  const [autoVaultFreeze, setAutoVaultFreeze] = useState(true);
+  const [dualAdminApproval, setDualAdminApproval] = useState(true);
+
+  const pendingKycCount = kycList.filter((k) => k.status === "pending").length;
+
+  const handleApproveKyc = (id: string, name: string) => {
+    setKycList((prev) => prev.map((k) => (k.id === id ? { ...k, status: "approved" } : k)));
     success(
-      language === "bn" ? "ব্যাকআপ তৈরি সম্পন্ন" : "Backup Snapshot Sealed",
-      language === "bn"
-        ? `এনক্রিপ্টেড ডাটাবেস স্ন্যাপশট #${snapId} ক্লাউড কোল্ডলাইনে সংরক্ষিত হয়েছে।`
-        : `Encrypted ledger snapshot #${snapId} sealed and synchronized to GCS Coldline.`
+      language === "bn" ? "কেওয়াইসি অনুমোদিত" : "KYC Approved",
+      `"${name}" has been verified and registered on the network.`
     );
-    const newLog: SystemAuditLog = {
-      id: `log-${Date.now()}`,
-      time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
-      level: "info",
-      category: "DATABASE",
-      message: `Manual database backup #${snapId} stored successfully (AES-GCM-256).`,
-      messageBn: `ম্যানুয়াল ডাটাবেস ব্যাকআপ #${snapId} সফলভাবে তৈরি ও সংরক্ষিত হয়েছে (AES-GCM-256)।`,
-    };
-    setLogs((prev) => [newLog, ...prev]);
   };
 
-  const handlePurgeCache = () => {
+  const handleRejectKyc = (id: string, name: string) => {
+    setKycList((prev) => prev.map((k) => (k.id === id ? { ...k, status: "rejected" } : k)));
     info(
-      language === "bn" ? "ক্যাশ মেমোরি খালি করা হয়েছে" : "System Cache Purged",
-      language === "bn"
-        ? "রেডিস কোয়েরি ক্যাশ ও অস্থায়ী সেশন মেমোরি সফলভাবে ফ্লাশ করা হয়েছে।"
-        : "Redis query cache and 1,240 temporary key-value session stores flushed."
+      language === "bn" ? "কেওয়াইসি প্রত্যাখ্যাত" : "KYC Returned",
+      `Application for "${name}" was declined. Notification sent.`
     );
-    const newLog: SystemAuditLog = {
-      id: `log-${Date.now()}`,
-      time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
-      level: "warn",
-      category: "SYSTEM",
-      message: "Application cache purged by system administrator. Memory reclaimed: 184 MB.",
-      messageBn: "সিস্টেম অ্যাডমিন কর্তৃক ক্যাশ মেমোরি খালি করা হয়েছে। রিক্লেইমড মেমোরি: ১৮৪ মেগাবাইট।",
-    };
-    setLogs((prev) => [newLog, ...prev]);
   };
 
-  const handleVerifyIntegrity = () => {
+  const handleRoleChange = (userId: string, newRole: "founder" | "admin" | "manager" | "cashier") => {
+    const roleLabels: Record<string, { en: string; bn: string }> = {
+      founder: { en: "Founder", bn: "প্রতিষ্ঠাতা" },
+      admin: { en: "Admin", bn: "প্রশাসক" },
+      manager: { en: "Branch Manager", bn: "শাখা ব্যবস্থাপক" },
+      cashier: { en: "Cashier", bn: "ক্যাশিয়ার" },
+    };
+
+    setStaffList((prev) =>
+      prev.map((s) => (s.id === userId ? { ...s, role: newRole, roleBn: roleLabels[newRole].bn } : s))
+    );
+
     success(
-      language === "bn" ? "লেজার চেকসাম যাচাই সম্পন্ন" : "Ledger Integrity Verified",
-      language === "bn"
-        ? "সকল শাখা ভল্ট ও মূল লেজারের মাঝে কোনো অমিল বা অসঙ্গতি পাওয়া যায়নি।"
-        : "Root balance matches branch vault ledgers. Zero discrepancies found."
+      language === "bn" ? "ভূমিকা পরিবর্তিত হয়েছে" : "Role Updated",
+      `Assigned "${roleLabels[newRole].en}" privileges successfully.`
     );
-    const newLog: SystemAuditLog = {
-      id: `log-${Date.now()}`,
-      time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
-      level: "success",
-      category: "SECURITY",
-      message: "Mathematical balance reconciliation passed: ৳38,100,000 verified across 7 vaults.",
-      messageBn: "গাণিতিক ব্যালেন্স রিকনসিলিয়েশন সফল: ৭টি ভল্টে ৳৩,৮১,০০,০০০ যাচাই সম্পন্ন।",
-    };
-    setLogs((prev) => [newLog, ...prev]);
   };
 
-  const filteredLogs = logs.filter((l) => {
-    if (logFilter === "ALL") return true;
-    return l.category === logFilter;
-  });
+  const handleInviteSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inviteName.trim() || !inviteEmail.trim()) return;
+
+    const roleLabels: Record<string, { en: string; bn: string }> = {
+      admin: { en: "Admin", bn: "প্রশাসক" },
+      manager: { en: "Branch Manager", bn: "শাখা ব্যবস্থাপক" },
+      cashier: { en: "Cashier", bn: "ক্যাশিয়ার" },
+    };
+
+    const newStaff: StaffUser = {
+      id: `usr-${Date.now()}`,
+      name: inviteName.trim(),
+      nameBn: inviteName.trim(),
+      email: inviteEmail.trim(),
+      phone: invitePhone.trim() || "+880 1700-000000",
+      role: inviteRole,
+      roleBn: roleLabels[inviteRole].bn,
+      branch: inviteBranch,
+      branchBn: inviteBranch,
+      status: "active",
+      lastActive: "Invited today",
+    };
+
+    setStaffList((prev) => [newStaff, ...prev]);
+    success(
+      language === "bn" ? "আমন্ত্রণ পাঠানো হয়েছে" : "Invitation Dispatched",
+      `Secure onboarding token sent to ${newStaff.email} (${roleLabels[inviteRole].en}).`
+    );
+    setIsInviteOpen(false);
+    setInviteName("");
+    setInviteEmail("");
+    setInvitePhone("");
+  };
+
+  const handleAddSmsCredits = () => {
+    setSmsCredits((prev) => prev + 5000);
+    success(
+      language === "bn" ? "এসএমএস ক্রেডিট যোগ হয়েছে" : "SMS Pack Added",
+      "5,000 OTP and transaction notification credits added to Somiti wallet."
+    );
+  };
+
+  const handleTerminateRemoteSessions = () => {
+    info(
+      language === "bn" ? "রিমোট সেশন বাতিল করা হয়েছে" : "Remote Sessions Terminated",
+      "All active manager and cashier sessions were force-logged out for security."
+    );
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      {/* ── Page Header & Quick Diagnostics ── */}
+      {/* ── Page Header ── */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
         <div>
           <h2
@@ -4554,14 +4664,14 @@ const ConsoleTab: React.FC = () => {
                 padding: "3px 9px",
                 borderRadius: 999,
                 background: "rgba(16, 185, 129, 0.12)",
-                color: "#10b981",
+                color: "#10B981",
                 border: "1px solid rgba(16, 185, 129, 0.25)",
                 fontSize: 11,
                 fontWeight: 700,
               }}
             >
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px #10b981" }} />
-              {language === "bn" ? "সব সিস্টেম সক্রিয় (৯৯.৯৮% আপটাইম)" : "All Systems Operational (99.98% Uptime)"}
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#10B981" }} />
+              {language === "bn" ? "এন্টারপ্রাইজ সমিতি স্যুট • টিয়ার ৩ সক্রিয়" : "Enterprise Somiti Suite • Tier 3 Active"}
             </span>
             <span
               style={{
@@ -4570,7 +4680,7 @@ const ConsoleTab: React.FC = () => {
                 fontFamily: "var(--font-mono, monospace)",
               }}
             >
-              BST: Dhaka UTC+6
+              {staffList.length} {language === "bn" ? "স্টাফ নিবন্ধিত" : "Staff Enrolled"}
             </span>
           </div>
         </div>
@@ -4578,8 +4688,7 @@ const ConsoleTab: React.FC = () => {
         <motion.button
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
-          onClick={handleRunDiagnostics}
-          disabled={isDiagnosing}
+          onClick={() => setIsInviteOpen(true)}
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -4591,164 +4700,1152 @@ const ConsoleTab: React.FC = () => {
             border: "none",
             fontSize: 12.5,
             fontWeight: 700,
-            cursor: isDiagnosing ? "wait" : "pointer",
+            cursor: "pointer",
             flexShrink: 0,
             boxShadow: "0 4px 14px var(--color-brand-glow)",
           }}
         >
-          <Activity size={15} style={{ animation: isDiagnosing ? "spin 1s linear infinite" : "none" }} />
-          <span>{isDiagnosing ? (language === "bn" ? "যাচাই চলছে..." : "Checking...") : (language === "bn" ? "হেলথ চেক রান করুন" : "Run Health Check")}</span>
+          <UserPlus size={15} />
+          <span>{language === "bn" ? "স্টাফ / অ্যাডমিন আমন্ত্রণ" : "Invite Staff / Admin"}</span>
         </motion.button>
       </div>
 
-      {/* ── Top Telemetry & Resource KPIs ── */}
+      {/* ── Top Workspace Metric Cards ── */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
-        {/* Metric 1: CPU */}
+        {/* Metric 1: Staff & Roles */}
         <div
+          onClick={() => setActiveSubTab("roles")}
           style={{
             background: "var(--color-surface)",
-            border: "1px solid var(--color-border)",
+            border: activeSubTab === "roles" ? "1px solid var(--color-brand)" : "1px solid var(--color-border)",
             borderRadius: "var(--radius-lg)",
             padding: "14px 16px",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--color-text-muted)" }}>
-              {language === "bn" ? "প্রসেসর লোড (CPU)" : "Server CPU Load"}
+              {language === "bn" ? "সক্রিয় স্টাফ ও ভূমিকা" : "Active Staff & Roles"}
             </span>
             <span style={{ color: "var(--color-brand)", background: "var(--color-brand-soft)", padding: 4, borderRadius: 6 }}>
-              <Cpu size={15} />
+              <Shield size={15} />
             </span>
           </div>
           <div style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)", margin: "4px 0" }}>
-            18.4%
+            {staffList.length} {language === "bn" ? "জন" : "Staff"}
           </div>
-          <div style={{ width: "100%", height: 5, borderRadius: 99, background: "var(--color-surface-hover)", overflow: "hidden", margin: "6px 0" }}>
-            <div style={{ width: "18.4%", height: "100%", background: "#10b981", borderRadius: 99 }} />
-          </div>
-          <span style={{ fontSize: 10.5, color: "#10b981", fontWeight: 700 }}>
-            ● {language === "bn" ? "স্বাভাবিক (৪ কোর EPYC)" : "Optimal (4 Cores EPYC)"}
+          <span style={{ fontSize: 10.5, color: "#10B981", fontWeight: 700 }}>
+            ● {language === "bn" ? "৪টি অ্যাক্সেস টিয়ার সক্রিয়" : "4 Access Tiers Enforced"}
           </span>
         </div>
 
-        {/* Metric 2: Memory */}
+        {/* Metric 2: Pending KYC */}
         <div
+          onClick={() => setActiveSubTab("kyc")}
           style={{
             background: "var(--color-surface)",
-            border: "1px solid var(--color-border)",
+            border: activeSubTab === "kyc" ? "1px solid var(--color-brand)" : "1px solid var(--color-border)",
             borderRadius: "var(--radius-lg)",
             padding: "14px 16px",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--color-text-muted)" }}>
-              {language === "bn" ? "মেমোরি ব্যবহার (RAM)" : "RAM Consumption"}
+              {language === "bn" ? "অপেক্ষমান কেওয়াইসি যাচাই" : "Pending KYC Queue"}
+            </span>
+            <span style={{ color: "#F59E0B", background: "rgba(245, 158, 11, 0.12)", padding: 4, borderRadius: 6 }}>
+              <UserCheck size={15} />
+            </span>
+          </div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)", margin: "4px 0" }}>
+            {pendingKycCount} {language === "bn" ? "টি আবেদন" : "In Queue"}
+          </div>
+          <span style={{ fontSize: 10.5, color: pendingKycCount > 0 ? "#F59E0B" : "#10B981", fontWeight: 700 }}>
+            ● {pendingKycCount > 0 ? (language === "bn" ? "অ্যাকশন প্রয়োজন" : "Requires Action") : (language === "bn" ? "সব যাচাই সম্পন্ন" : "All Verified")}
+          </span>
+        </div>
+
+        {/* Metric 3: Branch Expansion Quota */}
+        <div
+          onClick={() => setActiveSubTab("subscription")}
+          style={{
+            background: "var(--color-surface)",
+            border: activeSubTab === "subscription" ? "1px solid var(--color-brand)" : "1px solid var(--color-border)",
+            borderRadius: "var(--radius-lg)",
+            padding: "14px 16px",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--color-text-muted)" }}>
+              {language === "bn" ? "শাখা সম্প্রসারণ কোটা" : "Branch Node Quota"}
             </span>
             <span style={{ color: "#3B82F6", background: "rgba(59, 130, 246, 0.12)", padding: 4, borderRadius: 6 }}>
-              <Activity size={15} />
+              <Building2 size={15} />
             </span>
           </div>
           <div style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)", margin: "4px 0" }}>
-            4.6 GB
+            7 / 25 {language === "bn" ? "শাখা" : "Hubs"}
           </div>
           <div style={{ width: "100%", height: 5, borderRadius: 99, background: "var(--color-surface-hover)", overflow: "hidden", margin: "6px 0" }}>
-            <div style={{ width: "28.7%", height: "100%", background: "#3B82F6", borderRadius: 99 }} />
+            <div style={{ width: "28%", height: "100%", background: "#3B82F6", borderRadius: 99 }} />
           </div>
           <span style={{ fontSize: 10.5, color: "var(--color-text-secondary)", fontWeight: 600 }}>
-            {language === "bn" ? "মোট ১৬ জিবি (২৮.৭% ব্যবহৃত)" : "Total 16 GB (28.7% Allocated)"}
+            {language === "bn" ? "২৮% ব্যবহৃত • ১৮টি অবশিষ্ট" : "28% Used • 18 Available"}
           </span>
         </div>
 
-        {/* Metric 3: DB Latency */}
+        {/* Metric 4: Subscription Plan */}
         <div
+          onClick={() => setActiveSubTab("subscription")}
           style={{
             background: "var(--color-surface)",
-            border: "1px solid var(--color-border)",
+            border: activeSubTab === "subscription" ? "1px solid var(--color-brand)" : "1px solid var(--color-border)",
             borderRadius: "var(--radius-lg)",
             padding: "14px 16px",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--color-text-muted)" }}>
-              {language === "bn" ? "ডাটাবেস ল্যাটেন্সি" : "Database Latency"}
-            </span>
-            <span style={{ color: "#10B981", background: "rgba(16, 185, 129, 0.12)", padding: 4, borderRadius: 6 }}>
-              <Database size={15} />
-            </span>
-          </div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)", margin: "4px 0" }}>
-            12 ms
-          </div>
-          <div style={{ fontSize: 10.5, color: "var(--color-text-secondary)", marginTop: 6, fontWeight: 600 }}>
-            PostgreSQL HA • Dhaka DC-01
-          </div>
-          <span style={{ fontSize: 10.5, color: "#10b981", fontWeight: 700 }}>
-            ● {language === "bn" ? "সিঙ্ক স্ট্যাটাস সক্রিয়" : "Synchronized & Liquid"}
-          </span>
-        </div>
-
-        {/* Metric 4: Backup */}
-        <div
-          style={{
-            background: "var(--color-surface)",
-            border: "1px solid var(--color-border)",
-            borderRadius: "var(--radius-lg)",
-            padding: "14px 16px",
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--color-text-muted)" }}>
-              {language === "bn" ? "ক্লাউড ভল্ট ব্যাকআপ" : "Cloud Vault Mirror"}
+              {language === "bn" ? "ওয়ার্কস্পেস সাবস্ক্রিপশন" : "Somiti License Plan"}
             </span>
             <span style={{ color: "#8B5CF6", background: "rgba(139, 92, 246, 0.12)", padding: 4, borderRadius: 6 }}>
-              <HardDrive size={15} />
+              <Crown size={15} />
             </span>
           </div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)", margin: "4px 0" }}>
-            AES-256
+          <div style={{ fontSize: 18, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)", margin: "4px 0" }}>
+            Enterprise Multi-Hub
           </div>
-          <div style={{ fontSize: 10.5, color: "var(--color-text-secondary)", marginTop: 6, fontWeight: 600 }}>
-            {language === "bn" ? `সর্বশেষ: ${lastBackup}` : `Last sync: ${lastBackup}`}
-          </div>
-          <span style={{ fontSize: 10.5, color: "#10b981", fontWeight: 700 }}>
-            ● {language === "bn" ? "অটো প্রতি ঘণ্টায় সংরক্ষিত" : "Hourly Automated Mirror"}
+          <span style={{ fontSize: 10.5, color: "#10B981", fontWeight: 700 }}>
+            ● {language === "bn" ? "মেয়াদ: ১২ নভেম্বর ২০২৭" : "Renews: 12 Nov 2027"}
           </span>
         </div>
       </div>
 
-      {/* ── Subsystems & Microservices Health Grid ── */}
-      <div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-          <h3 style={{ fontSize: 14.5, fontWeight: 700, color: "var(--color-text-primary)", margin: 0, fontFamily: "var(--font-heading)" }}>
-            {language === "bn" ? "কোর মাইক্রোসার্ভিস নোডসমূহ" : "Core Subsystems & Microservices"}
-          </h3>
-          <span style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
-            6/6 {language === "bn" ? "নোড সক্রিয়" : "Nodes Active"}
-          </span>
-        </div>
+      {/* ── Sub-Navigation Pill Bar ── */}
+      <div
+        style={{
+          display: "flex",
+          gap: 6,
+          background: "var(--color-surface)",
+          padding: 6,
+          borderRadius: "var(--radius-lg)",
+          border: "1px solid var(--color-border)",
+          overflowX: "auto",
+        }}
+      >
+        {[
+          { id: "overview", label: "Overview", labelBn: "ওভারভিউ", icon: <LayoutGrid size={14} /> },
+          { id: "roles", label: "Roles & Permissions", labelBn: "ভূমিকা ও পারমিশন", icon: <Shield size={14} /> },
+          { id: "kyc", label: "Verification & KYC", labelBn: "কেওয়াইসি যাচাই", count: pendingKycCount, icon: <UserCheck size={14} /> },
+          { id: "subscription", label: "Subscription & Plans", labelBn: "সাবস্ক্রিপশন প্ল্যানার", icon: <Crown size={14} /> },
+          { id: "security", label: "Security & Policies", labelBn: "নিরাপত্তা পলিসি", icon: <Lock size={14} /> },
+        ].map((tab) => {
+          const isActive = activeSubTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveSubTab(tab.id as any)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 7,
+                padding: "8px 14px",
+                borderRadius: "var(--radius-md)",
+                border: "none",
+                background: isActive ? "var(--color-brand)" : "transparent",
+                color: isActive ? "#FFFFFF" : "var(--color-text-secondary)",
+                fontSize: 12.5,
+                fontWeight: isActive ? 700 : 500,
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                transition: "all 0.15s ease",
+              }}
+            >
+              {tab.icon}
+              <span>{language === "bn" ? tab.labelBn : tab.label}</span>
+              {typeof tab.count === "number" && tab.count > 0 && (
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 800,
+                    padding: "1px 6px",
+                    borderRadius: 999,
+                    background: isActive ? "#FFFFFF" : "#F59E0B",
+                    color: isActive ? "var(--color-brand)" : "#FFFFFF",
+                  }}
+                >
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 10 }}>
-          {INITIAL_SERVICES.map((srv) => (
+      {/* ── SUB-TAB 1: OVERVIEW ── */}
+      {activeSubTab === "overview" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 12 }}>
+            {/* Left Card: Quick KYC Approvals */}
             <div
-              key={srv.id}
               style={{
                 background: "var(--color-surface)",
                 border: "1px solid var(--color-border)",
-                borderRadius: "var(--radius-lg)",
-                padding: "14px 16px",
-                display: "flex",
-                flexDirection: "column",
-                gap: 10,
+                borderRadius: "var(--radius-xl)",
+                padding: "18px 20px",
               }}
             >
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <UserCheck size={18} style={{ color: "var(--color-brand)" }} />
+                  <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+                    {language === "bn" ? "অপেক্ষমান কেওয়াইসি পর্যালোচনা" : "Pending KYC Queue"}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setActiveSubTab("kyc")}
+                  style={{ background: "none", border: "none", color: "var(--color-brand)", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+                >
+                  {language === "bn" ? "সব দেখুন" : "View All"} ({pendingKycCount})
+                </button>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {kycList.filter((k) => k.status === "pending").slice(0, 3).map((item) => (
+                  <div
+                    key={item.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      background: "var(--color-surface-hover)",
+                      border: "1px solid var(--color-border-subtle)",
+                      gap: 8,
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
+                        {language === "bn" ? item.applicantNameBn : item.applicantName}
+                      </div>
+                      <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 2 }}>
+                        {item.type === "staff" ? "Staff" : "Member"} • {language === "bn" ? item.branchBn : item.branch}
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          padding: "2px 6px",
+                          borderRadius: 4,
+                          background: "rgba(16, 185, 129, 0.12)",
+                          color: "#10B981",
+                        }}
+                      >
+                        {item.score}% Match
+                      </span>
+                      <button
+                        onClick={() => handleApproveKyc(item.id, item.applicantName)}
+                        style={{
+                          padding: "5px 10px",
+                          borderRadius: "var(--radius-sm)",
+                          background: "var(--color-brand)",
+                          color: "#FFFFFF",
+                          border: "none",
+                          fontSize: 11.5,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                        }}
+                      >
+                        {language === "bn" ? "অনুমোদন" : "Approve"}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Card: Subscription & Quotas */}
+            <div
+              style={{
+                background: "var(--color-surface)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-xl)",
+                padding: "18px 20px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Crown size={18} style={{ color: "#8B5CF6" }} />
+                  <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+                    {language === "bn" ? "সাবস্ক্রিপশন ও ক্যাপাসিটি কোটা" : "Workspace Plan Quotas"}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setActiveSubTab("subscription")}
+                  style={{ background: "none", border: "none", color: "var(--color-brand)", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+                >
+                  {language === "bn" ? "প্ল্যান পরিচালনা" : "Manage"}
+                </button>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {/* Meter 1: Branches */}
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+                    <span style={{ color: "var(--color-text-secondary)", fontWeight: 600 }}>
+                      {language === "bn" ? "আঞ্চলিক শাখা ব্যবহার" : "Branch Locations"}
+                    </span>
+                    <span style={{ fontWeight: 700, color: "var(--color-text-primary)" }}>7 of 25 (28%)</span>
+                  </div>
+                  <div style={{ width: "100%", height: 6, borderRadius: 99, background: "var(--color-surface-hover)", overflow: "hidden" }}>
+                    <div style={{ width: "28%", height: "100%", background: "#3B82F6", borderRadius: 99 }} />
+                  </div>
+                </div>
+
+                {/* Meter 2: Members */}
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+                    <span style={{ color: "var(--color-text-secondary)", fontWeight: 600 }}>
+                      {language === "bn" ? "নিবন্ধিত সমিতি সদস্য" : "Enrolled Members"}
+                    </span>
+                    <span style={{ fontWeight: 700, color: "var(--color-text-primary)" }}>1,840 (Unlimited)</span>
+                  </div>
+                  <div style={{ width: "100%", height: 6, borderRadius: 99, background: "var(--color-surface-hover)", overflow: "hidden" }}>
+                    <div style={{ width: "36%", height: "100%", background: "#10B981", borderRadius: 99 }} />
+                  </div>
+                </div>
+
+                {/* Meter 3: SMS */}
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+                    <span style={{ color: "var(--color-text-secondary)", fontWeight: 600 }}>
+                      {language === "bn" ? "এসএমএস ওটিপি ক্রেডিট ব্যালেন্স" : "SMS & WhatsApp OTP Credits"}
+                    </span>
+                    <span style={{ fontWeight: 700, color: "var(--color-text-primary)" }}>{smsCredits.toLocaleString()} left</span>
+                  </div>
+                  <div style={{ width: "100%", height: 6, borderRadius: 99, background: "var(--color-surface-hover)", overflow: "hidden" }}>
+                    <div style={{ width: `${(smsCredits / 50000) * 100}%`, height: "100%", background: "#8B5CF6", borderRadius: 99 }} />
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 4 }}>
+                  <button
+                    onClick={handleAddSmsCredits}
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 11.5,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
+                    <Plus size={13} />
+                    <span>{language === "bn" ? "৫,০০০ এসএমএস টপ-আপ করুন" : "Top Up 5,000 SMS"}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── SUB-TAB 2: ROLES & RBAC ── */}
+      {activeSubTab === "roles" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {/* Role Hierarchy Specs */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
+            {[
+              {
+                role: "Founder",
+                roleBn: "প্রতিষ্ঠাতা",
+                desc: "Full root access, legal governance, multi-branch vault control, financial audits.",
+                badge: "Superuser",
+                color: "#8B5CF6",
+                icon: <Crown size={16} />,
+              },
+              {
+                role: "Admin",
+                roleBn: "প্রশাসক",
+                desc: "Branch setup, member approvals, KYC validation, platform compliance.",
+                badge: "Operations",
+                color: "#0F5BE4",
+                icon: <Shield size={16} />,
+              },
+              {
+                role: "Branch Manager",
+                roleBn: "শাখা ব্যবস্থাপক",
+                desc: "Local vault custody, loan approvals up to ৳500K, teller authorization.",
+                badge: "Regional",
+                color: "#10B981",
+                icon: <Briefcase size={16} />,
+              },
+              {
+                role: "Cashier",
+                roleBn: "ক্যাশিয়ার",
+                desc: "Cash drawer in/out, savings deposits, daily collection ledger, member receipts.",
+                badge: "Teller",
+                color: "#EA580C",
+                icon: <BadgeDollarSign size={16} />,
+              },
+            ].map((r, i) => (
+              <div
+                key={i}
+                style={{
+                  background: "var(--color-surface)",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "var(--radius-lg)",
+                  padding: "14px 16px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 6,
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, color: r.color }}>
+                    {r.icon}
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+                      {language === "bn" ? r.roleBn : r.role}
+                    </span>
+                  </div>
+                  <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: `${r.color}18`, color: r.color, fontWeight: 700 }}>
+                    {r.badge}
+                  </span>
+                </div>
+                <p style={{ margin: 0, fontSize: 11, color: "var(--color-text-muted)", lineHeight: 1.4 }}>
+                  {r.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Staff Members List */}
+          <div
+            style={{
+              background: "var(--color-surface)",
+              border: "1px solid var(--color-border)",
+              borderRadius: "var(--radius-xl)",
+              padding: "18px 20px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+                  {language === "bn" ? "নিযুক্ত কর্মকর্তা ও ভূমিকা পরিবর্তন" : "Staff Directory & Role Assignments"}
+                </h3>
+                <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--color-text-muted)" }}>
+                  {language === "bn"
+                    ? "সরাসরি যেকোনো কর্মীর রোল পরিবর্তন করুন অথবা পারমিশন অ্যাডজাস্ট করুন"
+                    : "Adjust administrative access levels or reassign staff roles across branches"}
+                </p>
+              </div>
+
+              <button
+                onClick={() => setIsInviteOpen(true)}
+                style={{
+                  padding: "7px 12px",
+                  borderRadius: "var(--radius-md)",
+                  background: "var(--color-brand)",
+                  color: "#FFFFFF",
+                  border: "none",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <Plus size={14} />
+                <span>{language === "bn" ? "নতুন কর্মী যুক্ত করুন" : "Add Staff"}</span>
+              </button>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {staffList.map((staff) => (
+                <div
+                  key={staff.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "12px 14px",
+                    borderRadius: "var(--radius-md)",
+                    background: "var(--color-surface-hover)",
+                    border: "1px solid var(--color-border-subtle)",
+                    flexWrap: "wrap",
+                    gap: 10,
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: "50%",
+                        background: staff.role === "founder" ? "#8B5CF6" : staff.role === "admin" ? "#0F5BE4" : "#10B981",
+                        color: "#FFFFFF",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 14,
+                        fontWeight: 700,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {staff.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--color-text-primary)" }}>
+                        {language === "bn" ? staff.nameBn : staff.name}
+                      </div>
+                      <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 2 }}>
+                        {staff.email} • {staff.phone} • {language === "bn" ? staff.branchBn : staff.branch}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontSize: 11, color: "var(--color-text-muted)", fontFamily: "var(--font-mono, monospace)" }}>
+                      {staff.lastActive}
+                    </span>
+                    <select
+                      value={staff.role}
+                      disabled={staff.role === "founder"}
+                      onChange={(e) => handleRoleChange(staff.id, e.target.value as any)}
+                      style={{
+                        padding: "6px 10px",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--color-border)",
+                        background: "var(--color-surface)",
+                        color: "var(--color-text-primary)",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: staff.role === "founder" ? "not-allowed" : "pointer",
+                        outline: "none",
+                      }}
+                    >
+                      <option value="founder">Founder</option>
+                      <option value="admin">Admin</option>
+                      <option value="manager">Branch Manager</option>
+                      <option value="cashier">Cashier</option>
+                    </select>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── SUB-TAB 3: KYC & VERIFICATION ── */}
+      {activeSubTab === "kyc" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div
+            style={{
+              background: "var(--color-surface)",
+              border: "1px solid var(--color-border)",
+              borderRadius: "var(--radius-xl)",
+              padding: "18px 20px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+                  {language === "bn" ? "জাতীয় পরিচয়পত্র ও কেওয়াইসি যাচাইকরণ সারি" : "EC National ID & KYC Verification Pipeline"}
+                </h3>
+                <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--color-text-muted)" }}>
+                  {language === "bn"
+                    ? "নতুন সদস্য ও ফিল্ড কর্মকর্তাদের বায়োমেট্রিক ও এনআইডি ডকুমেন্ট যাচাই"
+                    : "Automated optical character recognition and manual reviewer sign-off"}
+                </p>
+              </div>
+
+              <div style={{ display: "flex", gap: 6 }}>
+                <span
+                  style={{
+                    padding: "4px 10px",
+                    borderRadius: 999,
+                    background: "rgba(245, 158, 11, 0.12)",
+                    color: "#F59E0B",
+                    fontSize: 11,
+                    fontWeight: 700,
+                  }}
+                >
+                  {pendingKycCount} {language === "bn" ? "অপেক্ষমান" : "Pending Queue"}
+                </span>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {kycList.map((item) => (
+                <div
+                  key={item.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "14px 16px",
+                    borderRadius: "var(--radius-lg)",
+                    background: "var(--color-surface-hover)",
+                    border: "1px solid var(--color-border-subtle)",
+                    flexWrap: "wrap",
+                    gap: 12,
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                    <div
+                      style={{
+                        width: 38,
+                        height: 38,
+                        borderRadius: "var(--radius-md)",
+                        background: item.type === "staff" ? "rgba(15, 91, 228, 0.12)" : "rgba(16, 185, 129, 0.12)",
+                        color: item.type === "staff" ? "#0F5BE4" : "#10B981",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <UserCheck size={18} />
+                    </div>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text-primary)" }}>
+                          {language === "bn" ? item.applicantNameBn : item.applicantName}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 10,
+                            padding: "1px 6px",
+                            borderRadius: 4,
+                            background: item.type === "staff" ? "rgba(15, 91, 228, 0.15)" : "rgba(16, 185, 129, 0.15)",
+                            color: item.type === "staff" ? "#0F5BE4" : "#10B981",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {language === "bn" ? item.typeBn : item.type.toUpperCase()}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 10,
+                            padding: "1px 6px",
+                            borderRadius: 4,
+                            background: "rgba(16, 185, 129, 0.1)",
+                            color: "#10B981",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {item.score}% Confidence
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 11.5, color: "var(--color-text-muted)", marginTop: 4 }}>
+                        NID: <span style={{ fontFamily: "var(--font-mono, monospace)", color: "var(--color-text-secondary)", fontWeight: 600 }}>{item.nid}</span> • {item.phone} • {language === "bn" ? item.branchBn : item.branch}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    {item.status === "pending" ? (
+                      <>
+                        <button
+                          onClick={() => handleRejectKyc(item.id, item.applicantName)}
+                          style={{
+                            padding: "7px 12px",
+                            borderRadius: "var(--radius-md)",
+                            border: "1px solid var(--color-border)",
+                            background: "transparent",
+                            color: "var(--color-text-muted)",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          {language === "bn" ? "প্রত্যাখ্যান" : "Decline"}
+                        </button>
+                        <button
+                          onClick={() => handleApproveKyc(item.id, item.applicantName)}
+                          style={{
+                            padding: "7px 14px",
+                            borderRadius: "var(--radius-md)",
+                            border: "none",
+                            background: "#10B981",
+                            color: "#FFFFFF",
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 5,
+                          }}
+                        >
+                          <Check size={14} />
+                          <span>{language === "bn" ? "যাচাই অনুমোদন" : "Approve KYC"}</span>
+                        </button>
+                      </>
+                    ) : item.status === "approved" ? (
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#10B981", display: "flex", alignItems: "center", gap: 4 }}>
+                        <CheckCircle2 size={15} />
+                        {language === "bn" ? "যাচাই সম্পন্ন" : "Verified & Active"}
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#EF4444", display: "flex", alignItems: "center", gap: 4 }}>
+                        <AlertCircle size={15} />
+                        {language === "bn" ? "প্রত্যাখ্যাত" : "Declined"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── SUB-TAB 4: SUBSCRIPTION & PLANNER ── */}
+      {activeSubTab === "subscription" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {/* Active Plan Banner */}
+          <div
+            style={{
+              background: "linear-gradient(135deg, rgba(15, 91, 228, 0.12) 0%, rgba(139, 92, 246, 0.12) 100%)",
+              border: "1px solid rgba(15, 91, 228, 0.3)",
+              borderRadius: "var(--radius-xl)",
+              padding: "20px 22px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 14,
+            }}
+          >
+            <div>
+              <span
+                style={{
+                  fontSize: 10.5,
+                  fontWeight: 800,
+                  textTransform: "uppercase",
+                  padding: "3px 8px",
+                  borderRadius: 4,
+                  background: "var(--color-brand)",
+                  color: "#FFFFFF",
+                }}
+              >
+                Current Workspace Plan
+              </span>
+              <h3 style={{ margin: "8px 0 2px", fontSize: 20, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+                Enterprise Multi-Hub Suite
+              </h3>
+              <p style={{ margin: 0, fontSize: 12.5, color: "var(--color-text-secondary)" }}>
+                Annual cooperative license • BDT 1,20,000 / year • Valid through November 12, 2027
+              </p>
+            </div>
+
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                onClick={handleAddSmsCredits}
+                style={{
+                  padding: "8px 14px",
+                  borderRadius: "var(--radius-md)",
+                  border: "1px solid var(--color-border)",
+                  background: "var(--color-surface)",
+                  color: "var(--color-text-primary)",
+                  fontSize: 12.5,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                +5,000 SMS Credits
+              </button>
+              <button
+                onClick={() => success("Plan Confirmed", "Your Enterprise tier is already at peak cooperative capacity.")}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: "var(--radius-md)",
+                  background: "var(--color-brand)",
+                  color: "#FFFFFF",
+                  border: "none",
+                  fontSize: 12.5,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Extend License
+              </button>
+            </div>
+          </div>
+
+          {/* Pricing Tiers Grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 12 }}>
+            {plans.map((p) => (
+              <div
+                key={p.id}
+                style={{
+                  background: "var(--color-surface)",
+                  border: p.current ? "2px solid var(--color-brand)" : "1px solid var(--color-border)",
+                  borderRadius: "var(--radius-xl)",
+                  padding: "20px 18px",
+                  display: "flex",
+                  flexDirection: "column",
+                  position: "relative",
+                }}
+              >
+                {p.current && (
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: -10,
+                      right: 18,
+                      fontSize: 10,
+                      fontWeight: 800,
+                      textTransform: "uppercase",
+                      padding: "2px 8px",
+                      borderRadius: 999,
+                      background: "var(--color-brand)",
+                      color: "#FFFFFF",
+                    }}
+                  >
+                    Active Tier
+                  </span>
+                )}
+
+                <div style={{ fontSize: 15, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+                  {language === "bn" ? p.tierBn : p.tier}
+                </div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)", margin: "8px 0" }}>
+                  {p.price} <span style={{ fontSize: 12, fontWeight: 500, color: "var(--color-text-muted)" }}>{p.period}</span>
+                </div>
+
+                <div style={{ fontSize: 11.5, color: "var(--color-brand)", fontWeight: 600, marginBottom: 12 }}>
+                  {p.branchLimit} Branches • {p.memberLimit} • {p.smsCredits}
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, marginBottom: 16 }}>
+                  {p.features.map((f, idx) => (
+                    <div key={idx} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, color: "var(--color-text-secondary)" }}>
+                      <Check size={13} style={{ color: "#10B981", flexShrink: 0 }} />
+                      <span>{f}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  disabled={p.current}
+                  onClick={() => success("Tier Selected", `You have selected the ${p.tier} plan.`)}
+                  style={{
+                    width: "100%",
+                    padding: "9px",
+                    borderRadius: "var(--radius-md)",
+                    border: p.current ? "none" : "1px solid var(--color-border)",
+                    background: p.current ? "var(--color-surface-hover)" : "var(--color-brand)",
+                    color: p.current ? "var(--color-text-muted)" : "#FFFFFF",
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    cursor: p.current ? "default" : "pointer",
+                  }}
+                >
+                  {p.current ? (language === "bn" ? "বর্তমান প্ল্যান" : "Current Plan") : (language === "bn" ? "প্ল্যানে পরিবর্তন করুন" : "Switch Plan")}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── SUB-TAB 5: SECURITY & POLICIES ── */}
+      {activeSubTab === "security" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div
+            style={{
+              background: "var(--color-surface)",
+              border: "1px solid var(--color-border)",
+              borderRadius: "var(--radius-xl)",
+              padding: "18px 20px",
+            }}
+          >
+            <h3 style={{ margin: "0 0 4px", fontSize: 15, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+              {language === "bn" ? "ওয়ার্কস্পেস নিরাপত্তা ও প্রশাসনিক নীতি" : "Workspace Security & Institutional Policies"}
+            </h3>
+            <p style={{ margin: "0 0 16px", fontSize: 12, color: "var(--color-text-muted)" }}>
+              {language === "bn"
+                ? "সমগ্র প্ল্যাটফর্মের আর্থিক লেনদেন সুরক্ষা ও কর্মী এক্সেস নিয়ন্ত্রণ"
+                : "Institutional guardrails enforcing dual-factor verification and access limitations"}
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {/* Policy 1: 2FA */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "12px 14px",
+                  borderRadius: "var(--radius-md)",
+                  background: "var(--color-surface-hover)",
+                  border: "1px solid var(--color-border-subtle)",
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
+                    {language === "bn" ? "ম্যানেজার ও ক্যাশিয়ারদের জন্য টু-ফ্যাক্টর (2FA) বাধ্যতামূলক" : "Enforce Two-Factor Authentication (2FA)"}
+                  </div>
+                  <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 2 }}>
+                    Mandatory OTP on manager logins before unlocking physical vault registers
+                  </div>
+                </div>
+                <div
+                  onClick={() => setTwoFactorEnforced(!twoFactorEnforced)}
+                  style={{
+                    width: 42,
+                    height: 24,
+                    borderRadius: 999,
+                    background: twoFactorEnforced ? "var(--color-brand)" : "var(--color-border)",
+                    padding: 2,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    transition: "background 0.2s ease",
+                    flexShrink: 0,
+                  }}
+                >
+                  <motion.div
+                    animate={{ x: twoFactorEnforced ? 18 : 0 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    style={{ width: 20, height: 20, borderRadius: "50%", background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.25)" }}
+                  />
+                </div>
+              </div>
+
+              {/* Policy 2: IP Lock */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "12px 14px",
+                  borderRadius: "var(--radius-md)",
+                  background: "var(--color-surface-hover)",
+                  border: "1px solid var(--color-border-subtle)",
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
+                    {language === "bn" ? "শাখা আইপি জিও-ফেন্সিং লক" : "Branch Office IP & Geofencing Restriction"}
+                  </div>
+                  <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 2 }}>
+                    Disallow financial disbursals from outside authenticated branch network addresses
+                  </div>
+                </div>
+                <div
+                  onClick={() => setIpLockEnabled(!ipLockEnabled)}
+                  style={{
+                    width: 42,
+                    height: 24,
+                    borderRadius: 999,
+                    background: ipLockEnabled ? "var(--color-brand)" : "var(--color-border)",
+                    padding: 2,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    transition: "background 0.2s ease",
+                    flexShrink: 0,
+                  }}
+                >
+                  <motion.div
+                    animate={{ x: ipLockEnabled ? 18 : 0 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    style={{ width: 20, height: 20, borderRadius: "50%", background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.25)" }}
+                  />
+                </div>
+              </div>
+
+              {/* Policy 3: Auto Freeze */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "12px 14px",
+                  borderRadius: "var(--radius-md)",
+                  background: "var(--color-surface-hover)",
+                  border: "1px solid var(--color-border-subtle)",
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
+                    {language === "bn" ? "প্রতিদিন রাত ১০:০০টায় স্বয়ংক্রিয় ভল্ট ফ্রিজ" : "Nightly 10:00 PM BST Automated Vault Lock"}
+                  </div>
+                  <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 2 }}>
+                    Protects off-hours drawers until manager reconciliation next morning
+                  </div>
+                </div>
+                <div
+                  onClick={() => setAutoVaultFreeze(!autoVaultFreeze)}
+                  style={{
+                    width: 42,
+                    height: 24,
+                    borderRadius: 999,
+                    background: autoVaultFreeze ? "var(--color-brand)" : "var(--color-border)",
+                    padding: 2,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    transition: "background 0.2s ease",
+                    flexShrink: 0,
+                  }}
+                >
+                  <motion.div
+                    animate={{ x: autoVaultFreeze ? 18 : 0 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    style={{ width: 20, height: 20, borderRadius: "50%", background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.25)" }}
+                  />
+                </div>
+              </div>
+
+              {/* Policy 4: Dual Admin */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "12px 14px",
+                  borderRadius: "var(--radius-md)",
+                  background: "var(--color-surface-hover)",
+                  border: "1px solid var(--color-border-subtle)",
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
+                    {language === "bn" ? "৩ লক্ষ টাকার অধিক ঋণে যৌথ অনুমোদন বাধ্যতামূলক" : "Dual-Admin Authorization for Loans > ৳300,000"}
+                  </div>
+                  <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 2 }}>
+                    High-capital disbursements require both Founder and Central Admin confirmation
+                  </div>
+                </div>
+                <div
+                  onClick={() => setDualAdminApproval(!dualAdminApproval)}
+                  style={{
+                    width: 42,
+                    height: 24,
+                    borderRadius: 999,
+                    background: dualAdminApproval ? "var(--color-brand)" : "var(--color-border)",
+                    padding: 2,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    transition: "background 0.2s ease",
+                    flexShrink: 0,
+                  }}
+                >
+                  <motion.div
+                    animate={{ x: dualAdminApproval ? 18 : 0 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    style={{ width: 20, height: 20, borderRadius: "50%", background: "#FFFFFF", boxShadow: "0 1px 3px rgba(0,0,0,0.25)" }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Emergency Action Buttons */}
+            <div style={{ marginTop: 18, paddingTop: 14, borderTop: "1px solid var(--color-border-subtle)", display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <button
+                onClick={handleTerminateRemoteSessions}
+                style={{
+                  padding: "8px 14px",
+                  borderRadius: "var(--radius-md)",
+                  border: "1px solid rgba(239, 68, 68, 0.4)",
+                  background: "rgba(239, 68, 68, 0.08)",
+                  color: "#EF4444",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                {language === "bn" ? "সকল দূরবর্তী সেশন ফোর্স লগআউট" : "Force Terminate Remote Sessions"}
+              </button>
+              <button
+                onClick={() => success("Audit Logs Generated", "Full platform security compliance log exported.")}
+                style={{
+                  padding: "8px 14px",
+                  borderRadius: "var(--radius-md)",
+                  border: "1px solid var(--color-border)",
+                  background: "transparent",
+                  color: "var(--color-text-secondary)",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                {language === "bn" ? "সিকিউরিটি অডিট এক্সপোর্ট" : "Export Security Audit Log"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: Invite Staff / Admin ── */}
+      <AnimatePresence>
+        {isInviteOpen && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0, 0, 0, 0.75)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
+              zIndex: 9999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "16px",
+            }}
+            onClick={() => setIsInviteOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 16 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: "100%",
+                maxWidth: 440,
+                background: "var(--color-surface)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-xl)",
+                boxShadow: "var(--shadow-modal)",
+                padding: "22px 20px",
+                maxHeight: "90vh",
+                overflowY: "auto",
+                boxSizing: "border-box",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <div
                     style={{
-                      width: 34,
-                      height: 34,
+                      width: 40,
+                      height: 40,
                       borderRadius: "var(--radius-md)",
-                      background: "rgba(15, 91, 228, 0.1)",
+                      background: "rgba(15, 91, 228, 0.12)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -4756,367 +5853,191 @@ const ConsoleTab: React.FC = () => {
                       flexShrink: 0,
                     }}
                   >
-                    {srv.icon}
+                    <UserPlus size={20} />
                   </div>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
-                      {language === "bn" ? srv.nameBn : srv.name}
-                    </div>
-                    <div style={{ fontSize: 10.5, color: "var(--color-text-muted)", marginTop: 2 }}>
-                      {srv.category} • <span style={{ fontFamily: "var(--font-mono, monospace)" }}>{srv.version}</span>
-                    </div>
+                    <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
+                      {language === "bn" ? "নতুন কর্মী আমন্ত্রণ" : "Invite Staff Member"}
+                    </h3>
+                    <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--color-text-muted)" }}>
+                      {language === "bn" ? "ভূমিকা ও শাখা বরাদ্দ করুন" : "Assign designated administrative privileges"}
+                    </p>
                   </div>
                 </div>
 
-                <span
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 4,
-                    padding: "2px 7px",
-                    borderRadius: 999,
-                    fontSize: 10,
-                    fontWeight: 700,
-                    background: "rgba(16, 185, 129, 0.12)",
-                    color: "#10b981",
-                    border: "1px solid rgba(16, 185, 129, 0.25)",
-                    whiteSpace: "nowrap",
-                  }}
+                <button
+                  onClick={() => setIsInviteOpen(false)}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-muted)", padding: 4 }}
                 >
-                  ● {language === "bn" ? "সক্রিয়" : "Operational"}
-                </span>
+                  <X size={18} />
+                </button>
               </div>
 
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "6px 10px",
-                  borderRadius: "var(--radius-md)",
-                  background: "var(--color-surface-hover)",
-                  fontSize: 11,
-                  color: "var(--color-text-secondary)",
-                }}
-              >
-                <span>{language === "bn" ? "আপটাইম" : "Uptime"}: <strong style={{ color: "var(--color-text-primary)" }}>{srv.uptime}</strong></span>
-                <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
-                  {language === "bn" ? "ল্যাটেন্সি" : "Ping"}: <strong style={{ color: "#10b981" }}>{srv.latency}</strong>
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+              <form onSubmit={handleInviteSubmit}>
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
+                    {language === "bn" ? "পূর্ণ নাম" : "Full Name"} *
+                  </label>
+                  <input
+                    required
+                    placeholder="e.g., Mohammad Arifuzzaman"
+                    value={inviteName}
+                    onChange={(e) => setInviteName(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
 
-      {/* ── Maintenance & Disaster Recovery Operations ── */}
-      <div>
-        <h3 style={{ fontSize: 14.5, fontWeight: 700, color: "var(--color-text-primary)", margin: "0 0 10px", fontFamily: "var(--font-heading)" }}>
-          {language === "bn" ? "অ্যাডমিন রক্ষণাবেক্ষণ ও ব্যাকআপ অ্যাকশন" : "System Administration & Maintenance Operations"}
-        </h3>
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
+                    {language === "bn" ? "অফিসিয়াল ইমেইল" : "Official Email"} *
+                  </label>
+                  <input
+                    required
+                    type="email"
+                    placeholder="e.g., arif@dsbd.com"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
-          {/* Action 1: Manual Backup */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleBackupNow}
-            style={{
-              padding: "14px 16px",
-              borderRadius: "var(--radius-lg)",
-              background: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              textAlign: "left",
-              cursor: "pointer",
-              display: "flex",
-              flexDirection: "column",
-              gap: 4,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--color-brand)" }}>
-              <HardDrive size={16} />
-              <span style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
-                {language === "bn" ? "ডাটাবেস ব্যাকআপ তৈরি" : "Create Snapshot"}
-              </span>
-            </div>
-            <p style={{ margin: 0, fontSize: 11, color: "var(--color-text-muted)" }}>
-              {language === "bn" ? "ম্যানুয়াল ডিফারেনশিয়াল ভল্ট ব্যাকআপ নিন" : "Generate manual encrypted ledger snapshot"}
-            </p>
-          </motion.button>
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
+                    {language === "bn" ? "ফোন নম্বর" : "Contact Phone"}
+                  </label>
+                  <input
+                    placeholder="e.g., +880 1711-223344"
+                    value={invitePhone}
+                    onChange={(e) => setInvitePhone(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface-hover)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
 
-          {/* Action 2: Purge Cache */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handlePurgeCache}
-            style={{
-              padding: "14px 16px",
-              borderRadius: "var(--radius-lg)",
-              background: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              textAlign: "left",
-              cursor: "pointer",
-              display: "flex",
-              flexDirection: "column",
-              gap: 4,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#F59E0B" }}>
-              <Zap size={16} />
-              <span style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
-                {language === "bn" ? "ক্যাশ মেমোরি খালি" : "Purge Redis Cache"}
-              </span>
-            </div>
-            <p style={{ margin: 0, fontSize: 11, color: "var(--color-text-muted)" }}>
-              {language === "bn" ? "কোয়েরি ক্যাশ ও টেম্পোরারি সেশন ফ্লাশ করুন" : "Flush query cache and session buffers"}
-            </p>
-          </motion.button>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
+                      {language === "bn" ? "ভূমিকা (Role)" : "Staff Role"}
+                    </label>
+                    <select
+                      value={inviteRole}
+                      onChange={(e) => setInviteRole(e.target.value as any)}
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--color-border)",
+                        background: "var(--color-surface-hover)",
+                        color: "var(--color-text-primary)",
+                        fontSize: 13,
+                        outline: "none",
+                        boxSizing: "border-box",
+                      }}
+                    >
+                      <option value="admin">Admin</option>
+                      <option value="manager">Branch Manager</option>
+                      <option value="cashier">Cashier</option>
+                    </select>
+                  </div>
 
-          {/* Action 3: Verify Integrity */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleVerifyIntegrity}
-            style={{
-              padding: "14px 16px",
-              borderRadius: "var(--radius-lg)",
-              background: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              textAlign: "left",
-              cursor: "pointer",
-              display: "flex",
-              flexDirection: "column",
-              gap: 4,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#10B981" }}>
-              <ShieldCheck size={16} />
-              <span style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
-                {language === "bn" ? "লেজার চেকসাম যাচাই" : "Verify Integrity"}
-              </span>
-            </div>
-            <p style={{ margin: 0, fontSize: 11, color: "var(--color-text-muted)" }}>
-              {language === "bn" ? "শাখা ও মূল ভল্টের চেকসাম মেলান" : "Reconcile checksums across 7 branches"}
-            </p>
-          </motion.button>
+                  <div>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: 4 }}>
+                      {language === "bn" ? "শাখা বরাদ্দ" : "Branch"}
+                    </label>
+                    <select
+                      value={inviteBranch}
+                      onChange={(e) => setInviteBranch(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--color-border)",
+                        background: "var(--color-surface-hover)",
+                        color: "var(--color-text-primary)",
+                        fontSize: 13,
+                        outline: "none",
+                        boxSizing: "border-box",
+                      }}
+                    >
+                      <option value="Central Somiti (HQ)">Central Somiti (HQ)</option>
+                      <option value="Motijheel Financial Branch">Motijheel Financial</option>
+                      <option value="Dhanmondi Cooperative">Dhanmondi Cooperative</option>
+                      <option value="Agrabad Chittagong Hub">Agrabad Chittagong</option>
+                      <option value="Uttara Metropolitan Branch">Uttara Metropolitan</option>
+                      <option value="Sylhet Sadar Branch">Sylhet Sadar</option>
+                      <option value="Savar Micro-Branch">Savar Micro</option>
+                    </select>
+                  </div>
+                </div>
 
-          {/* Action 4: Maintenance Toggle */}
-          <div
-            style={{
-              padding: "14px 16px",
-              borderRadius: "var(--radius-lg)",
-              background: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 10,
-            }}
-          >
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-primary)" }}>
-                {language === "bn" ? "রক্ষণাবেক্ষণ মোড" : "Maintenance Mode"}
-              </div>
-              <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--color-text-muted)" }}>
-                {maintenanceMode
-                  ? (language === "bn" ? "রিড-অনলি মোড সক্রিয়" : "Read-only mode active")
-                  : (language === "bn" ? "সব ট্রানজ্যাকশন স্বাভাবিক" : "Normal operations")}
-              </p>
-            </div>
-            <div
-              onClick={() => {
-                const next = !maintenanceMode;
-                setMaintenanceMode(next);
-                if (next) {
-                  info(
-                    language === "bn" ? "রক্ষণাবেক্ষণ মোড চালু" : "Maintenance Mode On",
-                    language === "bn" ? "শাখা নোডগুলো রিড-অনলি মোডে রয়েছে।" : "Branches restricted to read-only."
-                  );
-                } else {
-                  success(
-                    language === "bn" ? "স্বাভাবিক মোড সক্রিয়" : "Normal Mode Resumed",
-                    language === "bn" ? "সকল নোড লেনদেনের জন্য উন্মুক্ত।" : "All network nodes accepting transactions."
-                  );
-                }
-              }}
-              style={{
-                width: 42,
-                height: 24,
-                borderRadius: 999,
-                background: maintenanceMode ? "#F59E0B" : "var(--color-border)",
-                padding: 2,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                transition: "background 0.2s ease",
-                flexShrink: 0,
-              }}
-            >
-              <motion.div
-                animate={{ x: maintenanceMode ? 18 : 0 }}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: "50%",
-                  background: "#FFFFFF",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.25)",
-                }}
-              />
-            </div>
+                <div style={{ display: "flex", gap: 10 }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsInviteOpen(false)}
+                    style={{
+                      padding: "10px 16px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--color-border)",
+                      background: "transparent",
+                      color: "var(--color-text-secondary)",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {language === "bn" ? "বাতিল" : "Cancel"}
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      flex: 1,
+                      padding: "10px 16px",
+                      borderRadius: "var(--radius-md)",
+                      border: "none",
+                      background: "var(--color-brand)",
+                      color: "#FFFFFF",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {language === "bn" ? "আমন্ত্রণ পাঠান" : "Send Invitation"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
           </div>
-        </div>
-      </div>
-
-      {/* ── Security & System Audit Log Stream ── */}
-      <div
-        style={{
-          background: "var(--color-surface)",
-          border: "1px solid var(--color-border)",
-          borderRadius: "var(--radius-xl)",
-          padding: "18px 20px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Terminal size={18} style={{ color: "var(--color-brand)" }} />
-            <h3 style={{ fontSize: 14.5, fontWeight: 700, color: "var(--color-text-primary)", margin: 0, fontFamily: "var(--font-heading)" }}>
-              {language === "bn" ? "রিয়েল-টাইম সিস্টেম অডিট ও সিকিউরিটি লগ" : "Real-time System Audit & Security Logs"}
-            </h3>
-            <span
-              style={{
-                fontSize: 10.5,
-                fontWeight: 700,
-                padding: "1px 7px",
-                borderRadius: 999,
-                background: "var(--color-surface-hover)",
-                color: "var(--color-text-secondary)",
-                border: "1px solid var(--color-border-subtle)",
-                fontFamily: "var(--font-mono, monospace)",
-              }}
-            >
-              {filteredLogs.length} events
-            </span>
-          </div>
-
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {(["ALL", "SYSTEM", "DATABASE", "SECURITY"] as const).map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setLogFilter(cat)}
-                style={{
-                  padding: "4px 10px",
-                  borderRadius: "var(--radius-md)",
-                  border: logFilter === cat ? "1px solid var(--color-brand)" : "1px solid var(--color-border-subtle)",
-                  background: logFilter === cat ? "var(--color-brand-soft)" : "transparent",
-                  color: logFilter === cat ? "var(--color-brand)" : "var(--color-text-secondary)",
-                  fontSize: 11,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  fontFamily: "var(--font-mono, monospace)",
-                }}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Terminal log window */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 8,
-            fontFamily: "var(--font-mono, monospace)",
-            fontSize: 11.5,
-            maxHeight: 280,
-            overflowY: "auto",
-            paddingRight: 4,
-          }}
-        >
-          {filteredLogs.map((log) => {
-            const levelColor =
-              log.level === "success"
-                ? "#10B981"
-                : log.level === "security"
-                ? "#8B5CF6"
-                : log.level === "warn"
-                ? "#F59E0B"
-                : "var(--color-brand)";
-            const levelBg =
-              log.level === "success"
-                ? "rgba(16, 185, 129, 0.1)"
-                : log.level === "security"
-                ? "rgba(139, 92, 246, 0.1)"
-                : log.level === "warn"
-                ? "rgba(245, 158, 11, 0.1)"
-                : "rgba(15, 91, 228, 0.1)";
-
-            return (
-              <div
-                key={log.id}
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: 10,
-                  padding: "8px 12px",
-                  borderRadius: "var(--radius-md)",
-                  background: "var(--color-surface-hover)",
-                  border: "1px solid var(--color-border-subtle)",
-                }}
-              >
-                <span style={{ color: "var(--color-text-muted)", fontSize: 10.5, whiteSpace: "nowrap", paddingTop: 1 }}>
-                  {log.time}
-                </span>
-                <span
-                  style={{
-                    fontSize: 9.5,
-                    fontWeight: 700,
-                    padding: "1px 6px",
-                    borderRadius: 4,
-                    background: levelBg,
-                    color: levelColor,
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {log.category}
-                </span>
-                <span style={{ color: "var(--color-text-primary)", fontSize: 11.5, flex: 1, lineHeight: 1.4 }}>
-                  {language === "bn" ? log.messageBn : log.message}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-
-        <div style={{ marginTop: 12, display: "flex", justifyContent: "flex-end" }}>
-          <button
-            onClick={() => {
-              success(
-                language === "bn" ? "লগ ফাইল এক্সপোর্ট করা হয়েছে" : "Audit Logs Exported",
-                language === "bn" ? "ds_system_audit.json ডাউনলোড প্রস্তুত।" : "ds_system_audit.json is ready."
-              );
-            }}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "6px 12px",
-              borderRadius: "var(--radius-md)",
-              border: "1px solid var(--color-border)",
-              background: "transparent",
-              color: "var(--color-text-secondary)",
-              fontSize: 11.5,
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            <Download size={13} />
-            <span>{language === "bn" ? "লগ এক্সপোর্ট (.JSON)" : "Export Logs (.JSON)"}</span>
-          </button>
-        </div>
-      </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
