@@ -4812,159 +4812,71 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
     );
   };
 
-  // ── Console Case Cards Definition (4 Cards per Row Layout) ──
+  // ── Console Case Cards (Icon and Name Only) ──
   const CONSOLE_CARDS = [
     {
       id: "roles",
       title: "Roles & Permissions",
       titleBn: "ভূমিকা ও কর্মী অনুমতি",
-      badge: "Active",
-      badgeBn: "সক্রিয়",
-      badgeColor: "#8B5CF6",
-      statValue: `${staffList.length} Personnel`,
-      statLabel: "4 Access Tiers",
-      statLabelBn: "৪টি রোল স্তর",
-      statColor: "#8B5CF6",
-      desc: "Assign branch managers, set authority tiers and invite personnel",
-      descBn: "শাখা ব্যবস্থাপক নিয়োগ, ভূমিকা নির্ধারণ ও কর্মী আমন্ত্রণ জানান",
-      icon: <Shield size={19} />,
+      icon: <Shield size={24} />,
       iconColor: "#8B5CF6",
       iconBg: "rgba(139, 92, 246, 0.12)",
-      cta: "Manage Roles",
-      ctaBn: "ভূমিকা পরিচালনা",
     },
     {
       id: "kyc",
       title: "KYC & Verification",
       titleBn: "কেওয়াইসি ও যাচাই",
-      badge: pendingKycCount > 0 ? `${pendingKycCount} Queue` : "Verified",
-      badgeBn: pendingKycCount > 0 ? `${pendingKycCount}টি বাকি` : "সম্পন্ন",
-      badgeColor: pendingKycCount > 0 ? "#F59E0B" : "#10B981",
-      statValue: `${pendingKycCount} In Queue`,
-      statLabel: "97.2% Match Avg",
-      statLabelBn: "গড় ম্যাচ স্কোর",
-      statColor: pendingKycCount > 0 ? "#F59E0B" : "#10B981",
-      desc: "Audit national NID cards & approve biometric registrations",
-      descBn: "জাতীয় পরিচয়পত্র ও নতুন আবেদনকারী যাচাই ও অনুমোদন",
-      icon: <UserCheck size={19} />,
+      icon: <UserCheck size={24} />,
       iconColor: "#F59E0B",
       iconBg: "rgba(245, 158, 11, 0.12)",
-      cta: "Review Queue",
-      ctaBn: "কেওয়াইসি কিউ",
     },
     {
       id: "subscription",
       title: "Subscription & Quotas",
       titleBn: "সাবস্ক্রিপশন ও কোটা",
-      badge: "Tier 3",
-      badgeBn: "টিয়ার ৩",
-      badgeColor: "#3B82F6",
-      statValue: "Enterprise Hub",
-      statLabel: "7 of 25 Hubs Used",
-      statLabelBn: "৭/২৫ শাখা ব্যবহৃত",
-      statColor: "#3B82F6",
-      desc: "Manage branch node licenses, quotas & recharge SMS credits",
-      descBn: "শাখা সম্প্রসারণ কোটা, লাইসেন্স ও এসএমএস ওটিপি ব্যালেন্স",
-      icon: <Crown size={19} />,
+      icon: <Crown size={24} />,
       iconColor: "#3B82F6",
       iconBg: "rgba(59, 130, 246, 0.12)",
-      cta: "Manage License",
-      ctaBn: "লাইসেন্স পরিচালনা",
     },
     {
       id: "security",
       title: "Security & Policies",
       titleBn: "নিরাপত্তা ও পলিসি",
-      badge: "Protected",
-      badgeBn: "সুরক্ষিত",
-      badgeColor: "#10B981",
-      statValue: "4 Enforced",
-      statLabel: "2FA & IP Geofenced",
-      statLabelBn: "২এফএ ও আইপি লক",
-      statColor: "#10B981",
-      desc: "Enforce mandatory 2FA, geofenced IP locks & nightly freezes",
-      descBn: "বাধ্যতামূলক টু-ফ্যাক্টর, শাখা আইপি লক ও নৈশ ভল্ট নিরাপত্তা",
-      icon: <Lock size={19} />,
+      icon: <Lock size={24} />,
       iconColor: "#10B981",
       iconBg: "rgba(16, 185, 129, 0.12)",
-      cta: "Configure Policies",
-      ctaBn: "পলিসি কনফিগার",
     },
     {
       id: "branches_case",
       title: "Branch Nodes",
       titleBn: "শাখা নোড ও বরাদ্দ",
-      badge: "7 Hubs",
-      badgeBn: "৭টি শাখা",
-      badgeColor: "#0F5BE4",
-      statValue: "7 Active Hubs",
-      statLabel: "100% Online Sync",
-      statLabelBn: "১০০% লাইভ সিঙ্ক",
-      statColor: "#0F5BE4",
-      desc: "Regional branch status, manager assignments & vault ceilings",
-      descBn: "আঞ্চলিক শাখা কার্যক্ষমতা ও ব্যবস্থাপক তদারকি",
-      icon: <Building2 size={19} />,
+      icon: <Building2 size={24} />,
       iconColor: "#0F5BE4",
       iconBg: "rgba(15, 91, 228, 0.12)",
-      cta: "Inspect Nodes",
-      ctaBn: "শাখা নোড দেখুন",
     },
     {
       id: "vault_case",
       title: "Vault & Liquidity",
       titleBn: "ভল্ট ও তারল্য",
-      badge: "Healthy",
-      badgeBn: "স্থিতিশীল",
-      badgeColor: "#10B981",
-      statValue: "৳2.15 Crore",
-      statLabel: "94.2% Safe Buffer",
-      statLabelBn: "৯৪.২% নিরাপদ বাফার",
-      statColor: "#10B981",
-      desc: "Multi-branch liquidity ratios & cash reserve ceilings",
-      descBn: "আন্তঃশাখা তারল্য অনুপাত ও নগদ অর্থ রিজার্ভ",
-      icon: <Wallet size={19} />,
+      icon: <Wallet size={24} />,
       iconColor: "#10B981",
       iconBg: "rgba(16, 185, 129, 0.12)",
-      cta: "Reconcile Vault",
-      ctaBn: "ভল্ট সমন্বয়",
     },
     {
       id: "audit",
       title: "Audit Trail & Logs",
       titleBn: "অডিট ট্রেইল ও লগ",
-      badge: "Immutable",
-      badgeBn: "অপরিবর্তনীয়",
-      badgeColor: "#64748B",
-      statValue: "1,248 Events",
-      statLabel: "0 Security Alerts",
-      statLabelBn: "০টি নিরাপত্তা সতর্কতা",
-      statColor: "#64748B",
-      desc: "Immutable ledger of role changes, approvals & staff logins",
-      descBn: "ভূমিকা পরিবর্তন, অনুমোদন ও প্ল্যাটফর্ম কার্যকলাপ",
-      icon: <FileText size={19} />,
+      icon: <FileText size={24} />,
       iconColor: "#64748B",
       iconBg: "rgba(100, 116, 139, 0.12)",
-      cta: "View Audit Log",
-      ctaBn: "অডিট লগ দেখুন",
     },
     {
       id: "api_case",
       title: "API & Integrations",
       titleBn: "এপিআই ও ওয়েবহুক",
-      badge: "4 Live",
-      badgeBn: "৪টি লাইভ",
-      badgeColor: "#0F5BE4",
-      statValue: "4 Gateways",
-      statLabel: "99.9% Live SLA",
-      statLabelBn: "৯৯.৯% লাইভ এসএলএ",
-      statColor: "#0F5BE4",
-      desc: "EC National NID bridge, SMS OTP & MFS payment rails",
-      descBn: "এনআইডি ব্রিজ, এসএমএস ওটিপি ও মোবাইল পেমেন্ট",
-      icon: <Zap size={19} />,
+      icon: <Zap size={24} />,
       iconColor: "#0F5BE4",
       iconBg: "rgba(15, 91, 228, 0.12)",
-      cta: "Inspect Gateways",
-      ctaBn: "গেটওয়ে পর্যবেক্ষণ",
     },
   ];
 
@@ -4973,7 +4885,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       {/* ─────────────────────────────────────────────────────────────
-          STATE 1: CARDS ONLY LANDING VIEW (When activeCase === null)
+          STATE 1: CARDS ONLY LANDING VIEW (Icon and Name Only)
           ───────────────────────────────────────────────────────────── */}
       {activeCase === null ? (
         <>
@@ -4994,8 +4906,8 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
               </h2>
               <p style={{ fontSize: 13, color: "var(--color-text-muted)", margin: "4px 0 0" }}>
                 {language === "bn"
-                  ? "অ্যাডমিন ও প্রতিষ্ঠাতা ওয়ার্কস্পেস কন্ট্রোল সেন্টার — নিচের যেকোনো কার্ডে ক্লিক করে সেই বিষয়ে কাজ শুরু করুন"
-                  : "Founder & admin workspace control center — click any card below to launch and work on that specific case"}
+                  ? "অ্যাডমিন ও প্রতিষ্ঠাতা ওয়ার্কস্পেস কন্ট্রোল সেন্টার — যেকোনো মডিউলে ক্লিক করে কাজ শুরু করুন"
+                  : "Founder & admin workspace control center — click any module below to launch that workspace"}
               </p>
             </div>
 
@@ -5020,13 +4932,13 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
             </div>
           </div>
 
-          {/* Cards Only Grid - Strictly 4 Cards in a Row on Every Screen */}
+          {/* Cards Grid - 4 in a row on EVERY screen (Icon and Names Only) */}
           <div className="console-cards-container" style={{ width: "100%", overflowX: "auto", paddingBottom: 6 }}>
             <div
               className="console-cards-grid"
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(4, minmax(210px, 1fr))",
+                gridTemplateColumns: "repeat(4, minmax(180px, 1fr))",
                 gap: 14,
                 width: "100%",
                 boxSizing: "border-box",
@@ -5035,76 +4947,47 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
               {CONSOLE_CARDS.map((card) => (
                 <motion.div
                   key={card.id}
-                  whileHover={{ y: -4, borderColor: card.iconColor, boxShadow: "0 10px 24px rgba(0, 0, 0, 0.14)" }}
+                  whileHover={{ y: -4, borderColor: card.iconColor, boxShadow: "0 10px 24px rgba(0, 0, 0, 0.12)" }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setActiveCase(card.id)}
                   style={{
                     background: "var(--color-surface)",
                     border: "1px solid var(--color-border)",
                     borderRadius: "var(--radius-xl)",
-                    padding: "16px 15px",
+                    padding: "24px 16px",
                     cursor: "pointer",
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "space-between",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center",
+                    gap: 12,
                     transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
                     boxSizing: "border-box",
-                    position: "relative",
-                    overflow: "hidden",
                     minWidth: 0,
+                    minHeight: 130,
                   }}
                 >
-                  {/* Top accent bar */}
+                  {/* Icon */}
                   <div
                     style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: 3,
-                      background: card.iconColor,
-                      opacity: 0.85,
+                      width: 48,
+                      height: 48,
+                      borderRadius: "var(--radius-lg)",
+                      background: card.iconBg,
+                      color: card.iconColor,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                      transition: "transform 0.2s ease",
                     }}
-                  />
+                  >
+                    {card.icon}
+                  </div>
 
-                  {/* Top Row: Icon + Badge */}
+                  {/* Name only */}
                   <div>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, marginTop: 4 }}>
-                      <div
-                        style={{
-                          width: 36,
-                          height: 36,
-                          borderRadius: "var(--radius-md)",
-                          background: card.iconBg,
-                          color: card.iconColor,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                        }}
-                      >
-                        {card.icon}
-                      </div>
-                      <span
-                        style={{
-                          fontSize: 10,
-                          fontWeight: 700,
-                          padding: "2px 7px",
-                          borderRadius: 999,
-                          background: `${card.badgeColor}18`,
-                          color: card.badgeColor,
-                          border: `1px solid ${card.badgeColor}30`,
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 4,
-                        }}
-                      >
-                        <span style={{ width: 5, height: 5, borderRadius: "50%", background: card.badgeColor }} />
-                        {language === "bn" ? card.badgeBn : card.badge}
-                      </span>
-                    </div>
-
-                    {/* Title */}
                     <h3
                       style={{
                         margin: 0,
@@ -5113,66 +4996,21 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
                         color: "var(--color-text-primary)",
                         fontFamily: "var(--font-heading)",
                         letterSpacing: "-0.01em",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        lineHeight: 1.3,
                       }}
-                      title={language === "bn" ? card.titleBn : card.title}
                     >
                       {language === "bn" ? card.titleBn : card.title}
                     </h3>
-                    <p
+                    <span
                       style={{
-                        margin: "4px 0 0",
                         fontSize: 11,
                         color: "var(--color-text-muted)",
-                        lineHeight: 1.4,
-                        height: 30,
-                        overflow: "hidden",
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
+                        display: "block",
+                        marginTop: 3,
                       }}
                     >
-                      {language === "bn" ? card.descBn : card.desc}
-                    </p>
-                  </div>
-
-                  {/* Stat Highlight Box */}
-                  <div style={{ marginTop: 12 }}>
-                    <div
-                      style={{
-                        background: "var(--color-surface-hover)",
-                        padding: "8px 10px",
-                        borderRadius: "var(--radius-md)",
-                        border: "1px solid var(--color-border-subtle)",
-                        marginBottom: 10,
-                      }}
-                    >
-                      <div style={{ fontSize: 13.5, fontWeight: 800, color: card.statColor, fontFamily: "var(--font-heading)", lineHeight: 1.2 }}>
-                        {card.statValue}
-                      </div>
-                      <div style={{ fontSize: 9.5, color: "var(--color-text-muted)", marginTop: 2, fontWeight: 500 }}>
-                        {language === "bn" ? card.statLabelBn : card.statLabel}
-                      </div>
-                    </div>
-
-                    {/* Bottom Action Footer */}
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        fontSize: 11.5,
-                        fontWeight: 700,
-                        color: "var(--color-brand)",
-                        paddingTop: 8,
-                        borderTop: "1px solid var(--color-border-subtle)",
-                      }}
-                    >
-                      <span>{language === "bn" ? card.ctaBn : card.cta}</span>
-                      <ArrowUpRight size={14} />
-                    </div>
+                      {language === "bn" ? card.title : card.titleBn}
+                    </span>
                   </div>
                 </motion.div>
               ))}

@@ -473,7 +473,7 @@ select:-webkit-autofill:focus {
 
 .console-cards-grid {
   display: grid !important;
-  grid-template-columns: repeat(4, minmax(210px, 1fr)) !important;
+  grid-template-columns: repeat(4, minmax(180px, 1fr)) !important;
   gap: 14px !important;
   width: 100%;
   box-sizing: border-box;
