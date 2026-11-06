@@ -4897,6 +4897,17 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
   const CONSOLE_CARDS = CONSOLE_CATEGORIES.flatMap((cat) => cat.cards);
   const currentCaseObj = CONSOLE_CARDS.find((c) => c.id === activeCase);
 
+  // Real-time card search
+  const [cardSearch, setCardSearch] = useState("");
+  const filteredCategories = cardSearch.trim() === ""
+    ? CONSOLE_CATEGORIES
+    : CONSOLE_CATEGORIES.map((cat) => ({
+        ...cat,
+        cards: cat.cards.filter((card) =>
+          card.title.toLowerCase().includes(cardSearch.toLowerCase())
+        ),
+      })).filter((cat) => cat.cards.length > 0);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       {/* ─────────────────────────────────────────────────────────────
@@ -4921,35 +4932,74 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
               </h2>
               <p style={{ fontSize: 13, color: "var(--color-text-muted)", margin: "4px 0 0" }}>
                 {language === "bn"
-                  ? "অ্যাডমিন ও প্রতিষ্ঠাতা ওয়ার্কস্পেস কন্ট্রোল সেন্টার — যেকোনো মডিউলে ক্লিক করে কাজ শুরু করুন"
-                  : "Founder & admin workspace control center — click any module below to launch that workspace"}
+                  ? "অ্যাডমিন ওয়ার্কস্পেস কন্ট্রোল সেন্টার — যেকোনো মডিউলে ক্লিক করে কাজ শুরু করুন"
+                  : "Admin workspace control center — click any module below to launch that workspace"}
               </p>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-              <span
+            {/* Real-time Search Bar */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                background: "var(--color-surface)",
+                border: "1px solid var(--color-border)",
+                borderRadius: 999,
+                padding: "7px 14px",
+                minWidth: 180,
+                maxWidth: 240,
+                transition: "border-color 0.15s ease",
+              }}
+              onFocus={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = "var(--color-brand)"; }}
+              onBlur={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = "var(--color-border)"; }}
+            >
+              <Search size={14} style={{ color: "var(--color-text-muted)", flexShrink: 0 }} />
+              <input
+                type="text"
+                value={cardSearch}
+                onChange={(e) => setCardSearch(e.target.value)}
+                placeholder={language === "bn" ? "মডিউল খুঁজুন..." : "Search modules..."}
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "5px 12px",
-                  borderRadius: 999,
-                  background: "rgba(16, 185, 129, 0.12)",
-                  color: "#10B981",
-                  border: "1px solid rgba(16, 185, 129, 0.25)",
-                  fontSize: 11.5,
-                  fontWeight: 700,
+                  border: "none",
+                  outline: "none",
+                  background: "transparent",
+                  fontSize: 13,
+                  color: "var(--color-text-primary)",
+                  width: "100%",
+                  fontFamily: "var(--font-ui)",
                 }}
-              >
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#10B981" }} />
-                {language === "bn" ? "এন্টারপ্রাইজ সমিতি স্যুট • টিয়ার ৩ সক্রিয়" : "Enterprise Somiti Suite • Tier 3 Active"}
-              </span>
+              />
+              {cardSearch && (
+                <button
+                  onClick={() => setCardSearch("")}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    cursor: "pointer",
+                    color: "var(--color-text-muted)",
+                    flexShrink: 0,
+                  }}
+                >
+                  <X size={13} />
+                </button>
+              )}
             </div>
           </div>
 
           {/* Category-grouped card sections */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            {CONSOLE_CATEGORIES.map((category) => (
+            {/* No results message */}
+            {filteredCategories.length === 0 && (
+              <div style={{ textAlign: "center", padding: "32px 0", color: "var(--color-text-muted)", fontSize: 13 }}>
+                <Search size={28} style={{ opacity: 0.3, marginBottom: 8, display: "block", margin: "0 auto 8px" }} />
+                {language === "bn" ? `"${cardSearch}" পাওয়া যায়নি` : `No module found for "${cardSearch}"`}
+              </div>
+            )}
+            {filteredCategories.map((category) => (
               <div key={category.id}>
                 {/* Category Header */}
                 <div
