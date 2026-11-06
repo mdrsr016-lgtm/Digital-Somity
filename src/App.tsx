@@ -136,8 +136,10 @@ const AppRouter: React.FC = () => {
     <>
       <PullToRefresh />
       <UpdateNotificationModal />
-      {showApkSplash && <ApkSplashScreen onFinish={() => setShowApkSplash(false)} />}
-      {currentUser ? <DashboardPage /> : <LoginPage />}
+      <div id="ptr-content">
+        {showApkSplash && <ApkSplashScreen onFinish={() => setShowApkSplash(false)} />}
+        {currentUser ? <DashboardPage /> : <LoginPage />}
+      </div>
     </>
   );
 };
