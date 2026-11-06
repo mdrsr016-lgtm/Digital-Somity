@@ -53,11 +53,10 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-  # ─── 2. Build Native Android APK (One-Time Install File) ───
+  # ─── 2. Build Native Android APK (Standalone 404-Free Offline & Online) ───
   build-apk:
-    name: Build One-Time Install APK
+    name: Build Standalone APK
     runs-on: ubuntu-latest
-    needs: deploy-pages
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
