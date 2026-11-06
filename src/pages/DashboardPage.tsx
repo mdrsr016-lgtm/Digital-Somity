@@ -4938,7 +4938,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
               className="console-cards-grid"
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(4, minmax(130px, 1fr))",
+                gridTemplateColumns: "repeat(4, 1fr)",
                 gap: 8,
                 width: "100%",
                 boxSizing: "border-box",
@@ -4947,7 +4947,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void }> = ({ onNav
               {CONSOLE_CARDS.map((card) => (
                 <motion.div
                   key={card.id}
-                  whileHover={{ y: -3, borderColor: card.iconColor, boxShadow: "0 6px 16px rgba(0, 0, 0, 0.1)" }}
+                  whileHover={{ borderColor: card.iconColor, boxShadow: `0 0 0 1.5px ${card.iconColor}40` }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setActiveCase(card.id)}
                   style={{
