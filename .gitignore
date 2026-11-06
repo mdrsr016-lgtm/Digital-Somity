@@ -21,6 +21,16 @@ build
 .env.test.local
 .env.production.local
 
+# Android local & keystore secrets
+android/local.properties
+local.properties
+*.keystore
+*.jks
+
+# Crash & debug logs
+hs_err_*.log
+replay_*.log
+
 # Vite / Turbopack
 .vite
 .turbo

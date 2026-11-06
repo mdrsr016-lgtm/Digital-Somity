@@ -37,8 +37,8 @@ jobs:
 
       - name: Build Web Application
         env:
-          VITE_SUPABASE_URL: https://udfbawtsfqvrxuyzahfh.supabase.co
-          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkZmJhd3RzZnF2cnh1eXphaGZoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxOTE4MTIsImV4cCI6MjA4OTc2NzgxMn0.avEL0g9y2qLmz54NQ1uhf0_hW-mq-Sjm4V648x6ysVk
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run build
 
       - name: Setup Pages
@@ -72,8 +72,8 @@ jobs:
 
       - name: Build Web Application & Sync Capacitor
         env:
-          VITE_SUPABASE_URL: https://udfbawtsfqvrxuyzahfh.supabase.co
-          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkZmJhd3RzZnF2cnh1eXphaGZoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxOTE4MTIsImV4cCI6MjA4OTc2NzgxMn0.avEL0g9y2qLmz54NQ1uhf0_hW-mq-Sjm4V648x6ysVk
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run cap:sync
 
       - name: Set up JDK 21
