@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { User, Lock, Eye, EyeOff, ShieldCheck, Moon, Sun, Globe, X, Ticket, KeyRound, Check, Crown, Shield, Briefcase, TrendingUp, Users } from "lucide-react";
+import { User, Lock, Eye, EyeOff, ShieldCheck, Moon, Sun, Globe, X, Ticket, KeyRound, Check, Crown, Shield, Briefcase, TrendingUp, Users, Download } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
 import { useTheme } from "../contexts/ThemeContext";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth, DEMO_USERS } from "../contexts/AuthContext";
@@ -1114,6 +1115,40 @@ export const LoginPage: React.FC = () => {
           >
             <span>{t.auth.conditions}</span>
           </button>
+
+          {/* Download App (Web only - hidden in APK) */}
+          {!Capacitor.isNativePlatform() && (
+            <>
+              <span style={{ color: "var(--color-border)", opacity: 0.4, fontSize: "8px", flexShrink: 0 }}>•</span>
+              <a
+                href={`${import.meta.env.BASE_URL}digitalsomity.apk`}
+                download="digitalsomity.apk"
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  outline: "none",
+                  color: "var(--color-text-muted)",
+                  fontSize: "clamp(10px, 2.2vw, 11px)",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  padding: "2px 4px",
+                  flexShrink: 0,
+                  whiteSpace: "nowrap",
+                  borderRadius: "4px",
+                  textDecoration: "none",
+                  transition: "color var(--transition-fast)",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-brand)")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-text-muted)")}
+                title={language === "bn" ? "অ্যান্ড্রয়েড অ্যাপ ডাউনলোড করুন" : "Download Android APK"}
+              >
+                <Download size={11} style={{ flexShrink: 0 }} />
+                <span>{t.auth.downloadApp}</span>
+              </a>
+            </>
+          )}
         </footer>
 
         {/* Simple Popups / Modals */}

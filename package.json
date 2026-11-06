@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc && vite build",
     "preview": "vite preview",
-    "cap:sync": "npm run build && npx cap sync android",
+    "cap:sync": "npm run build && npx cap sync android && node -e \"const fs=require('fs');const p='android/app/src/main/assets/public/digitalsomity.apk';if(fs.existsSync(p))fs.unlinkSync(p);\"",
     "cap:open": "npx cap open android",
     "build:apk": "npm run cap:sync && cd android && .\\gradlew.bat assembleDebug"
   },
