@@ -4538,12 +4538,12 @@ const ConsoleTab: React.FC = () => {
               letterSpacing: "-0.02em",
             }}
           >
-            {language === "bn" ? "কনসোল কার্যক্রম" : "Console Operations"}
+            {language === "bn" ? "কনসোল" : "Console"}
           </h2>
           <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "4px 0 0" }}>
             {language === "bn"
-              ? "ক্লাউড ইনফ্রাস্ট্রাকচার, নোড টেলিমেট্রি ও রিয়েল-টাইম কনসোল পর্যবেক্ষণ"
-              : "Cloud infrastructure, telemetry, microservice health, and console audit"}
+              ? "অ্যাডমিন ও প্রতিষ্ঠাতা ওয়ার্কস্পেস হাব: ভূমিকা নিয়ন্ত্রণ, কেওয়াইসি যাচাইকরণ, সাবস্ক্রিপশন প্ল্যান ও প্ল্যাটফর্ম অডিট"
+              : "Founder & admin workspace hub: role access, KYC verification, subscription plans, and platform controls"}
           </p>
           <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <span
