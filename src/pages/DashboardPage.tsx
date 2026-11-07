@@ -5177,7 +5177,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
                   }}
                 >
                   <UserPlus size={15} />
-                  <span>{language === "bn" ? "নতুন কর্মী / অ্যাডমিন যুক্ত করুন" : "Add Staff / Admin"}</span>
+                  <span>{language === "bn" ? "ভূমিকা যোগ করুন" : "Add Role"}</span>
                 </button>
               </div>
 
