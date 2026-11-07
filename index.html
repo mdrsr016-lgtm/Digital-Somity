@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./assets/logo-BpoFlrjW.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="ds-version" content="1.4.7" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Digital Somity — Modern Cooperative Fintech</title>
+    
+    <!-- Google Fonts: Sora, Inter, Hind Siliguri -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="./assets/index-CF4qxiAA.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-LpN6AV0z.css">
+  </head>
+  <body>
+    <script>
+      (function () {
+        var host = location.hostname;
+        if (host === "localhost" || host === "127.0.0.1") return;
+        var meta = document.querySelector('meta[name="ds-version"]');
+        var embedded = meta && meta.content;
+        var live = "https://mdrsr016-lgtm.github.io/Digital-Somity/";
+        fetch("https://raw.githubusercontent.com/mdrsr016-lgtm/Digital-Somity/main/public/version.json?_t=" + Date.now(), { cache: "no-store" })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            var remote = data && data.version;
+            if (!remote || !embedded || remote === embedded) return;
+            if (new URL(location.href).searchParams.get("v") === remote) return;
+            location.replace(live + "?v=" + encodeURIComponent(remote));
+          })
+          .catch(function () {});
+      })();
+    </script>
+    <div id="root"></div>
+  </body>
+</html>
+
