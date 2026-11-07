@@ -63,6 +63,7 @@ import {
   Wifi,
   Cpu,
   LayoutGrid,
+  LayoutTemplate,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
@@ -4628,11 +4629,74 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
 
   // Active case state: null = cards-only landing page; string = dedicated case page
   const [activeCase, setActiveCase] = useState<string | null>(null);
+  const [roleDetailOpen, setRoleDetailOpen] = useState(false);
+  const roleDetailOpenRef = useRef(false);
+  const activeCaseRef = useRef<string | null>(null);
+  const caseSwipeStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  useEffect(() => {
+    roleDetailOpenRef.current = roleDetailOpen;
+  }, [roleDetailOpen]);
+
+  useEffect(() => {
+    activeCaseRef.current = activeCase;
+  }, [activeCase]);
+
+  const isConsoleCaseHistory = () =>
+    (window.history.state as { digiSomiti?: string } | null)?.digiSomiti === "console-case";
+
+  const openConsoleCase = useCallback((id: string) => {
+    setActiveCase(id);
+    window.history.pushState({ digiSomiti: "console-case", caseId: id }, "");
+  }, []);
+
+  const closeConsoleCase = useCallback(() => {
+    if (isConsoleCaseHistory()) {
+      window.history.back();
+      return;
+    }
+    setActiveCase(null);
+  }, []);
+
+  // Android / browser back: leave case workspace (role detail handles its own history first)
+  useEffect(() => {
+    const onPopState = () => {
+      if (roleDetailOpenRef.current) return;
+      if (activeCaseRef.current != null) setActiveCase(null);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  const handleCaseSwipeStart = useCallback((e: React.TouchEvent) => {
+    if (roleDetailOpenRef.current || e.touches.length !== 1) {
+      caseSwipeStartRef.current = null;
+      return;
+    }
+    caseSwipeStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }, []);
+
+  const handleCaseSwipeEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (roleDetailOpenRef.current) {
+        caseSwipeStartRef.current = null;
+        return;
+      }
+      const start = caseSwipeStartRef.current;
+      caseSwipeStartRef.current = null;
+      if (!start || e.changedTouches.length !== 1) return;
+      const dx = e.changedTouches[0].clientX - start.x;
+      const dy = e.changedTouches[0].clientY - start.y;
+      if (Math.abs(dx) < 72 || Math.abs(dx) < Math.abs(dy) * 1.35) return;
+      if (dx > 0) closeConsoleCase();
+    },
+    [closeConsoleCase]
+  );
 
   // Sync initialCase prop → open that case immediately (used when navigating from sheet)
   useEffect(() => {
-    if (initialCase != null) setActiveCase(initialCase);
-  }, [initialCase]);
+    if (initialCase != null) openConsoleCase(initialCase);
+  }, [initialCase, openConsoleCase]);
 
   // Data states
   const [staffList, setStaffList] = useState<StaffUser[]>(INITIAL_STAFF);
@@ -4855,6 +4919,13 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
           iconColor: "#3B82F6",
           iconBg: "rgba(59, 130, 246, 0.12)",
         },
+        {
+          id: "pages",
+          title: "Pages",
+          icon: <LayoutTemplate size={24} />,
+          iconColor: "#EC4899",
+          iconBg: "rgba(236, 72, 153, 0.12)",
+        },
       ],
     },
     {
@@ -5029,7 +5100,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
                         if (onCardClick) {
                           onCardClick(card.id);
                         } else {
-                          setActiveCase(card.id);
+                          openConsoleCase(card.id);
                         }
                       }}
                       style={{
@@ -5094,57 +5165,63 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
         /* ─────────────────────────────────────────────────────────────
            STATE 2: DEDICATED CASE WORKSPACE (When a card was clicked)
            ───────────────────────────────────────────────────────────── */
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {/* Breadcrumb & Back Navigation Bar */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 12,
-              flexWrap: "wrap",
-              paddingBottom: 14,
-              borderBottom: "1px solid var(--color-border-subtle)",
-            }}
-          >
-            <motion.button
-              whileHover={{ x: -2 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setActiveCase(null)}
+        <div
+          style={{ display: "flex", flexDirection: "column", gap: 16, touchAction: "pan-y" }}
+          onTouchStart={handleCaseSwipeStart}
+          onTouchEnd={handleCaseSwipeEnd}
+        >
+          {/* Breadcrumb & Back Navigation Bar — hidden on role detail pages */}
+          {!roleDetailOpen && (
+            <div
               style={{
-                display: "inline-flex",
+                display: "flex",
                 alignItems: "center",
-                gap: 8,
-                padding: "8px 14px",
-                borderRadius: "var(--radius-md)",
-                background: "var(--color-surface)",
-                border: "1px solid var(--color-border)",
-                color: "var(--color-text-primary)",
-                fontSize: 13,
-                fontWeight: 700,
-                cursor: "pointer",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                justifyContent: "space-between",
+                gap: 12,
+                flexWrap: "wrap",
+                paddingBottom: 14,
+                borderBottom: "1px solid var(--color-border-subtle)",
               }}
             >
-              <ArrowLeft size={16} />
-              <span>{language === "bn" ? "কনসোলে ফিরে যান" : "Back to Console"}</span>
-            </motion.button>
-
-            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--color-text-muted)" }}>
-              <span
-                onClick={() => setActiveCase(null)}
-                style={{ cursor: "pointer", color: "var(--color-text-secondary)", fontWeight: 500 }}
+              <motion.button
+                whileHover={{ x: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={closeConsoleCase}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "8px 14px",
+                  borderRadius: "var(--radius-md)",
+                  background: "var(--color-surface)",
+                  border: "1px solid var(--color-border)",
+                  color: "var(--color-text-primary)",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                }}
               >
-                {language === "bn" ? "কনসোল" : "Console"}
-              </span>
-              <span>/</span>
-              <span style={{ fontWeight: 700, color: "var(--color-brand)" }}>
-                {language === "bn" ? currentCaseObj?.titleBn : currentCaseObj?.title}
-              </span>
-            </div>
-          </div>
+                <ArrowLeft size={16} />
+                <span>{language === "bn" ? "কনসোলে ফিরে যান" : "Back to Console"}</span>
+              </motion.button>
 
-          {activeCase === "roles" && <RoleManager />}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--color-text-muted)" }}>
+                <span
+                  onClick={closeConsoleCase}
+                  style={{ cursor: "pointer", color: "var(--color-text-secondary)", fontWeight: 500 }}
+                >
+                  {language === "bn" ? "কনসোল" : "Console"}
+                </span>
+                <span>/</span>
+                <span style={{ fontWeight: 700, color: "var(--color-brand)" }}>
+                  {language === "bn" ? currentCaseObj?.titleBn : currentCaseObj?.title}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {activeCase === "roles" && <RoleManager onRoleDetailChange={setRoleDetailOpen} />}
 
           {/* ── CASE 2: KYC & IDENTITY VERIFICATION WORKSPACE ── */}
           {activeCase === "kyc" && (
@@ -5381,215 +5458,324 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
 
           {/* ── CASE 3: SUBSCRIPTION & QUOTAS WORKSPACE ── */}
           {activeCase === "subscription" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              {/* Active Plan Banner */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+              {/* License header — typography first, no banner chrome */}
               <div
+                className="page-head"
                 style={{
-                  background: "linear-gradient(135deg, rgba(15, 91, 228, 0.12) 0%, rgba(139, 92, 246, 0.12) 100%)",
-                  border: "1px solid rgba(15, 91, 228, 0.3)",
-                  borderRadius: "var(--radius-xl)",
-                  padding: "20px 22px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  flexWrap: "wrap",
-                  gap: 14,
+                  display: "grid",
+                  gridTemplateColumns: "1fr auto",
+                  alignItems: "end",
+                  columnGap: 16,
+                  rowGap: 14,
+                  paddingBottom: 18,
+                  borderBottom: "1px solid var(--color-border-subtle)",
                 }}
               >
-                <div>
-                  <span
-                    style={{
-                      fontSize: 10.5,
-                      fontWeight: 800,
-                      textTransform: "uppercase",
-                      padding: "3px 8px",
-                      borderRadius: 4,
-                      background: "var(--color-brand)",
-                      color: "#FFFFFF",
-                    }}
-                  >
-                    Current Workspace License
-                  </span>
-                  <h3 style={{ margin: "8px 0 2px", fontSize: 20, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
-                    Enterprise Multi-Hub Suite
-                  </h3>
-                  <p style={{ margin: 0, fontSize: 12.5, color: "var(--color-text-secondary)" }}>
-                    Annual cooperative license • BDT 1,20,000 / year • Valid through November 12, 2027
-                  </p>
-                </div>
-
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button
-                    onClick={handleAddSmsCredits}
-                    style={{
-                      padding: "8px 14px",
-                      borderRadius: "var(--radius-md)",
-                      border: "1px solid var(--color-border)",
-                      background: "var(--color-surface)",
-                      color: "var(--color-text-primary)",
-                      fontSize: 12.5,
-                      fontWeight: 600,
-                      cursor: "pointer",
-                    }}
-                  >
-                    +5,000 SMS Credits
-                  </button>
-                  <button
-                    onClick={() => success("Plan Confirmed", "Your Enterprise tier is already at peak cooperative capacity.")}
-                    style={{
-                      padding: "8px 16px",
-                      borderRadius: "var(--radius-md)",
-                      background: "var(--color-brand)",
-                      color: "#FFFFFF",
-                      border: "none",
-                      fontSize: 12.5,
-                      fontWeight: 700,
-                      cursor: "pointer",
-                    }}
-                  >
-                    Extend License
-                  </button>
-                </div>
-              </div>
-
-              {/* Resource Quota Utilization Meters */}
-              <div
-                style={{
-                  background: "var(--color-surface)",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "var(--radius-xl)",
-                  padding: "18px 20px",
-                }}
-              >
-                <h3 style={{ margin: "0 0 14px", fontSize: 15, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
-                  {language === "bn" ? "রিসোর্স কোটা ও ব্যবহার সীমা" : "Workspace Quotas & Capacity Utilization"}
-                </h3>
-
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16 }}>
-                  {/* Meter 1: Branches */}
-                  <div style={{ background: "var(--color-surface-hover)", padding: "14px 16px", borderRadius: "var(--radius-lg)", border: "1px solid var(--color-border-subtle)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 6 }}>
-                      <span style={{ color: "var(--color-text-secondary)", fontWeight: 600 }}>
-                        {language === "bn" ? "আঞ্চলিক শাখা কোটা" : "Branch Node Quota"}
-                      </span>
-                      <span style={{ fontWeight: 700, color: "#3B82F6" }}>7 of 25 (28%)</span>
-                    </div>
-                    <div style={{ width: "100%", height: 6, borderRadius: 99, background: "var(--color-border)", overflow: "hidden" }}>
-                      <div style={{ width: "28%", height: "100%", background: "#3B82F6", borderRadius: 99 }} />
-                    </div>
-                    <span style={{ fontSize: 10.5, color: "var(--color-text-muted)", marginTop: 6, display: "block" }}>
-                      18 Regional licenses available
-                    </span>
-                  </div>
-
-                  {/* Meter 2: Members */}
-                  <div style={{ background: "var(--color-surface-hover)", padding: "14px 16px", borderRadius: "var(--radius-lg)", border: "1px solid var(--color-border-subtle)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 6 }}>
-                      <span style={{ color: "var(--color-text-secondary)", fontWeight: 600 }}>
-                        {language === "bn" ? "সমিতি সদস্য লাইসেন্স" : "Enrolled Members"}
-                      </span>
-                      <span style={{ fontWeight: 700, color: "#10B981" }}>1,840 (Unlimited)</span>
-                    </div>
-                    <div style={{ width: "100%", height: 6, borderRadius: 99, background: "var(--color-border)", overflow: "hidden" }}>
-                      <div style={{ width: "36%", height: "100%", background: "#10B981", borderRadius: 99 }} />
-                    </div>
-                    <span style={{ fontSize: 10.5, color: "var(--color-text-muted)", marginTop: 6, display: "block" }}>
-                      Unlimited ledger accounts supported
-                    </span>
-                  </div>
-
-                  {/* Meter 3: SMS Credits */}
-                  <div style={{ background: "var(--color-surface-hover)", padding: "14px 16px", borderRadius: "var(--radius-lg)", border: "1px solid var(--color-border-subtle)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 6 }}>
-                      <span style={{ color: "var(--color-text-secondary)", fontWeight: 600 }}>
-                        {language === "bn" ? "এসএমএস ওটিপি ব্যালেন্স" : "SMS & OTP Credits"}
-                      </span>
-                      <span style={{ fontWeight: 700, color: "#8B5CF6" }}>{smsCredits.toLocaleString()} Credits</span>
-                    </div>
-                    <div style={{ width: "100%", height: 6, borderRadius: 99, background: "var(--color-border)", overflow: "hidden" }}>
-                      <div style={{ width: `${(smsCredits / 50000) * 100}%`, height: "100%", background: "#8B5CF6", borderRadius: 99 }} />
-                    </div>
-                    <span style={{ fontSize: 10.5, color: "var(--color-text-muted)", marginTop: 6, display: "block" }}>
-                      Multi-carrier OTP gateway active
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Pricing Tiers Grid */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12 }}>
-                {plans.map((p) => (
-                  <div
-                    key={p.id}
-                    style={{
-                      background: "var(--color-surface)",
-                      border: p.current ? "2px solid var(--color-brand)" : "1px solid var(--color-border)",
-                      borderRadius: "var(--radius-xl)",
-                      padding: "20px 18px",
-                      display: "flex",
-                      flexDirection: "column",
-                      position: "relative",
-                    }}
-                  >
-                    {p.current && (
-                      <span
-                        style={{
-                          position: "absolute",
-                          top: -10,
-                          right: 18,
-                          fontSize: 10,
-                          fontWeight: 800,
-                          textTransform: "uppercase",
-                          padding: "2px 8px",
-                          borderRadius: 999,
-                          background: "var(--color-brand)",
-                          color: "#FFFFFF",
-                        }}
-                      >
-                        Active Tier
-                      </span>
-                    )}
-
-                    <div style={{ fontSize: 15, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)" }}>
-                      {language === "bn" ? p.tierBn : p.tier}
-                    </div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)", margin: "8px 0" }}>
-                      {p.price} <span style={{ fontSize: 12, fontWeight: 500, color: "var(--color-text-muted)" }}>{p.period}</span>
-                    </div>
-
-                    <div style={{ fontSize: 11.5, color: "var(--color-brand)", fontWeight: 600, marginBottom: 12 }}>
-                      {p.branchLimit} Branches • {p.memberLimit} • {p.smsCredits}
-                    </div>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, marginBottom: 16 }}>
-                      {p.features.map((f, idx) => (
-                        <div key={idx} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, color: "var(--color-text-secondary)" }}>
-                          <Check size={13} style={{ color: "#10B981", flexShrink: 0 }} />
-                          <span>{f}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <button
-                      disabled={p.current}
-                      onClick={() => success("Tier Selected", `You have selected the ${p.tier} plan.`)}
+                <div style={{ display: "contents" }}>
+                  <div style={{ gridColumn: 1, minWidth: 0 }}>
+                    <div
                       style={{
-                        width: "100%",
-                        padding: "9px",
-                        borderRadius: "var(--radius-md)",
-                        border: p.current ? "none" : "1px solid var(--color-border)",
-                        background: p.current ? "var(--color-surface-hover)" : "var(--color-brand)",
-                        color: p.current ? "var(--color-text-muted)" : "#FFFFFF",
-                        fontSize: 12.5,
+                        fontSize: 11,
                         fontWeight: 700,
-                        cursor: p.current ? "default" : "pointer",
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                        color: "var(--color-brand)",
+                        marginBottom: 6,
                       }}
                     >
-                      {p.current ? (language === "bn" ? "বর্তমান প্ল্যান" : "Current Plan") : (language === "bn" ? "প্ল্যানে পরিবর্তন করুন" : "Switch Plan")}
+                      {language === "bn" ? "সক্রিয় লাইসেন্স" : "Active license"}
+                    </div>
+                    <h2
+                      style={{
+                        margin: 0,
+                        fontSize: 26,
+                        fontWeight: 800,
+                        color: "var(--color-text-primary)",
+                        fontFamily: "var(--font-heading)",
+                        letterSpacing: "-0.02em",
+                        lineHeight: 1.15,
+                      }}
+                    >
+                      {language === "bn" ? "এন্টারপ্রাইজ মাল্টি-হাব" : "Enterprise Multi-Hub"}
+                    </h2>
+                    <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--color-text-muted)", lineHeight: 1.45 }}>
+                      {language === "bn"
+                        ? "৳ ১,২০,০০০ / বছর · মেয়াদ ১২ নভেম্বর ২০২৭"
+                        : "৳ 1,20,000 / year · Renews 12 Nov 2027"}
+                    </p>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end", alignItems: "center" }}>
+                    <button
+                      type="button"
+                      onClick={handleAddSmsCredits}
+                      style={{
+                        padding: "9px 14px",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--color-border)",
+                        background: "transparent",
+                        color: "var(--color-text-primary)",
+                        fontSize: 12.5,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {language === "bn" ? "+৫,০০০ এসএমএস" : "+5,000 SMS"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        success(
+                          language === "bn" ? "লাইসেন্স নবায়ন" : "License extended",
+                          language === "bn" ? "এন্টারপ্রাইজ মেয়াদ আরও এক বছর বাড়ানো হয়েছে।" : "Enterprise term extended by one year."
+                        )
+                      }
+                      style={{
+                        padding: "9px 16px",
+                        borderRadius: "var(--radius-md)",
+                        background: "var(--color-brand)",
+                        color: "#FFFFFF",
+                        border: "none",
+                        fontSize: 12.5,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {language === "bn" ? "নবায়ন" : "Renew"}
                     </button>
                   </div>
-                ))}
+                </div>
               </div>
+
+              {/* Capacity — flat meters, no nested cards */}
+              <section style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <div>
+                  <h3
+                    style={{
+                      margin: 0,
+                      fontSize: 13,
+                      fontWeight: 700,
+                      letterSpacing: "0.06em",
+                      textTransform: "uppercase",
+                      color: "var(--color-text-muted)",
+                    }}
+                  >
+                    {language === "bn" ? "ক্যাপাসিটি" : "Capacity"}
+                  </h3>
+                </div>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                    gap: 0,
+                    borderTop: "1px solid var(--color-border-subtle)",
+                    borderBottom: "1px solid var(--color-border-subtle)",
+                  }}
+                  className="subscription-capacity-grid"
+                >
+                  {(
+                    [
+                      {
+                        label: language === "bn" ? "শাখা" : "Branches",
+                        value: "7 / 25",
+                        meta: language === "bn" ? "১৮টি বাকি" : "18 remaining",
+                        pct: 28,
+                        color: "var(--color-brand)",
+                      },
+                      {
+                        label: language === "bn" ? "সদস্য" : "Members",
+                        value: "1,840",
+                        meta: language === "bn" ? "আনলিমিটেড" : "Unlimited",
+                        pct: 36,
+                        color: "#10B981",
+                      },
+                      {
+                        label: language === "bn" ? "এসএমএস" : "SMS",
+                        value: smsCredits.toLocaleString(),
+                        meta: language === "bn" ? "ওটিপি গেটওয়ে" : "OTP gateway",
+                        pct: Math.min(100, Math.round((smsCredits / 50000) * 100)),
+                        color: "#0EA5E9",
+                      },
+                    ] as const
+                  ).map((meter, i) => (
+                    <div
+                      key={meter.label}
+                      style={{
+                        padding: "16px 14px 18px",
+                        borderLeft: i === 0 ? "none" : "1px solid var(--color-border-subtle)",
+                        minWidth: 0,
+                      }}
+                    >
+                      <div style={{ fontSize: 11.5, fontWeight: 600, color: "var(--color-text-muted)", marginBottom: 8 }}>
+                        {meter.label}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 22,
+                          fontWeight: 800,
+                          color: "var(--color-text-primary)",
+                          fontFamily: "var(--font-heading)",
+                          letterSpacing: "-0.03em",
+                          lineHeight: 1,
+                        }}
+                      >
+                        {meter.value}
+                      </div>
+                      <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 6, marginBottom: 12 }}>
+                        {meter.meta}
+                      </div>
+                      <div style={{ width: "100%", height: 3, borderRadius: 99, background: "var(--color-border)", overflow: "hidden" }}>
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${meter.pct}%` }}
+                          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: i * 0.06 }}
+                          style={{ height: "100%", background: meter.color, borderRadius: 99 }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Plans — compact comparison rows */}
+              <section style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
+                  <h3
+                    style={{
+                      margin: 0,
+                      fontSize: 13,
+                      fontWeight: 700,
+                      letterSpacing: "0.06em",
+                      textTransform: "uppercase",
+                      color: "var(--color-text-muted)",
+                    }}
+                  >
+                    {language === "bn" ? "প্ল্যান" : "Plans"}
+                  </h3>
+                  <span style={{ fontSize: 12, color: "var(--color-text-muted)" }}>
+                    {language === "bn" ? "বার্ষিক বিলিং" : "Billed annually"}
+                  </span>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {plans.map((p) => (
+                    <div
+                      key={p.id}
+                      className="subscription-plan-row"
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "minmax(0, 1.1fr) minmax(0, 1.4fr) auto",
+                        gap: 16,
+                        alignItems: "center",
+                        padding: "16px 18px",
+                        borderRadius: "var(--radius-lg)",
+                        border: p.current ? "1px solid var(--color-brand)" : "1px solid var(--color-border-subtle)",
+                        background: p.current ? "rgba(15, 91, 228, 0.06)" : "transparent",
+                      }}
+                    >
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                          <span
+                            style={{
+                              fontSize: 15,
+                              fontWeight: 700,
+                              color: "var(--color-text-primary)",
+                              fontFamily: "var(--font-heading)",
+                            }}
+                          >
+                            {language === "bn" ? p.tierBn : p.tier}
+                          </span>
+                          {p.current && (
+                            <span
+                              style={{
+                                fontSize: 10,
+                                fontWeight: 700,
+                                letterSpacing: "0.04em",
+                                textTransform: "uppercase",
+                                color: "var(--color-brand)",
+                              }}
+                            >
+                              {language === "bn" ? "সক্রিয়" : "Current"}
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ marginTop: 4, fontSize: 20, fontWeight: 800, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)", letterSpacing: "-0.02em" }}>
+                          {p.price}
+                          <span style={{ fontSize: 12, fontWeight: 500, color: "var(--color-text-muted)", marginLeft: 4 }}>{p.period}</span>
+                        </div>
+                      </div>
+
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 12, color: "var(--color-text-secondary)", fontWeight: 600, marginBottom: 6 }}>
+                          {p.branchLimit} {language === "bn" ? "শাখা" : "branches"} · {p.memberLimit} · {p.smsCredits}
+                        </div>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px" }}>
+                          {p.features.slice(0, 3).map((f) => (
+                            <span key={f} style={{ fontSize: 11.5, color: "var(--color-text-muted)", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                              <Check size={11} style={{ color: "var(--color-brand)", flexShrink: 0 }} />
+                              {f}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        disabled={p.current}
+                        onClick={() =>
+                          success(
+                            language === "bn" ? "প্ল্যান নির্বাচিত" : "Plan selected",
+                            language === "bn" ? `${p.tierBn} নির্বাচন করা হয়েছে।` : `Selected ${p.tier}.`
+                          )
+                        }
+                        style={{
+                          padding: "9px 14px",
+                          borderRadius: "var(--radius-md)",
+                          border: p.current ? "1px solid transparent" : "1px solid var(--color-border)",
+                          background: p.current ? "transparent" : "var(--color-brand)",
+                          color: p.current ? "var(--color-text-muted)" : "#FFFFFF",
+                          fontSize: 12.5,
+                          fontWeight: 700,
+                          cursor: p.current ? "default" : "pointer",
+                          whiteSpace: "nowrap",
+                          justifySelf: "end",
+                        }}
+                      >
+                        {p.current
+                          ? language === "bn"
+                            ? "বর্তমান"
+                            : "Current"
+                          : language === "bn"
+                            ? "পরিবর্তন"
+                            : "Switch"}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <style>{`
+                @media (max-width: 720px) {
+                  .subscription-capacity-grid {
+                    grid-template-columns: 1fr !important;
+                  }
+                  .subscription-capacity-grid > div {
+                    border-left: none !important;
+                    border-top: 1px solid var(--color-border-subtle);
+                  }
+                  .subscription-capacity-grid > div:first-child {
+                    border-top: none !important;
+                  }
+                  .subscription-plan-row {
+                    grid-template-columns: 1fr !important;
+                    gap: 12px !important;
+                  }
+                  .subscription-plan-row > button {
+                    width: 100%;
+                    justify-self: stretch !important;
+                  }
+                }
+              `}</style>
             </div>
           )}
 
@@ -6194,6 +6380,107 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
                       </div>
                     ))}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── CASE: PAGES / CONTENT WORKSPACE ── */}
+          {activeCase === "pages" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div className="page-head" style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
+                <div style={{ display: "contents" }}>
+                  <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", margin: 0, fontFamily: "var(--font-heading)" }}>
+                    {language === "bn" ? "পৃষ্ঠা ও কনটেন্ট" : "Pages & Content"}
+                  </h2>
+                  <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", gridRow: 2, width: "100%" }}>
+                    {language === "bn"
+                      ? "ল্যান্ডিং, নীতিমালা ও ওয়ার্কস্পেস পৃষ্ঠাগুলো পরিচালনা করুন"
+                      : "Manage landing, policy, and workspace pages for your Somiti"}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    success(
+                      language === "bn" ? "পৃষ্ঠা তৈরি" : "Page created",
+                      language === "bn" ? "নতুন খসড়া পৃষ্ঠা যোগ হয়েছে।" : "A new draft page was added."
+                    )
+                  }
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 7,
+                    padding: "8px 14px",
+                    borderRadius: "var(--radius-md)",
+                    background: "var(--color-brand)",
+                    color: "#FFFFFF",
+                    border: "none",
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  <Plus size={14} />
+                  <span>{language === "bn" ? "পৃষ্ঠা যোগ" : "Add Page"}</span>
+                </button>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {(
+                  [
+                    { title: "Home", titleBn: "হোম", status: "Published", statusBn: "প্রকাশিত", path: "/" },
+                    { title: "About Somiti", titleBn: "সমিতি সম্পর্কে", status: "Published", statusBn: "প্রকাশিত", path: "/about" },
+                    { title: "Membership Rules", titleBn: "সদস্যপদ নীতি", status: "Draft", statusBn: "খসড়া", path: "/rules" },
+                    { title: "Privacy Policy", titleBn: "গোপনীয়তা নীতি", status: "Published", statusBn: "প্রকাশিত", path: "/privacy" },
+                  ] as const
+                ).map((page) => (
+                  <div
+                    key={page.path}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      padding: "14px 16px",
+                      background: "var(--color-surface)",
+                      border: "1px solid var(--color-border)",
+                      borderRadius: "var(--radius-lg)",
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 10,
+                        background: "rgba(236, 72, 153, 0.12)",
+                        color: "#EC4899",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <LayoutTemplate size={18} />
+                    </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text-primary)" }}>
+                        {language === "bn" ? page.titleBn : page.title}
+                      </div>
+                      <div style={{ fontSize: 12, color: "var(--color-text-muted)", marginTop: 2 }}>{page.path}</div>
+                    </div>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        padding: "4px 8px",
+                        borderRadius: 999,
+                        background: page.status === "Published" ? "rgba(16, 185, 129, 0.12)" : "rgba(245, 158, 11, 0.12)",
+                        color: page.status === "Published" ? "#10B981" : "#F59E0B",
+                      }}
+                    >
+                      {language === "bn" ? page.statusBn : page.status}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           )}

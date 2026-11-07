@@ -1,6 +1,51 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BadgeDollarSign, Briefcase, ChevronRight, Crown, Plus, Search, Shield, Trash2, User, X } from "lucide-react";
+import {
+  Award,
+  BadgeDollarSign,
+  Banknote,
+  Briefcase,
+  Building2,
+  Calculator,
+  ChartLine,
+  Check,
+  ChevronRight,
+  Clapperboard,
+  Coins,
+  CreditCard,
+  Crown,
+  Film,
+  Gamepad2,
+  HandCoins,
+  Headphones,
+  HeartHandshake,
+  KeyRound,
+  Landmark,
+  Lock,
+  Megaphone,
+  Music,
+  PartyPopper,
+  PiggyBank,
+  Pipette,
+  Plus,
+  Receipt,
+  RotateCcw,
+  Save,
+  Scale,
+  Search,
+  Shield,
+  Star,
+  Ticket,
+  Trash2,
+  TrendingUp,
+  Tv,
+  User,
+  Users,
+  Vault,
+  Wallet,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useToast } from "../../contexts/ToastContext";
 
@@ -31,7 +76,112 @@ interface Person {
   detail: string;
 }
 
-type RoleIcon = "crown" | "shield" | "briefcase" | "cash" | "user";
+type RoleIcon =
+  | "crown"
+  | "shield"
+  | "briefcase"
+  | "cash"
+  | "user"
+  | "users"
+  | "bank"
+  | "wallet"
+  | "card"
+  | "piggy"
+  | "coins"
+  | "banknote"
+  | "hand_coins"
+  | "calculator"
+  | "chart"
+  | "trending"
+  | "vault"
+  | "receipt"
+  | "music"
+  | "film"
+  | "game"
+  | "clapper"
+  | "party"
+  | "headphones"
+  | "tv"
+  | "ticket"
+  | "building"
+  | "star"
+  | "award"
+  | "key"
+  | "scale"
+  | "handshake"
+  | "megaphone";
+
+const ROLE_ICON_MAP: Record<RoleIcon, LucideIcon> = {
+  crown: Crown,
+  shield: Shield,
+  briefcase: Briefcase,
+  cash: BadgeDollarSign,
+  user: User,
+  users: Users,
+  bank: Landmark,
+  wallet: Wallet,
+  card: CreditCard,
+  piggy: PiggyBank,
+  coins: Coins,
+  banknote: Banknote,
+  hand_coins: HandCoins,
+  calculator: Calculator,
+  chart: ChartLine,
+  trending: TrendingUp,
+  vault: Vault,
+  receipt: Receipt,
+  music: Music,
+  film: Film,
+  game: Gamepad2,
+  clapper: Clapperboard,
+  party: PartyPopper,
+  headphones: Headphones,
+  tv: Tv,
+  ticket: Ticket,
+  building: Building2,
+  star: Star,
+  award: Award,
+  key: KeyRound,
+  scale: Scale,
+  handshake: HeartHandshake,
+  megaphone: Megaphone,
+};
+
+const ROLE_ICONS: { id: RoleIcon; label: string; labelBn: string }[] = [
+  { id: "crown", label: "Crown", labelBn: "মুকুট" },
+  { id: "shield", label: "Shield", labelBn: "ঢাল" },
+  { id: "briefcase", label: "Briefcase", labelBn: "ব্রিফকেস" },
+  { id: "cash", label: "Cash", labelBn: "নগদ" },
+  { id: "user", label: "User", labelBn: "ব্যবহারকারী" },
+  { id: "users", label: "Team", labelBn: "দল" },
+  { id: "bank", label: "Bank", labelBn: "ব্যাংক" },
+  { id: "wallet", label: "Wallet", labelBn: "ওয়ালেট" },
+  { id: "card", label: "Card", labelBn: "কার্ড" },
+  { id: "piggy", label: "Savings", labelBn: "সঞ্চয়" },
+  { id: "coins", label: "Coins", labelBn: "কয়েন" },
+  { id: "banknote", label: "Banknote", labelBn: "নোট" },
+  { id: "hand_coins", label: "Payment", labelBn: "পেমেন্ট" },
+  { id: "calculator", label: "Calculator", labelBn: "ক্যালকুলেটর" },
+  { id: "chart", label: "Chart", labelBn: "চার্ট" },
+  { id: "trending", label: "Growth", labelBn: "প্রবৃদ্ধি" },
+  { id: "vault", label: "Vault", labelBn: "ভল্ট" },
+  { id: "receipt", label: "Receipt", labelBn: "রসিদ" },
+  { id: "building", label: "Branch", labelBn: "শাখা" },
+  { id: "scale", label: "Compliance", labelBn: "কমপ্লায়েন্স" },
+  { id: "key", label: "Access", labelBn: "অ্যাক্সেস" },
+  { id: "handshake", label: "Partner", labelBn: "অংশীদার" },
+  { id: "megaphone", label: "Announce", labelBn: "ঘোষণা" },
+  { id: "star", label: "Star", labelBn: "স্টার" },
+  { id: "award", label: "Award", labelBn: "অ্যাওয়ার্ড" },
+  { id: "music", label: "Music", labelBn: "সঙ্গীত" },
+  { id: "film", label: "Film", labelBn: "চলচ্চিত্র" },
+  { id: "clapper", label: "Clapper", labelBn: "ক্ল্যাপার" },
+  { id: "game", label: "Games", labelBn: "গেমস" },
+  { id: "party", label: "Party", labelBn: "পার্টি" },
+  { id: "headphones", label: "Audio", labelBn: "অডিও" },
+  { id: "tv", label: "TV", labelBn: "টিভি" },
+  { id: "ticket", label: "Ticket", labelBn: "টিকিট" },
+];
 
 interface SomitiRole {
   id: string;
@@ -272,7 +422,9 @@ function Switch({ on, disabled, onClick }: { on: boolean; disabled?: boolean; on
   );
 }
 
-export const RoleManager: React.FC = () => {
+export const RoleManager: React.FC<{ onRoleDetailChange?: (open: boolean) => void }> = ({
+  onRoleDetailChange,
+}) => {
   const { language } = useLanguage();
   const { success, info } = useToast();
   const bn = language === "bn";
@@ -282,12 +434,68 @@ export const RoleManager: React.FC = () => {
   const [permQuery, setPermQuery] = useState("");
   const [adding, setAdding] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [savedSnapshot, setSavedSnapshot] = useState<SomitiRole | null>(null);
+  const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
+  const swipeLockedRef = useRef(false);
+  const DETAIL_TABS = ["display", "permissions", "members"] as const;
 
   const role = roles.find((r) => r.id === openId) ?? null;
+
+  const isRoleHistoryState = () =>
+    typeof window !== "undefined" && (window.history.state as { digiSomiti?: string } | null)?.digiSomiti === "role-detail";
+
+  const goBackToList = useCallback(() => {
+    if (isRoleHistoryState()) {
+      window.history.back();
+      return;
+    }
+    setOpenId(null);
+  }, []);
+
+  useEffect(() => {
+    onRoleDetailChange?.(openId != null);
+    return () => onRoleDetailChange?.(false);
+  }, [openId, onRoleDetailChange]);
+
+  useEffect(() => {
+    if (!openId) {
+      setSavedSnapshot(null);
+      return;
+    }
+    const current = roles.find((r) => r.id === openId);
+    if (current) setSavedSnapshot(structuredClone(current));
+    // Snapshot only when opening a role — not on every edit
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openId]);
+
+  // Android / browser back closes role detail
+  useEffect(() => {
+    const onPopState = () => {
+      setOpenId((current) => (current != null ? null : current));
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
   const ranked = roles.filter((r) => !r.everyone);
   const everyone = roles.find((r) => r.everyone);
 
   const label = (r: SomitiRole) => (bn ? r.nameBn : r.name);
+
+  const roleFingerprint = (r: SomitiRole) =>
+    JSON.stringify({
+      name: r.name,
+      nameBn: r.nameBn,
+      color: r.color,
+      icon: r.icon,
+      hoist: r.hoist,
+      mentionable: r.mentionable,
+      permissions: r.permissions,
+      memberIds: r.memberIds,
+    });
+
+  const isDirty = !!role && !!savedSnapshot && roleFingerprint(role) !== roleFingerprint(savedSnapshot);
+  const canEditRole = !!role && role.id !== "founder";
 
   const patch = (id: string, next: Partial<SomitiRole>) => {
     setRoles((prev) => prev.map((r) => (r.id === id ? { ...r, ...next } : r)));
@@ -303,6 +511,25 @@ export const RoleManager: React.FC = () => {
         }
         return { ...r, permissions };
       })
+    );
+  };
+
+  const saveRoleChanges = () => {
+    if (!role || !isDirty) return;
+    setSavedSnapshot(structuredClone(role));
+    success(
+      bn ? "সংরক্ষণ হয়েছে" : "Changes saved",
+      bn ? `${label(role)} আপডেট করা হয়েছে।` : `${label(role)} updated.`
+    );
+  };
+
+  const resetRoleChanges = () => {
+    if (!role || !savedSnapshot || !isDirty) return;
+    const restored = structuredClone(savedSnapshot);
+    setRoles((prev) => prev.map((r) => (r.id === role.id ? restored : r)));
+    info(
+      bn ? "রিসেট হয়েছে" : "Changes reset",
+      bn ? "আগের সংরক্ষিত অবস্থায় ফিরে গেছে।" : "Restored to the last saved state."
     );
   };
 
@@ -333,6 +560,7 @@ export const RoleManager: React.FC = () => {
     setTab("display");
     setConfirmDelete(false);
     setOpenId(id);
+    window.history.pushState({ digiSomiti: "role-detail", roleId: id }, "");
     info(bn ? "ভূমিকা তৈরি হয়েছে" : "Role created", bn ? "নাম, রং ও অনুমতি সেট করুন।" : "Set the name, color, and permissions.");
   };
 
@@ -340,9 +568,10 @@ export const RoleManager: React.FC = () => {
     const target = roles.find((r) => r.id === id);
     if (!target || target.locked) return;
     setRoles((prev) => prev.filter((r) => r.id !== id));
-    setOpenId(null);
     setConfirmDelete(false);
     success(bn ? "ভূমিকা মুছে ফেলা হয়েছে" : "Role deleted", label(target));
+    if (isRoleHistoryState()) window.history.back();
+    else setOpenId(null);
   };
 
   const openRole = (id: string) => {
@@ -351,16 +580,48 @@ export const RoleManager: React.FC = () => {
     setPermQuery("");
     setAdding(false);
     setOpenId(id);
+    window.history.pushState({ digiSomiti: "role-detail", roleId: id }, "");
   };
 
-  const roleIcon = (r: SomitiRole) => {
-    const props = { size: 16, color: r.color, strokeWidth: 2.25 };
-    if (r.icon === "crown") return <Crown {...props} />;
-    if (r.icon === "briefcase") return <Briefcase {...props} />;
-    if (r.icon === "cash") return <BadgeDollarSign {...props} />;
-    if (r.icon === "user") return <User {...props} />;
-    return <Shield {...props} />;
+  const handleDetailSwipeStart = (e: React.TouchEvent) => {
+    if (e.touches.length !== 1) return;
+    swipeLockedRef.current = false;
+    swipeStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
   };
+
+  const handleDetailSwipeEnd = (e: React.TouchEvent) => {
+    if (swipeLockedRef.current) {
+      swipeStartRef.current = null;
+      swipeLockedRef.current = false;
+      return;
+    }
+    const start = swipeStartRef.current;
+    swipeStartRef.current = null;
+    if (!start || e.changedTouches.length !== 1) return;
+
+    const dx = e.changedTouches[0].clientX - start.x;
+    const dy = e.changedTouches[0].clientY - start.y;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+    if (absX < 72 || absX < absY * 1.35) return;
+
+    const idx = DETAIL_TABS.indexOf(tab);
+    if (dx < 0) {
+      // swipe left → next tab
+      if (idx >= 0 && idx < DETAIL_TABS.length - 1) setTab(DETAIL_TABS[idx + 1]);
+      return;
+    }
+    // swipe right → previous tab, or back to list from Display
+    if (idx > 0) setTab(DETAIL_TABS[idx - 1]);
+    else goBackToList();
+  };
+
+  const renderIcon = (icon: RoleIcon, color: string, size = 16) => {
+    const Icon = ROLE_ICON_MAP[icon] ?? Shield;
+    return <Icon size={size} color={color} strokeWidth={2.25} />;
+  };
+
+  const roleIcon = (r: SomitiRole, size = 16) => renderIcon(r.icon, r.color, size);
 
   const roleCard = (r: SomitiRole) => (
     <button
@@ -401,7 +662,7 @@ export const RoleManager: React.FC = () => {
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <AnimatePresence mode="wait">
         {!role ? (
-          <motion.div key="list" initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.18 }}>
+          <motion.div key="list" initial={{ opacity: 0, x: -28 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -28 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}>
             <div className="page-head" style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
               <div style={{ display: "contents" }}>
                 <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", margin: 0, fontFamily: "var(--font-heading)" }}>
@@ -441,33 +702,245 @@ export const RoleManager: React.FC = () => {
             </div>
           </motion.div>
         ) : (
-          <motion.div key={role.id} initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }} transition={{ duration: 0.18 }} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <button
-                type="button"
-                onClick={() => setOpenId(null)}
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  border: "1px solid var(--color-border)",
-                  background: "var(--color-surface)",
-                  color: "var(--color-text-primary)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                }}
-              >
-                <ChevronRight size={16} style={{ transform: "rotate(180deg)" }} />
-              </button>
-              <span style={{ width: 12, height: 12, borderRadius: "50%", background: role.color }} />
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: role.color, fontFamily: "var(--font-heading)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {label(role)}
-              </h2>
-            </div>
+          <motion.div
+            key={role.id}
+            initial={{ opacity: 0, x: 36 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 36 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            onTouchStart={handleDetailSwipeStart}
+            onTouchEnd={handleDetailSwipeEnd}
+            style={{ display: "flex", flexDirection: "column", gap: role.id === "founder" ? 28 : 14, touchAction: "pan-y" }}
+          >
+            {role.id === "founder" ? (
+              <>
+                <button
+                  type="button"
+                  onClick={goBackToList}
+                  style={{
+                    alignSelf: "flex-start",
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    border: "1px solid var(--color-border)",
+                    background: "transparent",
+                    color: "var(--color-text-primary)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                  }}
+                >
+                  <ChevronRight size={16} style={{ transform: "rotate(180deg)" }} />
+                </button>
 
-            <div style={{ display: "flex", borderBottom: "1px solid var(--color-border)" }}>
+                <div
+                  className="page-head"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr auto",
+                    alignItems: "end",
+                    columnGap: 16,
+                    rowGap: 14,
+                    paddingBottom: 18,
+                    borderBottom: "1px solid var(--color-border-subtle)",
+                  }}
+                >
+                  <div style={{ minWidth: 0 }}>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                        color: "var(--color-brand)",
+                        marginBottom: 6,
+                      }}
+                    >
+                      {bn ? "সিস্টেম ভূমিকা" : "System role"}
+                    </div>
+                    <h2
+                      style={{
+                        margin: 0,
+                        fontSize: 26,
+                        fontWeight: 800,
+                        color: "var(--color-text-primary)",
+                        fontFamily: "var(--font-heading)",
+                        letterSpacing: "-0.02em",
+                        lineHeight: 1.15,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                      }}
+                    >
+                      <span style={{ color: role.color, display: "inline-flex" }}>{roleIcon(role, 22)}</span>
+                      {label(role)}
+                    </h2>
+                    <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--color-text-muted)", lineHeight: 1.45 }}>
+                      {bn ? role.descBn : role.desc}
+                    </p>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end", alignItems: "center" }}>
+                    <button
+                      type="button"
+                      onClick={() => setTab("members")}
+                      style={{
+                        padding: "9px 14px",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--color-border)",
+                        background: "transparent",
+                        color: "var(--color-text-primary)",
+                        fontSize: 12.5,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {bn ? `সদস্য ${role.memberIds.length}` : `${role.memberIds.length} member${role.memberIds.length === 1 ? "" : "s"}`}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTab("permissions")}
+                      style={{
+                        padding: "9px 16px",
+                        borderRadius: "var(--radius-md)",
+                        background: "var(--color-brand)",
+                        color: "#FFFFFF",
+                        border: "none",
+                        fontSize: 12.5,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {bn ? "অনুমতি দেখুন" : "View access"}
+                    </button>
+                  </div>
+                </div>
+
+                <section style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <h3
+                    style={{
+                      margin: 0,
+                      fontSize: 13,
+                      fontWeight: 700,
+                      letterSpacing: "0.06em",
+                      textTransform: "uppercase",
+                      color: "var(--color-text-muted)",
+                    }}
+                  >
+                    {bn ? "সারাংশ" : "Overview"}
+                  </h3>
+                  <div
+                    className="founder-overview-grid"
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                      gap: 0,
+                      borderTop: "1px solid var(--color-border-subtle)",
+                      borderBottom: "1px solid var(--color-border-subtle)",
+                    }}
+                  >
+                    {(
+                      [
+                        {
+                          label: bn ? "অনুমতি" : "Access",
+                          value: bn ? "পূর্ণ" : "Full",
+                          meta: bn ? "সব ক্ষমতা সক্রিয়" : "Administrator bypass",
+                          pct: 100,
+                          color: "var(--color-brand)",
+                        },
+                        {
+                          label: bn ? "সদস্য" : "Members",
+                          value: String(role.memberIds.length),
+                          meta: bn ? "লকড অ্যাসাইনমেন্ট" : "Locked assignment",
+                          pct: Math.min(100, role.memberIds.length * 34),
+                          color: "#10B981",
+                        },
+                        {
+                          label: bn ? "স্কোপ" : "Scope",
+                          value: bn ? "ওয়ার্কস্পেস" : "Workspace",
+                          meta: bn ? "সিস্টেম সুরক্ষিত" : "System protected",
+                          pct: 100,
+                          color: role.color,
+                        },
+                      ] as const
+                    ).map((meter, i) => (
+                      <div
+                        key={meter.label}
+                        style={{
+                          padding: "16px 14px 18px",
+                          borderLeft: i === 0 ? "none" : "1px solid var(--color-border-subtle)",
+                          minWidth: 0,
+                        }}
+                      >
+                        <div style={{ fontSize: 11.5, fontWeight: 600, color: "var(--color-text-muted)", marginBottom: 8 }}>{meter.label}</div>
+                        <div
+                          style={{
+                            fontSize: 22,
+                            fontWeight: 800,
+                            color: "var(--color-text-primary)",
+                            fontFamily: "var(--font-heading)",
+                            letterSpacing: "-0.03em",
+                            lineHeight: 1,
+                          }}
+                        >
+                          {meter.value}
+                        </div>
+                        <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 6, marginBottom: 12 }}>{meter.meta}</div>
+                        <div style={{ width: "100%", height: 3, borderRadius: 99, background: "var(--color-border)", overflow: "hidden" }}>
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${meter.pct}%` }}
+                            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: i * 0.06 }}
+                            style={{ height: "100%", background: meter.color, borderRadius: 99 }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button
+                  type="button"
+                  onClick={goBackToList}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    border: "1px solid var(--color-border)",
+                    background: "var(--color-surface)",
+                    color: "var(--color-text-primary)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                  }}
+                >
+                  <ChevronRight size={16} style={{ transform: "rotate(180deg)" }} />
+                </button>
+                <span
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: 8,
+                    background: `${role.color}22`,
+                    border: `1px solid ${role.color}55`,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  {roleIcon(role, 16)}
+                </span>
+                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: role.color, fontFamily: "var(--font-heading)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {label(role)}
+                </h2>
+              </div>
+            )}
+
+            <div style={{ display: "flex", borderBottom: "1px solid var(--color-border-subtle)" }}>
               {(
                 [
                   ["display", bn ? "প্রদর্শন" : "Display"],
@@ -497,35 +970,144 @@ export const RoleManager: React.FC = () => {
               ))}
             </div>
 
-            {tab === "display" && (
+            {tab === "display" && role.id === "founder" && (
+              <section style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
+                  <h3
+                    style={{
+                      margin: 0,
+                      fontSize: 13,
+                      fontWeight: 700,
+                      letterSpacing: "0.06em",
+                      textTransform: "uppercase",
+                      color: "var(--color-text-muted)",
+                    }}
+                  >
+                    {bn ? "প্রদর্শন" : "Identity"}
+                  </h3>
+                  <span style={{ fontSize: 12, color: "var(--color-text-muted)" }}>
+                    {bn ? "শুধুমাত্র পাঠযোগ্য" : "Read only"}
+                  </span>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {(
+                    [
+                      {
+                        label: bn ? "নাম" : "Name",
+                        value: label(role),
+                        trailing: <span style={{ color: role.color, display: "inline-flex" }}>{roleIcon(role, 18)}</span>,
+                      },
+                      {
+                        label: bn ? "রং" : "Color",
+                        value: role.color.toUpperCase(),
+                        trailing: (
+                          <span
+                            style={{
+                              width: 18,
+                              height: 18,
+                              borderRadius: "50%",
+                              background: role.color,
+                              boxShadow: `0 0 0 2px ${role.color}33`,
+                              display: "inline-block",
+                            }}
+                          />
+                        ),
+                      },
+                      {
+                        label: bn ? "আইকন" : "Icon",
+                        value: ROLE_ICONS.find((o) => o.id === role.icon)?.[bn ? "labelBn" : "label"] ?? role.icon,
+                        trailing: <span style={{ color: role.color, display: "inline-flex" }}>{roleIcon(role, 18)}</span>,
+                      },
+                      {
+                        label: bn ? "স্থিতি" : "Status",
+                        value: bn ? "লকড সিস্টেম ভূমিকা" : "Locked system role",
+                        trailing: <Lock size={15} color="var(--color-text-muted)" />,
+                      },
+                    ] as const
+                  ).map((row) => (
+                    <div
+                      key={row.label}
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "120px 1fr auto",
+                        gap: 12,
+                        alignItems: "center",
+                        padding: "14px 16px",
+                        borderRadius: "var(--radius-lg)",
+                        border: "1px solid var(--color-border-subtle)",
+                        background: "transparent",
+                      }}
+                    >
+                      <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-text-muted)" }}>{row.label}</span>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text-primary)", fontFamily: "var(--font-heading)", minWidth: 0 }}>
+                        {row.value}
+                      </span>
+                      {row.trailing}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {tab === "display" && role.id !== "founder" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: "var(--color-text-muted)" }}>{bn ? "ভূমিকার নাম" : "Role name"}</span>
-                  <input
-                    value={bn ? role.nameBn : role.name}
-                    disabled={role.id === "founder" || role.everyone}
-                    onChange={(e) => patch(role.id, bn ? { nameBn: e.target.value } : { name: e.target.value })}
+                  <div
+                    className="borderless-search-bar"
                     style={{
-                      padding: "12px 14px",
-                      borderRadius: 8,
-                      border: "1px solid var(--color-border)",
-                      background: "var(--color-surface)",
-                      color: "var(--color-text-primary)",
-                      fontSize: 15,
-                      outline: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "12px 16px",
+                      width: "100%",
+                      boxSizing: "border-box",
                     }}
-                  />
+                  >
+                    <span
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: 8,
+                        background: "transparent",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {roleIcon(role, 16)}
+                    </span>
+                    <input
+                      className="search-input-field"
+                      value={bn ? role.nameBn : role.name}
+                      disabled={role.everyone}
+                      onChange={(e) => patch(role.id, bn ? { nameBn: e.target.value } : { name: e.target.value })}
+                      style={{
+                        flex: 1,
+                        background: "transparent",
+                        border: "none",
+                        outline: "none",
+                        boxShadow: "none",
+                        padding: 0,
+                        minHeight: "unset",
+                        fontSize: 13.5,
+                        fontFamily: "var(--font-ui)",
+                        minWidth: 0,
+                      }}
+                    />
+                  </div>
                 </label>
 
                 <div>
                   <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-text-muted)", marginBottom: 8 }}>{bn ? "ভূমিকার রং" : "Role color"}</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
                     {COLORS.map((color) => (
                       <button
                         key={color}
                         type="button"
                         aria-label={color}
-                        disabled={role.id === "founder"}
                         onClick={() => patch(role.id, { color })}
                         style={{
                           width: 28,
@@ -534,56 +1116,155 @@ export const RoleManager: React.FC = () => {
                           background: color,
                           border: role.color.toLowerCase() === color.toLowerCase() ? "2px solid #FFFFFF" : "2px solid transparent",
                           boxShadow: role.color.toLowerCase() === color.toLowerCase() ? `0 0 0 2px ${color}` : "none",
-                          cursor: role.id === "founder" ? "not-allowed" : "pointer",
+                          cursor: "pointer",
                           padding: 0,
                         }}
                       />
                     ))}
-                    <label style={{ width: 28, height: 28, borderRadius: "50%", overflow: "hidden", border: "1px solid var(--color-border)", cursor: "pointer" }}>
+                    <label
+                      title={bn ? "কাস্টম রং" : "Custom color"}
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: "50%",
+                        position: "relative",
+                        overflow: "hidden",
+                        border: COLORS.some((c) => c.toLowerCase() === role.color.toLowerCase())
+                          ? "1px solid var(--color-border)"
+                          : "2px solid #FFFFFF",
+                        boxShadow: COLORS.some((c) => c.toLowerCase() === role.color.toLowerCase())
+                          ? "none"
+                          : `0 0 0 2px ${role.color}`,
+                        cursor: "pointer",
+                        background: `conic-gradient(#F43F5E, #F59E0B, #22C55E, #3B82F6, #A855F7, #F43F5E)`,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: 16,
+                          height: 16,
+                          borderRadius: "50%",
+                          background: "var(--color-surface)",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <Pipette size={10} color="var(--color-text-primary)" />
+                      </span>
                       <input
                         type="color"
                         value={role.color}
-                        disabled={role.id === "founder"}
                         onChange={(e) => patch(role.id, { color: e.target.value })}
-                        style={{ border: "none", padding: 0, width: 36, height: 36, margin: -4, cursor: "pointer", background: "transparent" }}
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          opacity: 0,
+                          width: "100%",
+                          height: "100%",
+                          cursor: "pointer",
+                          border: "none",
+                          padding: 0,
+                        }}
                       />
                     </label>
                   </div>
                 </div>
 
-                <div style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: 12, overflow: "hidden" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderBottom: "1px solid var(--color-border-subtle)" }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: "var(--color-text-primary)" }}>{bn ? "আলাদা করে দেখান" : "Display separately"}</div>
-                      <div style={{ fontSize: 12, color: "var(--color-text-muted)", marginTop: 2 }}>{bn ? "সদস্য তালিকায় এই ভূমিকা আলাদা অংশে থাকবে।" : "Show members of this role in their own group."}</div>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-text-muted)", marginBottom: 8 }}>{bn ? "ভূমিকার আইকন" : "Role icon"}</div>
+                  <div style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: 12, padding: 12 }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {ROLE_ICONS.map((opt) => {
+                        const selected = role.icon === opt.id;
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            aria-label={bn ? opt.labelBn : opt.label}
+                            title={bn ? opt.labelBn : opt.label}
+                            onClick={() => patch(role.id, { icon: opt.id })}
+                            style={{
+                              width: 44,
+                              height: 44,
+                              borderRadius: 10,
+                              border: selected ? `2px solid ${role.color}` : "1px solid var(--color-border)",
+                              background: selected ? `${role.color}18` : "var(--color-bg)",
+                              color: selected ? role.color : "var(--color-text-secondary)",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              cursor: "pointer",
+                            }}
+                          >
+                            {renderIcon(opt.id, selected ? role.color : "var(--color-text-secondary)", 20)}
+                          </button>
+                        );
+                      })}
                     </div>
-                    <Switch on={role.hoist} disabled={role.id === "founder"} onClick={() => patch(role.id, { hoist: !role.hoist })} />
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px" }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: "var(--color-text-primary)" }}>{bn ? "সবাই উল্লেখ করতে পারবে" : "Allow anyone to mention"}</div>
-                      <div style={{ fontSize: 12, color: "var(--color-text-muted)", marginTop: 2 }}>{bn ? "যেকোনো কর্মী এই ভূমিকাকে ট্যাগ করতে পারবে।" : "Anyone can @mention this role."}</div>
-                    </div>
-                    <Switch on={role.mentionable} disabled={role.id === "founder"} onClick={() => patch(role.id, { mentionable: !role.mentionable })} />
                   </div>
                 </div>
               </div>
             )}
 
             {tab === "permissions" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {role.permissions.administrator && (
-                  <div style={{ padding: "10px 12px", borderRadius: 8, background: "rgba(237, 66, 69, 0.12)", color: "#ED4245", fontSize: 12.5, fontWeight: 600 }}>
-                    {bn ? "এই ভূমিকার সব অনুমতি চালু আছে।" : "This role has every permission."}
+              <div style={{ display: "flex", flexDirection: "column", gap: role.id === "founder" ? 16 : 14 }}>
+                {role.id === "founder" ? (
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
+                    <h3
+                      style={{
+                        margin: 0,
+                        fontSize: 13,
+                        fontWeight: 700,
+                        letterSpacing: "0.06em",
+                        textTransform: "uppercase",
+                        color: "var(--color-text-muted)",
+                      }}
+                    >
+                      {bn ? "অনুমতি" : "Permissions"}
+                    </h3>
+                    <span style={{ fontSize: 12, color: "var(--color-text-muted)" }}>
+                      {bn ? "সব অনুমতি সক্রিয়" : "Every permission enabled"}
+                    </span>
                   </div>
+                ) : (
+                  role.permissions.administrator && (
+                    <div style={{ padding: "10px 12px", borderRadius: 8, background: "rgba(237, 66, 69, 0.12)", color: "#ED4245", fontSize: 12.5, fontWeight: 600 }}>
+                      {bn ? "এই ভূমিকার সব অনুমতি চালু আছে।" : "This role has every permission."}
+                    </div>
+                  )
                 )}
-                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 8, background: "var(--color-surface)", border: "1px solid var(--color-border)" }}>
+                <div
+                  className={role.id === "founder" ? "borderless-search-bar" : undefined}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: role.id === "founder" ? "12px 16px" : "8px 12px",
+                    borderRadius: role.id === "founder" ? undefined : 8,
+                    background: role.id === "founder" ? undefined : "var(--color-surface)",
+                    border: role.id === "founder" ? undefined : "1px solid var(--color-border)",
+                  }}
+                >
                   <Search size={15} style={{ color: "var(--color-text-muted)" }} />
                   <input
+                    className={role.id === "founder" ? "search-input-field" : undefined}
                     value={permQuery}
                     onChange={(e) => setPermQuery(e.target.value)}
                     placeholder={bn ? "অনুমতি খুঁজুন" : "Search permissions"}
-                    style={{ flex: 1, border: "none", outline: "none", background: "transparent", color: "var(--color-text-primary)", fontSize: 14 }}
+                    style={{
+                      flex: 1,
+                      border: "none",
+                      outline: "none",
+                      background: "transparent",
+                      color: role.id === "founder" ? undefined : "var(--color-text-primary)",
+                      fontSize: role.id === "founder" ? 13.5 : 14,
+                      fontFamily: role.id === "founder" ? "var(--font-ui)" : undefined,
+                    }}
                   />
                 </div>
                 {PERM_GROUPS.map((group) => {
@@ -595,13 +1276,58 @@ export const RoleManager: React.FC = () => {
                   if (items.length === 0) return null;
                   return (
                     <div key={group.id}>
-                      <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--color-text-muted)", margin: "4px 2px 8px" }}>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          fontWeight: role.id === "founder" ? 700 : 800,
+                          letterSpacing: role.id === "founder" ? "0.06em" : "0.04em",
+                          textTransform: "uppercase",
+                          color: "var(--color-text-muted)",
+                          margin: "4px 2px 8px",
+                        }}
+                      >
                         {bn ? group.labelBn : group.label}
                       </div>
-                      <div style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: 12, overflow: "hidden" }}>
+                      <div
+                        style={{
+                          background: role.id === "founder" ? "transparent" : "var(--color-surface)",
+                          border: role.id === "founder" ? "none" : "1px solid var(--color-border)",
+                          borderRadius: role.id === "founder" ? 0 : 12,
+                          overflow: "hidden",
+                          display: role.id === "founder" ? "flex" : undefined,
+                          flexDirection: role.id === "founder" ? "column" : undefined,
+                          gap: role.id === "founder" ? 8 : undefined,
+                        }}
+                      >
                         {items.map((item, index) => {
                           const adminLocks = role.permissions.administrator && item.key !== "administrator";
                           const on = role.permissions[item.key];
+                          if (role.id === "founder") {
+                            return (
+                              <div
+                                key={item.key}
+                                style={{
+                                  display: "grid",
+                                  gridTemplateColumns: "1fr auto",
+                                  gap: 12,
+                                  alignItems: "center",
+                                  padding: "14px 16px",
+                                  borderRadius: "var(--radius-lg)",
+                                  border: "1px solid var(--color-border-subtle)",
+                                }}
+                              >
+                                <div style={{ minWidth: 0 }}>
+                                  <div style={{ fontSize: 14, fontWeight: 700, color: item.danger ? "#ED4245" : "var(--color-text-primary)" }}>
+                                    {bn ? item.nameBn : item.name}
+                                  </div>
+                                  <div style={{ fontSize: 12, color: "var(--color-text-muted)", marginTop: 2, lineHeight: 1.35 }}>
+                                    {bn ? item.descBn : item.desc}
+                                  </div>
+                                </div>
+                                <Check size={16} style={{ color: "var(--color-brand)", flexShrink: 0 }} />
+                              </div>
+                            );
+                          }
                           return (
                             <div key={item.key} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderTop: index === 0 ? "none" : "1px solid var(--color-border-subtle)" }}>
                               <div style={{ flex: 1, minWidth: 0 }}>
@@ -614,7 +1340,7 @@ export const RoleManager: React.FC = () => {
                               </div>
                               <Switch
                                 on={on}
-                                disabled={role.id === "founder" || adminLocks}
+                                disabled={adminLocks}
                                 onClick={() => togglePerm(role.id, item.key)}
                               />
                             </div>
@@ -628,31 +1354,52 @@ export const RoleManager: React.FC = () => {
             )}
 
             {tab === "members" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <button
-                  type="button"
-                  onClick={() => setAdding((v) => !v)}
-                  disabled={role.everyone}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 6,
-                    padding: "10px 12px",
-                    borderRadius: 8,
-                    border: "1px solid var(--color-border)",
-                    background: "var(--color-surface)",
-                    color: "var(--color-text-primary)",
-                    fontSize: 13,
-                    fontWeight: 700,
-                    cursor: role.everyone ? "not-allowed" : "pointer",
-                    opacity: role.everyone ? 0.5 : 1,
-                  }}
-                >
-                  <Plus size={15} />
-                  {bn ? "সদস্য যোগ করুন" : "Add members"}
-                </button>
-                {adding && (
+              <div style={{ display: "flex", flexDirection: "column", gap: role.id === "founder" ? 12 : 10 }}>
+                {role.id === "founder" && (
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
+                    <h3
+                      style={{
+                        margin: 0,
+                        fontSize: 13,
+                        fontWeight: 700,
+                        letterSpacing: "0.06em",
+                        textTransform: "uppercase",
+                        color: "var(--color-text-muted)",
+                      }}
+                    >
+                      {bn ? "সদস্য" : "Members"}
+                    </h3>
+                    <span style={{ fontSize: 12, color: "var(--color-text-muted)" }}>
+                      {bn ? "অ্যাসাইনমেন্ট লকড" : "Assignment locked"}
+                    </span>
+                  </div>
+                )}
+                {role.id !== "founder" && (
+                  <button
+                    type="button"
+                    onClick={() => setAdding((v) => !v)}
+                    disabled={role.everyone}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 6,
+                      padding: "10px 12px",
+                      borderRadius: 8,
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface)",
+                      color: "var(--color-text-primary)",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: role.everyone ? "not-allowed" : "pointer",
+                      opacity: role.everyone ? 0.5 : 1,
+                    }}
+                  >
+                    <Plus size={15} />
+                    {bn ? "সদস্য যোগ করুন" : "Add members"}
+                  </button>
+                )}
+                {adding && role.id !== "founder" && (
                   <div style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: 12, overflow: "hidden" }}>
                     {PEOPLE.filter((p) => !role.memberIds.includes(p.id)).map((person) => (
                       <button
@@ -687,7 +1434,17 @@ export const RoleManager: React.FC = () => {
                     )}
                   </div>
                 )}
-                <div style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: 12, overflow: "hidden" }}>
+                <div
+                  style={{
+                    background: role.id === "founder" ? "transparent" : "var(--color-surface)",
+                    border: role.id === "founder" ? "none" : "1px solid var(--color-border)",
+                    borderRadius: role.id === "founder" ? 0 : 12,
+                    overflow: "hidden",
+                    display: role.id === "founder" ? "flex" : undefined,
+                    flexDirection: role.id === "founder" ? "column" : undefined,
+                    gap: role.id === "founder" ? 8 : undefined,
+                  }}
+                >
                   {role.memberIds.length === 0 && (
                     <div style={{ padding: 16, fontSize: 13, color: "var(--color-text-muted)" }}>
                       {role.everyone
@@ -702,6 +1459,44 @@ export const RoleManager: React.FC = () => {
                   {role.memberIds.map((id) => {
                     const person = PEOPLE.find((p) => p.id === id);
                     if (!person) return null;
+                    if (role.id === "founder") {
+                      return (
+                        <div
+                          key={id}
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "auto 1fr",
+                            gap: 12,
+                            alignItems: "center",
+                            padding: "14px 16px",
+                            borderRadius: "var(--radius-lg)",
+                            border: "1px solid var(--color-border-subtle)",
+                          }}
+                        >
+                          <span
+                            style={{
+                              width: 36,
+                              height: 36,
+                              borderRadius: "50%",
+                              background: role.color,
+                              color: "#fff",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: 13,
+                              fontWeight: 700,
+                              flexShrink: 0,
+                            }}
+                          >
+                            {person.name.charAt(0)}
+                          </span>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text-primary)" }}>{bn ? person.nameBn : person.name}</div>
+                            <div style={{ fontSize: 12, color: "var(--color-text-muted)", marginTop: 2 }}>{person.detail}</div>
+                          </div>
+                        </div>
+                      );
+                    }
                     return (
                       <div key={id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderBottom: "1px solid var(--color-border-subtle)" }}>
                         <span style={{ width: 32, height: 32, borderRadius: "50%", background: role.color, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
@@ -711,16 +1506,14 @@ export const RoleManager: React.FC = () => {
                           <div style={{ fontSize: 14, fontWeight: 600, color: "var(--color-text-primary)" }}>{bn ? person.nameBn : person.name}</div>
                           <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>{person.detail}</div>
                         </div>
-                        {role.id !== "founder" && (
-                          <button
-                            type="button"
-                            aria-label={bn ? "সরান" : "Remove"}
-                            onClick={() => patch(role.id, { memberIds: role.memberIds.filter((m) => m !== id) })}
-                            style={{ border: "none", background: "transparent", color: "var(--color-text-muted)", cursor: "pointer", display: "flex" }}
-                          >
-                            <X size={16} />
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          aria-label={bn ? "সরান" : "Remove"}
+                          onClick={() => patch(role.id, { memberIds: role.memberIds.filter((m) => m !== id) })}
+                          style={{ border: "none", background: "transparent", color: "var(--color-text-muted)", cursor: "pointer", display: "flex" }}
+                        >
+                          <X size={16} />
+                        </button>
                       </div>
                     );
                   })}
@@ -728,8 +1521,78 @@ export const RoleManager: React.FC = () => {
               </div>
             )}
 
+            {role.id !== "founder" && (
+            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+              <button
+                type="button"
+                onClick={resetRoleChanges}
+                disabled={!canEditRole || !isDirty}
+                style={{
+                  flex: 1,
+                  padding: "12px",
+                  borderRadius: 8,
+                  border: "1px solid var(--color-border)",
+                  background: "var(--color-surface)",
+                  color: "var(--color-text-primary)",
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: !canEditRole || !isDirty ? "not-allowed" : "pointer",
+                  opacity: !canEditRole || !isDirty ? 0.45 : 1,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 6,
+                }}
+              >
+                <RotateCcw size={15} />
+                {bn ? "রিসেট" : "Reset"}
+              </button>
+              <button
+                type="button"
+                onClick={saveRoleChanges}
+                disabled={!canEditRole || !isDirty}
+                style={{
+                  flex: 1,
+                  padding: "12px",
+                  borderRadius: 8,
+                  border: "none",
+                  background: "var(--color-brand)",
+                  color: "#FFFFFF",
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: !canEditRole || !isDirty ? "not-allowed" : "pointer",
+                  opacity: !canEditRole || !isDirty ? 0.45 : 1,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 6,
+                }}
+              >
+                <Save size={15} />
+                {bn ? "সংরক্ষণ" : "Save"}
+              </button>
+            </div>
+            )}
+
+            {role.id === "founder" && (
+              <style>{`
+                @media (max-width: 720px) {
+                  .founder-overview-grid {
+                    grid-template-columns: 1fr !important;
+                  }
+                  .founder-overview-grid > div {
+                    border-left: none !important;
+                    border-top: 1px solid var(--color-border-subtle);
+                  }
+                  .founder-overview-grid > div:first-child {
+                    border-top: none !important;
+                  }
+                }
+              `}</style>
+            )}
+
             {!role.locked && (
-              <div style={{ marginTop: 8 }}>
+              <div style={{ marginTop: 4 }}>
                 {confirmDelete ? (
                   <div style={{ display: "flex", gap: 8 }}>
                     <button type="button" onClick={() => setConfirmDelete(false)} style={{ flex: 1, padding: "12px", borderRadius: 8, border: "1px solid var(--color-border)", background: "transparent", color: "var(--color-text-primary)", fontWeight: 700, cursor: "pointer" }}>
