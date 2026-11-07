@@ -1766,7 +1766,7 @@ const BranchesTab: React.FC = () => {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       {/* ── Page Header & Quick Add ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
+      <div className="page-head" style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
         <div style={{ display: "contents" }}>
           <h2
             style={{
@@ -1780,7 +1780,7 @@ const BranchesTab: React.FC = () => {
           >
             {language === "bn" ? "শাখাসমূহ" : "Branches"}
           </h2>
-          <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", width: "100%" }}>
+          <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", gridRow: 2, width: "100%" }}>
             {language === "bn"
               ? "সমিতির সকল শাখা, ক্যাশ ভল্ট ও ব্যবস্থাপকদের পরিচালনা করুন"
               : "Manage network locations, branch vaults, and regional managers"}
@@ -3151,7 +3151,7 @@ const MembersTab: React.FC = () => {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       {/* ── Page Header & Action ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
+      <div className="page-head" style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
         <div style={{ display: "contents" }}>
           <h2
             style={{
@@ -3165,7 +3165,7 @@ const MembersTab: React.FC = () => {
           >
             {language === "bn" ? "সদস্যগণ" : "Members"}
           </h2>
-          <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", width: "100%" }}>
+          <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", gridRow: 2, width: "100%" }}>
             {language === "bn"
               ? "সমিতির সকল যাচাইকৃত সদস্য, সঞ্চয় ভল্ট ও ঋণ হিসাব পরিচালনা করুন"
               : "Manage verified members, savings portfolios, loan limits, and membership tiers"}
@@ -5148,12 +5148,12 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
           {activeCase === "roles" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {/* Case Header */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
+              <div className="page-head" style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
                 <div style={{ display: "contents" }}>
                   <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", margin: 0, fontFamily: "var(--font-heading)" }}>
                     {language === "bn" ? "ভূমিকা ও অনুমতি" : "Roles & Permissions"}
                   </h2>
-                  <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", width: "100%" }}>
+                  <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", gridRow: 2, width: "100%" }}>
                     {language === "bn"
                       ? "প্রশাসনিক ভূমিকা বিন্যাস, শাখা ব্যবস্থাপক নির্ধারণ ও নতুন কর্মী অ্যাক্সেস নিয়ন্ত্রণ"
                       : "Hierarchical RBAC governance: configure authority tiers, reassign branch managers, and manage credentials"}
@@ -5430,12 +5430,12 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
           {activeCase === "kyc" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {/* Case Header */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
+              <div className="page-head" style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
                 <div style={{ display: "contents" }}>
                   <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", margin: 0, fontFamily: "var(--font-heading)" }}>
                     {language === "bn" ? "জাতীয় পরিচয়পত্র ও কেওয়াইসি যাচাইকরণ সারি" : "EC National ID & KYC Verification Pipeline"}
                   </h2>
-                  <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", width: "100%" }}>
+                  <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", gridRow: 2, width: "100%" }}>
                     {language === "bn"
                       ? "নতুন সদস্য ও ফিল্ড কর্মকর্তাদের বায়োমেট্রিক ও এনআইডি ডকুমেন্ট যাচাই এবং অনুমোদন"
                       : "Election Commission live NID biometric matching and reviewer onboarding signoff queue"}
@@ -5877,12 +5877,12 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
           {activeCase === "security" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {/* Case Header */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
+              <div className="page-head" style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
                 <div style={{ display: "contents" }}>
                   <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", margin: 0, fontFamily: "var(--font-heading)" }}>
                     {language === "bn" ? "নিরাপত্তা ও প্রাতিষ্ঠানিক নীতিমালা" : "Security Policies & Access Governance"}
                   </h2>
-                  <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", width: "100%" }}>
+                  <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", gridRow: 2, width: "100%" }}>
                     {language === "bn"
                       ? "সমগ্র প্ল্যাটফর্মের আর্থিক লেনদেন সুরক্ষা, শাখা নেটওয়ার্ক জিও-ফেন্সিং ও কর্মকর্তা এক্সেস নিয়ন্ত্রণ"
                       : "Multi-layered institutional controls safeguarding cash reserves, remote sessions, and loan signoffs"}
@@ -6102,12 +6102,12 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
           {activeCase === "branches_case" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {/* Case Header */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
+              <div className="page-head" style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
                 <div style={{ display: "contents" }}>
                   <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", margin: 0, fontFamily: "var(--font-heading)" }}>
                     {language === "bn" ? "শাখা নোড ও ভল্ট বরাদ্দ নিয়ন্ত্রণ" : "Branch Nodes & Regional Vault Allocations"}
                   </h2>
-                  <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", width: "100%" }}>
+                  <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", gridRow: 2, width: "100%" }}>
                     {language === "bn"
                       ? "৭টি আঞ্চলিক হাবের ভল্ট ব্যালেন্স, শাখা ব্যবস্থাপক অ্যাসাইনমেন্ট ও লাইসেন্স পরিচালনা"
                       : "Inspect and manage regional somiti branch nodes, vault reserves, and teller authorizations"}
@@ -6230,12 +6230,12 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
           {activeCase === "vault_case" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {/* Case Header */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
+              <div className="page-head" style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
                 <div style={{ display: "contents" }}>
                   <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", margin: 0, fontFamily: "var(--font-heading)" }}>
                     {language === "bn" ? "ভল্ট রিজার্ভ ও তারল্য ব্যবস্থাপনা" : "Central Vault & Liquidity Governance"}
                   </h2>
-                  <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", width: "100%" }}>
+                  <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", gridRow: 2, width: "100%" }}>
                     {language === "bn"
                       ? "৭টি আঞ্চলিক শাখার সম্মিলিত তারল্য, দৈনিক ক্যাশ সিলিং ও রিজার্ভ অনুপাত পর্যবেক্ষণ"
                       : "Multi-branch liquidity reserves, cash-in-transit limits, and emergency settlement buffers"}
@@ -6308,12 +6308,12 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
           {activeCase === "audit" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {/* Case Header */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
+              <div className="page-head" style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
                 <div style={{ display: "contents" }}>
                   <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", margin: 0, fontFamily: "var(--font-heading)" }}>
                     {language === "bn" ? "অডিট ট্রেইল ও কমপ্লায়েন্স লগ" : "Audit Trail & Compliance Logs"}
                   </h2>
-                  <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", width: "100%" }}>
+                  <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", gridRow: 2, width: "100%" }}>
                     {language === "bn"
                       ? "প্রশাসনিক ভূমিকা পরিবর্তন, কেওয়াইসি অনুমোদন, পলিসি সমন্বয় ও নিরাপত্তা লগইন রেকর্ড"
                       : "Immutable ledger logging administrative mutations, session authentications, and policy adjustments"}
@@ -6482,12 +6482,12 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
           {activeCase === "api_case" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {/* Case Header */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
+              <div className="page-head" style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", columnGap: 12, rowGap: 4 }}>
                 <div style={{ display: "contents" }}>
                   <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", margin: 0, fontFamily: "var(--font-heading)" }}>
                     {language === "bn" ? "এপিআই গেটওয়ে ও ইন্টিগ্রেশন ওয়েবহুক" : "API Gateways & External Integrations"}
                   </h2>
-                  <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", width: "100%" }}>
+                  <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", gridRow: 2, width: "100%" }}>
                     {language === "bn"
                       ? "এনআইডি ভেরিফিকেশন ব্রিজ, এসএমএস নোটিফিকেশন ক্যারিয়ার ও মোবাইল ফিনান্সিয়াল সার্ভিস গেটওয়ে"
                       : "Telemetry status and webhook health across national identity, SMS, and MFS payment rails"}
@@ -6930,7 +6930,7 @@ const SettingsTab: React.FC = () => {
         >
           {language === "bn" ? "প্ল্যাটফর্ম সেটিংস" : "Platform Settings"}
         </h2>
-        <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", width: "100%" }}>
+        <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "2px 0 0", gridColumn: "1 / -1", gridRow: 2, width: "100%" }}>
           {language === "bn"
             ? "সমিতির পলিসি, সুদের হার, থিম ও নিরাপত্তা পরিচালনা করুন"
             : "Manage cooperative policy, rates, theme, security, and credentials"}

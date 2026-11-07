@@ -480,4 +480,20 @@ select:-webkit-autofill:focus {
   box-sizing: border-box;
 }
 
+/* Page title row: action stays top-right, description spans the row below */
+.page-head > :last-child {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  align-self: center;
+  width: auto;
+  max-width: 100%;
+}
+
+.page-head h2 {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+
 
