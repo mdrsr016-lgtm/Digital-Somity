@@ -8,6 +8,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { Logo } from "./components/common/Logo";
 import { UpdateNotificationModal } from "./components/common/UpdateNotificationModal";
+import { AppLockGate } from "./components/common/AppLockGate";
 import { PullToRefresh } from "./components/common/PullToRefresh";
 import { APP_VERSION } from "./constants/appVersion";
 import { applyLiveUpdate } from "./utils/liveUpdate";
@@ -160,14 +161,14 @@ const AppRouter: React.FC = () => {
   }, []);
 
   return (
-    <>
+    <AppLockGate>
       <PullToRefresh />
       <UpdateNotificationModal />
       <div id="ptr-content">
         {showApkSplash && <ApkSplashScreen onFinish={() => setShowApkSplash(false)} />}
         {currentUser ? <DashboardPage /> : <LoginPage />}
       </div>
-    </>
+    </AppLockGate>
   );
 };
 

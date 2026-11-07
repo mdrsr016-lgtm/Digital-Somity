@@ -71,6 +71,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useToast } from "../contexts/ToastContext";
 import { RoleManager } from "../components/console/RoleManager";
+import { isAppLockEnabled, setAppLockEnabled } from "../utils/deviceUnlock";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type NavItem = {
@@ -6860,7 +6861,7 @@ const SettingsTab: React.FC = () => {
 
   // Security Toggles
   const [twoFactor, setTwoFactor] = useState(true);
-  const [biometric, setBiometric] = useState(true);
+  const [biometric, setBiometric] = useState(() => isAppLockEnabled());
   const [autoLock, setAutoLock] = useState("15");
 
   // Notification Toggles
@@ -7369,10 +7370,36 @@ const SettingsTab: React.FC = () => {
         />
 
         <SettingToggle
-          title="Biometric App Lock"
-          subtitle="Use Touch ID / Face ID to access mobile shell"
+          title={language === "bn" ? "ডিভাইস আনলক লক" : "Device Unlock Lock"}
+          subtitle={
+            language === "bn"
+              ? "অ্যাপ খোলার সময় ফিঙ্গারপ্রিন্ট বা ডিভাইস পিন চাইবে"
+              : "Ask for fingerprint or device PIN whenever the app opens"
+          }
           checked={biometric}
-          onChange={() => setBiometric((v) => !v)}
+          onChange={() => {
+            setBiometric((v) => {
+              const next = !v;
+              setAppLockEnabled(next);
+              success(
+                next
+                  ? language === "bn"
+                    ? "অ্যাপ লক চালু"
+                    : "App lock enabled"
+                  : language === "bn"
+                    ? "অ্যাপ লক বন্ধ"
+                    : "App lock disabled",
+                next
+                  ? language === "bn"
+                    ? "পরেরবার অ্যাপ খুললে আনলক চাওয়া হবে।"
+                    : "The next launch will require device unlock."
+                  : language === "bn"
+                    ? "ডিভাইস আনলক ছাড়াই অ্যাপ খুলবে।"
+                    : "The app will open without device unlock."
+              );
+              return next;
+            });
+          }}
           icon={<Smartphone size={18} />}
         />
 
