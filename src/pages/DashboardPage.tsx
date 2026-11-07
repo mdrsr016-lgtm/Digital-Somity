@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { Capacitor } from "@capacitor/core";
 import { motion, AnimatePresence } from "framer-motion";
+import { registerAndroidBackHandler } from "../utils/androidBackButton";
 import {
   Home,
   Users,
@@ -9365,6 +9366,98 @@ export const DashboardPage: React.FC = () => {
   const swipeLockedRef = useRef(false);
   const slideDirRef = useRef<1 | -1>(1);
   const prevTabRef = useRef(activeTab);
+  const drawerOpenRef = useRef(drawerOpen);
+  const profileOpenRef = useRef(profileOpen);
+  const consoleSheetOpenRef = useRef(consoleSheetOpen);
+  const activeTabRef = useRef(activeTab);
+
+  useEffect(() => {
+    drawerOpenRef.current = drawerOpen;
+  }, [drawerOpen]);
+  useEffect(() => {
+    profileOpenRef.current = profileOpen;
+  }, [profileOpen]);
+  useEffect(() => {
+    consoleSheetOpenRef.current = consoleSheetOpen;
+  }, [consoleSheetOpen]);
+  useEffect(() => {
+    activeTabRef.current = activeTab;
+  }, [activeTab]);
+
+  // Keep a root history entry so Android back can navigate instead of exiting.
+  useEffect(() => {
+    if (!isAppMode) return;
+    const state = window.history.state as { digiSomiti?: string } | null;
+    if (!state?.digiSomiti) {
+      window.history.pushState({ digiSomiti: "root" }, "");
+    }
+  }, [isAppMode]);
+
+  // Console sheet ↔ history so system back closes it
+  useEffect(() => {
+    if (!isAppMode) return;
+    if (consoleSheetOpen) {
+      const state = window.history.state as { digiSomiti?: string } | null;
+      if (state?.digiSomiti !== "console-sheet") {
+        window.history.pushState({ digiSomiti: "console-sheet" }, "");
+      }
+      return;
+    }
+  }, [consoleSheetOpen, isAppMode]);
+
+  useEffect(() => {
+    if (!isAppMode) return;
+    const onPopState = () => {
+      const state = window.history.state as { digiSomiti?: string } | null;
+      if (consoleSheetOpenRef.current && state?.digiSomiti !== "console-sheet") {
+        setConsoleSheetOpen(false);
+      }
+      if (drawerOpenRef.current) setDrawerOpen(false);
+      if (profileOpenRef.current) setProfileOpen(false);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [isAppMode]);
+
+  const closeConsoleSheet = useCallback(() => {
+    const state = window.history.state as { digiSomiti?: string } | null;
+    if (state?.digiSomiti === "console-sheet") {
+      window.history.back();
+      return;
+    }
+    setConsoleSheetOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (!isAppMode) return;
+    return registerAndroidBackHandler(() => {
+      if (drawerOpenRef.current) {
+        setDrawerOpen(false);
+        return true;
+      }
+      if (profileOpenRef.current) {
+        setProfileOpen(false);
+        return true;
+      }
+      if (consoleSheetOpenRef.current) {
+        closeConsoleSheet();
+        return true;
+      }
+
+      const state = window.history.state as { digiSomiti?: string } | null;
+      if (state?.digiSomiti === "role-detail" || state?.digiSomiti === "console-case") {
+        window.history.back();
+        return true;
+      }
+
+      if (activeTabRef.current !== "home") {
+        setActiveTab("home");
+        return true;
+      }
+
+      return false;
+    });
+  }, [isAppMode, closeConsoleSheet]);
 
   // Measure only when activeTab changes — avoids infinite render loop
   useLayoutEffect(() => {
@@ -10410,7 +10503,7 @@ export const DashboardPage: React.FC = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              onClick={() => setConsoleSheetOpen(false)}
+              onClick={closeConsoleSheet}
               style={{
                 position: "fixed",
                 inset: 0,
@@ -10487,7 +10580,7 @@ export const DashboardPage: React.FC = () => {
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <button
-                    onClick={() => { setConsoleSheetOpen(false); setActiveTab("console"); }}
+                    onClick={() => { closeConsoleSheet(); setActiveTab("console"); }}
                     style={{
                       display: "inline-flex",
                       alignItems: "center",
@@ -10506,7 +10599,7 @@ export const DashboardPage: React.FC = () => {
                     Open full
                   </button>
                   <button
-                    onClick={() => setConsoleSheetOpen(false)}
+                    onClick={closeConsoleSheet}
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -10536,9 +10629,9 @@ export const DashboardPage: React.FC = () => {
                 }}
               >
                 <ConsoleTab
-                  onNavigateTab={(t) => { setConsoleSheetOpen(false); setActiveTab(t); }}
+                  onNavigateTab={(t) => { closeConsoleSheet(); setActiveTab(t); }}
                   onCardClick={(id) => {
-                    setConsoleSheetOpen(false);
+                    closeConsoleSheet();
                     setConsoleInitialCase(id);
                     setActiveTab("console");
                   }}

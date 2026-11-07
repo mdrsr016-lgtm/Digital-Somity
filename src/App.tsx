@@ -11,6 +11,7 @@ import { UpdateNotificationModal } from "./components/common/UpdateNotificationM
 import { PullToRefresh } from "./components/common/PullToRefresh";
 import { APP_VERSION } from "./constants/appVersion";
 import { applyLiveUpdate } from "./utils/liveUpdate";
+import { startAndroidBackButtonListener } from "./utils/androidBackButton";
 
 // ─── APK-Only Opening Splash Screen ──────────────────────────────────────────
 const ApkSplashScreen: React.FC<{ onFinish: () => void }> = ({ onFinish }) => {
@@ -142,7 +143,11 @@ const AppRouter: React.FC = () => {
       if (document.visibilityState === "visible") run();
     };
     document.addEventListener("visibilitychange", onVisible);
-    return () => document.removeEventListener("visibilitychange", onVisible);
+    const stopBack = startAndroidBackButtonListener();
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      stopBack();
+    };
   }, []);
 
   return (
