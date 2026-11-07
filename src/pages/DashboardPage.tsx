@@ -9329,6 +9329,12 @@ const ProfileView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   );
 };
 
+const tabSlideVariants = {
+  enter: (dir: number) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0.72 }),
+  center: { x: 0, opacity: 1 },
+  exit: (dir: number) => ({ x: dir > 0 ? "-100%" : "100%", opacity: 0.72 }),
+};
+
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export const DashboardPage: React.FC = () => {
   const { currentUser, logout } = useAuth();
@@ -9349,6 +9355,8 @@ export const DashboardPage: React.FC = () => {
   // App-only horizontal swipe between bottom tabs
   const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
   const swipeLockedRef = useRef(false);
+  const slideDirRef = useRef<1 | -1>(1);
+  const prevTabRef = useRef(activeTab);
 
   // Measure only when activeTab changes — avoids infinite render loop
   useLayoutEffect(() => {
@@ -9391,15 +9399,18 @@ export const DashboardPage: React.FC = () => {
       const idx = items.findIndex((n) => n.id === activeTab);
       if (idx === -1) return;
 
-      const next = idx + direction;
+      let next = idx + direction;
+      while (
+        next >= 0 &&
+        next < items.length &&
+        (items[next].id === "console" || items[next].id === "system")
+      ) {
+        next += direction;
+      }
       if (next < 0 || next >= items.length) return;
 
-      const item = items[next];
-      if (item.id === "console") {
-        setConsoleSheetOpen(true);
-      } else {
-        setActiveTab(item.id);
-      }
+      slideDirRef.current = direction;
+      setActiveTab(items[next].id);
     },
     [isAppMode, currentUser, activeTab, drawerOpen, profileOpen, consoleSheetOpen]
   );
@@ -9451,6 +9462,15 @@ export const DashboardPage: React.FC = () => {
 
   const navItems = NAV_BY_ROLE[currentUser.role] ?? NAV_BY_ROLE.member;
   const activeNavItem = navItems.find((n) => n.id === activeTab) ?? navItems[0];
+
+  if (prevTabRef.current !== activeTab) {
+    const prev = navItems.findIndex((n) => n.id === prevTabRef.current);
+    const next = navItems.findIndex((n) => n.id === activeTab);
+    if (prev !== -1 && next !== -1 && next !== prev) {
+      slideDirRef.current = next > prev ? 1 : -1;
+    }
+    prevTabRef.current = activeTab;
+  }
 
   // ── Dynamic time greeting & date (live updating) ──
   const [currentTime, setCurrentTime] = useState(() => new Date());
@@ -9903,8 +9923,21 @@ export const DashboardPage: React.FC = () => {
           scrollbarWidth: "none",
           msOverflowStyle: "none",
           touchAction: isAppMode ? "pan-y" : undefined,
+          overflowX: "hidden",
         }}
       >
+        <div style={{ overflow: "hidden", width: "100%" }}>
+          <AnimatePresence mode="wait" initial={false} custom={slideDirRef.current}>
+            <motion.div
+              key={isAppMode ? activeTab : "web"}
+              custom={slideDirRef.current}
+              variants={isAppMode ? tabSlideVariants : undefined}
+              initial={isAppMode ? "enter" : false}
+              animate={isAppMode ? "center" : undefined}
+              exit={isAppMode ? "exit" : undefined}
+              transition={{ duration: isAppMode ? 0.34 : 0, ease: [0.22, 1, 0.36, 1] }}
+              style={{ width: "100%" }}
+            >
         {activeTab === "home" ? (
           <>
             {/* ── Hero Greeting Banner (Borderless & Well-Spaced) ── */}
@@ -10042,6 +10075,9 @@ export const DashboardPage: React.FC = () => {
             <PlaceholderContent tab={language === "bn" ? activeNavItem.labelBn : activeNavItem.label} />
           </>
         )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </main>
 
       {/* ── Bottom Navigation (Floating & Glass Transparent) ── */}
