@@ -101,21 +101,21 @@ export const UpdateNotificationModal: React.FC = () => {
         const displayVer = `v${remoteVer}`;
         setTargetVersion(displayVer);
 
-        // The Android app applies the GitHub site directly. No package install.
+        // Native: hard-reload onto the published GitHub Pages build.
         if (Capacitor.isNativePlatform()) {
           try {
-            await applyLiveUpdate();
+            const applied = await applyLiveUpdate();
+            if (!applied && isMounted) setModalState("web_reload_ready");
           } catch (err) {
             console.warn("Live update failed:", err);
+            if (isMounted) setModalState("web_reload_ready");
           }
           return;
         }
 
         // ── Web: offer a reload of this page ──────────────────────────────
-        if (!Capacitor.isNativePlatform()) {
-          setModalState("web_reload_ready");
-          return;
-        }
+        setModalState("web_reload_ready");
+        return;
 
         // ── 3B. ANDROID APK VERSION: Auto-download & prompt to install ────────
         try {

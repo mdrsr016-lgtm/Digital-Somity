@@ -1,5 +1,10 @@
 import { Capacitor } from "@capacitor/core";
-import { APP_VERSION, LIVE_APP_URL, VERSION_CHECK_URL } from "../constants/appVersion";
+import {
+  APP_VERSION,
+  CURRENT_BUILD_SHA,
+  LIVE_APP_URL,
+  VERSION_CHECK_URL,
+} from "../constants/appVersion";
 
 function isNewerVersion(remote: string, local: string): boolean {
   if (!remote || !local) return false;
@@ -16,27 +21,36 @@ function isNewerVersion(remote: string, local: string): boolean {
 }
 
 /**
- * If GitHub has a newer build, open it in place.
- * No APK install — the WebView just loads the published site.
+ * Reload the Capacitor WebView onto the published GitHub Pages build when
+ * the live site reports a newer version or a different build SHA.
  */
 export async function applyLiveUpdate(): Promise<boolean> {
   if (import.meta.env.DEV || !Capacitor.isNativePlatform()) return false;
 
   const response = await fetch(`${VERSION_CHECK_URL}?_t=${Date.now()}`, {
     cache: "no-store",
-    headers: { "Cache-Control": "no-cache" },
+    headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
   });
   if (!response.ok) return false;
 
   const data = await response.json();
   const remoteVer = String(data?.version || "");
-  if (!isNewerVersion(remoteVer, APP_VERSION)) return false;
+  const remoteSha = String(data?.sha || "");
+  if (!remoteVer) return false;
+
+  const versionNewer = isNewerVersion(remoteVer, APP_VERSION);
+  const shaChanged = Boolean(remoteSha) && remoteSha !== CURRENT_BUILD_SHA;
+  if (!versionNewer && !shaChanged) return false;
 
   const current = new URL(window.location.href);
-  if (current.searchParams.get("v") === remoteVer) return false;
+  const alreadyOnBuild = current.searchParams.get("build") === (remoteSha || remoteVer);
+  // Only skip when this document is already the new build (version matches too).
+  if (alreadyOnBuild && !versionNewer) return false;
 
   const next = new URL(LIVE_APP_URL);
   next.searchParams.set("v", remoteVer);
+  next.searchParams.set("build", remoteSha || remoteVer);
+  next.searchParams.set("_", String(Date.now()));
   window.location.replace(next.toString());
   return true;
 }
