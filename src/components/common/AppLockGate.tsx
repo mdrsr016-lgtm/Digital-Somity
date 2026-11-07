@@ -6,6 +6,7 @@ import { Logo } from "./Logo";
 import {
   authenticateDeviceUnlock,
   isAppLockEnabled,
+  waitForAppActive,
 } from "../../utils/deviceUnlock";
 
 /**
@@ -16,9 +17,12 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
   const isNative = Capacitor.isNativePlatform();
   const [unlocked, setUnlocked] = useState(() => !isNative || !isAppLockEnabled());
   const [busy, setBusy] = useState(false);
+  const [hint, setHint] = useState<string | null>(null);
   const authInProgressRef = useRef(false);
+  /** Ignore resume prompts briefly after AuthActivity closes / auth ends. */
+  const ignoreResumeUntilRef = useRef(0);
 
-  const tryUnlock = useCallback(async () => {
+  const tryUnlock = useCallback(async (source: "auto" | "tap" | "resume" = "auto") => {
     if (!isNative) {
       setUnlocked(true);
       return;
@@ -28,18 +32,34 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
       return;
     }
     if (authInProgressRef.current) return;
+    if (source === "resume" && Date.now() < ignoreResumeUntilRef.current) return;
 
     authInProgressRef.current = true;
     setBusy(true);
+    setHint(null);
     try {
+      if (source === "auto") {
+        // Let splash / first paint settle before launching AuthActivity.
+        await new Promise((r) => setTimeout(r, 700));
+        await waitForAppActive();
+      }
       const ok = await authenticateDeviceUnlock();
-      if (ok) setUnlocked(true);
+      if (ok) {
+        setUnlocked(true);
+        setHint(null);
+      } else {
+        setHint("Unlock cancelled. Tap Unlock to try again.");
+      }
+    } catch (err) {
+      console.warn("Unlock attempt failed:", err);
+      setHint("Could not open fingerprint prompt. Tap Unlock to retry.");
     } finally {
       setBusy(false);
-      // Delay clearing so brief inactive flashes from the system prompt don't re-lock.
+      // AuthActivity pauses/resumes the app; ignore that bounce.
+      ignoreResumeUntilRef.current = Date.now() + 1200;
       setTimeout(() => {
         authInProgressRef.current = false;
-      }, 400);
+      }, 500);
     }
   }, [isNative]);
 
@@ -48,7 +68,7 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
 
     if (isAppLockEnabled()) {
       setUnlocked(false);
-      void tryUnlock();
+      void tryUnlock("auto");
     } else {
       setUnlocked(true);
     }
@@ -59,13 +79,21 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
         setUnlocked(true);
         return;
       }
+
       if (!isActive) {
-        if (!authInProgressRef.current) setUnlocked(false);
+        // Going to background (or AuthActivity). Don't clear auth-in-progress.
+        if (!authInProgressRef.current) {
+          setUnlocked(false);
+        }
         return;
       }
-      // Returning to foreground while locked → prompt again
+
+      // Foreground again: only re-prompt if still locked and not mid-auth / bounce.
+      if (authInProgressRef.current) return;
+      if (Date.now() < ignoreResumeUntilRef.current) return;
+
       setUnlocked((prev) => {
-        if (!prev) void tryUnlock();
+        if (!prev) void tryUnlock("resume");
         return prev;
       });
     }).then((h) => {
@@ -129,10 +157,13 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
           <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--color-text-muted, #94A3B8)", lineHeight: 1.45 }}>
             Unlock with fingerprint, face, or your device PIN / password to continue.
           </p>
+          {hint ? (
+            <p style={{ margin: "10px 0 0", fontSize: 12, color: "#F59E0B", lineHeight: 1.4 }}>{hint}</p>
+          ) : null}
         </div>
         <button
           type="button"
-          onClick={() => void tryUnlock()}
+          onClick={() => void tryUnlock("tap")}
           disabled={busy}
           style={{
             marginTop: 8,
