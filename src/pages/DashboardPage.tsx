@@ -3163,7 +3163,7 @@ const MembersTab: React.FC = () => {
               letterSpacing: "-0.02em",
             }}
           >
-            {language === "bn" ? "সদস্য তালিকা ও কেওয়াইসি" : "Member Directory & KYC"}
+            {language === "bn" ? "সদস্যগণ" : "Members"}
           </h2>
           <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "4px 0 0" }}>
             {language === "bn"
