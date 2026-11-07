@@ -1,13 +1,8 @@
 import { Capacitor } from "@capacitor/core";
-import { App as CapApp } from "@capacitor/app";
-import {
-  AndroidBiometryStrength,
-  BiometricAuth,
-  BiometryError,
-} from "@aparajita/capacitor-biometric-auth";
+import { DeviceUnlock } from "../plugins/DeviceUnlock";
 
 const PREF_KEY = "ds_app_lock_enabled";
-const AUTH_TIMEOUT_MS = 20_000;
+const AUTH_TIMEOUT_MS = 45_000;
 
 /** App lock is ON by default on native builds. */
 export function isAppLockEnabled(): boolean {
@@ -23,8 +18,8 @@ export function setAppLockEnabled(enabled: boolean): void {
 export async function canUseDeviceUnlock(): Promise<boolean> {
   if (!Capacitor.isNativePlatform()) return false;
   try {
-    const info = await BiometricAuth.checkBiometry();
-    return Boolean(info.isAvailable || info.deviceIsSecure);
+    const info = await DeviceUnlock.canAuthenticate();
+    return Boolean(info.canAuthenticate);
   } catch {
     return false;
   }
@@ -48,21 +43,6 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   });
 }
 
-/** Wait until the Capacitor activity is in the foreground. */
-export async function waitForAppActive(maxMs = 4000): Promise<void> {
-  if (!Capacitor.isNativePlatform()) return;
-  const started = Date.now();
-  while (Date.now() - started < maxMs) {
-    try {
-      const state = await CapApp.getState();
-      if (state.isActive) return;
-    } catch {
-      return;
-    }
-    await new Promise((r) => setTimeout(r, 120));
-  }
-}
-
 /**
  * Prompt for fingerprint / face / device PIN-password.
  * Returns true when unlocked (or when lock is unavailable / disabled).
@@ -72,26 +52,22 @@ export async function authenticateDeviceUnlock(): Promise<boolean> {
   if (!isAppLockEnabled()) return true;
 
   try {
-    await waitForAppActive();
-
-    const info = await withTimeout(BiometricAuth.checkBiometry(), 5000, "checkBiometry");
-    if (!info.isAvailable && !info.deviceIsSecure) {
+    const info = await withTimeout(
+      DeviceUnlock.canAuthenticate(),
+      5000,
+      "canAuthenticate"
+    );
+    if (!info.canAuthenticate) {
       // No biometrics and no device PIN — don't brick the app.
       return true;
     }
 
-    // Brief settle so AuthActivity is not started mid-transition.
-    await new Promise((r) => setTimeout(r, 250));
-
     await withTimeout(
-      BiometricAuth.authenticate({
+      DeviceUnlock.authenticate({
+        title: "Unlock Digital Somity",
+        subtitle: "Use fingerprint, face, or your device PIN / password",
         reason: "Unlock Digital Somity to continue",
         allowDeviceCredential: true,
-        androidTitle: "Unlock Digital Somity",
-        androidSubtitle: "Use fingerprint, face, or your device PIN / password",
-        cancelTitle: "Cancel",
-        androidConfirmationRequired: false,
-        androidBiometryStrength: AndroidBiometryStrength.weak,
       }),
       AUTH_TIMEOUT_MS,
       "authenticate"
@@ -99,18 +75,14 @@ export async function authenticateDeviceUnlock(): Promise<boolean> {
     return true;
   } catch (err) {
     const code =
-      err instanceof BiometryError
-        ? err.code
-        : typeof err === "object" && err && "code" in err
-          ? String((err as { code?: string }).code || "")
-          : "";
+      typeof err === "object" && err && "code" in err
+        ? String((err as { code?: string }).code || "")
+        : "";
 
-    // User/system cancel → stay locked
     if (
       code === "userCancel" ||
       code === "systemCancel" ||
-      code === "appCancel" ||
-      code === "userFallback"
+      code === "superseded"
     ) {
       return false;
     }

@@ -6,7 +6,6 @@ import { Logo } from "./Logo";
 import {
   authenticateDeviceUnlock,
   isAppLockEnabled,
-  waitForAppActive,
 } from "../../utils/deviceUnlock";
 
 /**
@@ -19,7 +18,6 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
   const [busy, setBusy] = useState(false);
   const [hint, setHint] = useState<string | null>(null);
   const authInProgressRef = useRef(false);
-  /** Ignore resume prompts briefly after AuthActivity closes / auth ends. */
   const ignoreResumeUntilRef = useRef(0);
 
   const tryUnlock = useCallback(async (source: "auto" | "tap" | "resume" = "auto") => {
@@ -39,9 +37,8 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
     setHint(null);
     try {
       if (source === "auto") {
-        // Let splash / first paint settle before launching AuthActivity.
-        await new Promise((r) => setTimeout(r, 700));
-        await waitForAppActive();
+        // Wait for MainActivity + WebView to be ready before BiometricPrompt.
+        await new Promise((r) => setTimeout(r, 900));
       }
       const ok = await authenticateDeviceUnlock();
       if (ok) {
@@ -52,14 +49,13 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     } catch (err) {
       console.warn("Unlock attempt failed:", err);
-      setHint("Could not open fingerprint prompt. Tap Unlock to retry.");
+      setHint("Could not open unlock prompt. Tap Unlock to retry.");
     } finally {
       setBusy(false);
-      // AuthActivity pauses/resumes the app; ignore that bounce.
-      ignoreResumeUntilRef.current = Date.now() + 1200;
+      ignoreResumeUntilRef.current = Date.now() + 800;
       setTimeout(() => {
         authInProgressRef.current = false;
-      }, 500);
+      }, 300);
     }
   }, [isNative]);
 
@@ -79,19 +75,13 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
         setUnlocked(true);
         return;
       }
-
       if (!isActive) {
-        // Going to background (or AuthActivity). Don't clear auth-in-progress.
-        if (!authInProgressRef.current) {
-          setUnlocked(false);
-        }
+        // Real backgrounding only — BiometricPrompt stays on same activity.
+        if (!authInProgressRef.current) setUnlocked(false);
         return;
       }
-
-      // Foreground again: only re-prompt if still locked and not mid-auth / bounce.
       if (authInProgressRef.current) return;
       if (Date.now() < ignoreResumeUntilRef.current) return;
-
       setUnlocked((prev) => {
         if (!prev) void tryUnlock("resume");
         return prev;

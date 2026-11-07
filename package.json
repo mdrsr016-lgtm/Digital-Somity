@@ -1,20 +1,18 @@
 {
   "name": "digital-somity",
   "private": true,
-  "version": "1.4.4",
+  "version": "1.4.5",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "postinstall": "node scripts/patch-biometric-auth.cjs",
     "build": "node scripts/stamp-version.cjs && node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc && vite build",
     "preview": "vite preview",
-    "cap:sync": "node scripts/patch-biometric-auth.cjs && npm run build && npx cap sync android && node -e \"const fs=require('fs');const p='android/app/src/main/assets/public/digitalsomity.apk';if(fs.existsSync(p))fs.unlinkSync(p);\"",
+    "cap:sync": "npm run build && npx cap sync android && node -e \"const fs=require('fs');const p='android/app/src/main/assets/public/digitalsomity.apk';if(fs.existsSync(p))fs.unlinkSync(p);\"",
     "generate:assets": "node scripts/generate-android-assets.cjs",
     "cap:open": "npx cap open android",
     "build:apk": "npm run cap:sync && cd android && .\\gradlew.bat assembleDebug && copy /Y app\\build\\outputs\\apk\\debug\\app-debug.apk ..\\public\\digitalsomity.apk"
   },
   "dependencies": {
-    "@aparajita/capacitor-biometric-auth": "^10.0.0",
     "@capacitor/android": "^8.6.0",
     "@capacitor/app": "^8.1.2",
     "@capacitor/core": "^8.6.0",
