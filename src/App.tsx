@@ -12,6 +12,7 @@ import { PullToRefresh } from "./components/common/PullToRefresh";
 import { APP_VERSION } from "./constants/appVersion";
 import { applyLiveUpdate } from "./utils/liveUpdate";
 import { startAndroidBackButtonListener } from "./utils/androidBackButton";
+import { neutralizeNativeFontScale } from "./utils/nativeFontScale";
 
 // ─── APK-Only Opening Splash Screen ──────────────────────────────────────────
 const ApkSplashScreen: React.FC<{ onFinish: () => void }> = ({ onFinish }) => {
@@ -138,6 +139,7 @@ const AppRouter: React.FC = () => {
     if (Capacitor.isNativePlatform()) {
       document.documentElement.classList.add("is-native-app");
       document.body.classList.add("is-native-app");
+      neutralizeNativeFontScale();
     }
 
     const run = () => {

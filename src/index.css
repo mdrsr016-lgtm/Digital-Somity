@@ -86,6 +86,65 @@ body.is-native-app .mobile-shell {
   max-width: 100%;
 }
 
+/* Lock typography against OEM/accessibility font inflation in WebView */
+html.is-native-app,
+html.is-native-app body {
+  text-size-adjust: 100% !important;
+  -webkit-text-size-adjust: 100% !important;
+}
+
+html.is-native-app {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* When font-scale compensation zoom is active, keep width stable */
+html.font-scale-compensated,
+html.font-scale-compensated body,
+html.font-scale-compensated #root,
+html.font-scale-compensated .mobile-shell {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Flex/grid text nodes must shrink so large fonts ellipsize instead of overflow */
+html.is-native-app .mobile-shell {
+  min-width: 0;
+}
+
+html.is-native-app .console-cards-grid > *,
+html.is-native-app .bottom-nav-btn,
+html.is-native-app .page-head,
+html.is-native-app .app-main {
+  min-width: 0;
+  max-width: 100%;
+}
+
+html.is-native-app .console-cards-grid > * {
+  overflow: hidden;
+}
+
+html.is-native-app .console-cards-grid span,
+html.is-native-app .bottom-nav-btn .nav-label,
+html.is-native-app .page-head h2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+html.is-native-app .console-cards-grid span,
+html.is-native-app .bottom-nav-btn .nav-label {
+  white-space: nowrap;
+}
+
+html.is-native-app .page-head h2,
+html.is-native-app p,
+html.is-native-app label {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 /* Headings */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
