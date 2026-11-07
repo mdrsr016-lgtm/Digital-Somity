@@ -9352,6 +9352,7 @@ export const DashboardPage: React.FC = () => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [consoleSheetOpen, setConsoleSheetOpen] = useState(false);
   const [consoleInitialCase, setConsoleInitialCase] = useState<string | null>(null);
+  const [consoleViewKey, setConsoleViewKey] = useState(0);
   const isAppMode = Capacitor.isNativePlatform();
 
   // ── Sliding pill refs & state ──
@@ -9406,14 +9407,7 @@ export const DashboardPage: React.FC = () => {
       const idx = items.findIndex((n) => n.id === activeTab);
       if (idx === -1) return;
 
-      let next = idx + direction;
-      while (
-        next >= 0 &&
-        next < items.length &&
-        (items[next].id === "console" || items[next].id === "system")
-      ) {
-        next += direction;
-      }
+      const next = idx + direction;
       if (next < 0 || next >= items.length) return;
 
       slideDirRef.current = direction;
@@ -10063,7 +10057,11 @@ export const DashboardPage: React.FC = () => {
         ) : activeTab === "members" ? (
           <MembersTab />
         ) : activeTab === "console" || activeTab === "system" ? (
-          <ConsoleTab onNavigateTab={(t) => setActiveTab(t)} initialCase={consoleInitialCase} />
+          <ConsoleTab
+            key={consoleViewKey}
+            onNavigateTab={(t) => setActiveTab(t)}
+            initialCase={consoleInitialCase}
+          />
         ) : activeTab === "settings" ? (
           <SettingsTab />
         ) : activeTab === "profile" ? (
@@ -10152,11 +10150,19 @@ export const DashboardPage: React.FC = () => {
                 key={item.id}
                 ref={(el) => { btnRefs.current[idx] = el; }}
                 onClick={() => {
-                  if (item.id === "console" && activeTab !== "console") {
+                  if (item.id === "console") {
+                    // Re-tap while Console is active: bring the console card/sheet back
+                    // and return to the module cards landing view.
+                    if (activeTab === "console" || activeTab === "system") {
+                      setConsoleInitialCase(null);
+                      setConsoleViewKey((k) => k + 1);
+                      setConsoleSheetOpen(true);
+                      return;
+                    }
                     setConsoleSheetOpen(true);
-                  } else {
-                    setActiveTab(item.id);
+                    return;
                   }
+                  setActiveTab(item.id);
                 }}
                 style={{
                   position: "relative",
