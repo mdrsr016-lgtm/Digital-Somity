@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
+import { Capacitor } from "@capacitor/core";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Home,
@@ -9338,11 +9339,16 @@ export const DashboardPage: React.FC = () => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [consoleSheetOpen, setConsoleSheetOpen] = useState(false);
   const [consoleInitialCase, setConsoleInitialCase] = useState<string | null>(null);
+  const isAppMode = Capacitor.isNativePlatform();
 
   // ── Sliding pill refs & state ──
   const navRef = useRef<HTMLDivElement>(null);
   const btnRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const [pill, setPill] = useState({ left: 0, width: 0, ready: false });
+
+  // App-only horizontal swipe between bottom tabs
+  const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
+  const swipeLockedRef = useRef(false);
 
   // Measure only when activeTab changes — avoids infinite render loop
   useLayoutEffect(() => {
@@ -9359,7 +9365,87 @@ export const DashboardPage: React.FC = () => {
     const navRect = nav.getBoundingClientRect();
     const btnRect = btn.getBoundingClientRect();
     setPill({ left: btnRect.left - navRect.left, width: btnRect.width, ready: true });
-  }, [activeTab, currentUser?.role]); // ← dependency array stops infinite loop
+  }, [activeTab, currentUser?.role]); // ← dependency array stops infinite render loop
+
+  const isInsideHorizontalScroller = useCallback((target: EventTarget | null) => {
+    if (!(target instanceof HTMLElement)) return false;
+    let el: HTMLElement | null = target;
+    while (el && el !== document.body) {
+      // Skip the main vertical page scroller itself
+      if (el.tagName === "MAIN") break;
+      const style = window.getComputedStyle(el);
+      if (/(auto|scroll)/.test(style.overflowX) && el.scrollWidth > el.clientWidth + 8) {
+        return true;
+      }
+      el = el.parentElement;
+    }
+    return false;
+  }, []);
+
+  const navigateBySwipe = useCallback(
+    (direction: 1 | -1) => {
+      if (!isAppMode || !currentUser) return;
+      if (drawerOpen || profileOpen || consoleSheetOpen) return;
+
+      const items = NAV_BY_ROLE[currentUser.role] ?? NAV_BY_ROLE.member;
+      const idx = items.findIndex((n) => n.id === activeTab);
+      if (idx === -1) return;
+
+      const next = idx + direction;
+      if (next < 0 || next >= items.length) return;
+
+      const item = items[next];
+      if (item.id === "console") {
+        setConsoleSheetOpen(true);
+      } else {
+        setActiveTab(item.id);
+      }
+    },
+    [isAppMode, currentUser, activeTab, drawerOpen, profileOpen, consoleSheetOpen]
+  );
+
+  const handleTabSwipeStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (!isAppMode || e.touches.length !== 1) return;
+      if (drawerOpen || profileOpen || consoleSheetOpen) return;
+      if (isInsideHorizontalScroller(e.target)) {
+        swipeStartRef.current = null;
+        swipeLockedRef.current = true;
+        return;
+      }
+      swipeLockedRef.current = false;
+      swipeStartRef.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+      };
+    },
+    [isAppMode, drawerOpen, profileOpen, consoleSheetOpen, isInsideHorizontalScroller]
+  );
+
+  const handleTabSwipeEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (!isAppMode || swipeLockedRef.current) {
+        swipeStartRef.current = null;
+        swipeLockedRef.current = false;
+        return;
+      }
+      const start = swipeStartRef.current;
+      swipeStartRef.current = null;
+      if (!start || e.changedTouches.length !== 1) return;
+
+      const dx = e.changedTouches[0].clientX - start.x;
+      const dy = e.changedTouches[0].clientY - start.y;
+      const absX = Math.abs(dx);
+      const absY = Math.abs(dy);
+
+      // Require a clear horizontal flick so vertical scroll / pull-to-refresh stay free
+      if (absX < 72 || absX < absY * 1.35) return;
+
+      if (dx < 0) navigateBySwipe(1);
+      else navigateBySwipe(-1);
+    },
+    [isAppMode, navigateBySwipe]
+  );
 
   if (!currentUser) return null;
 
@@ -9806,6 +9892,8 @@ export const DashboardPage: React.FC = () => {
       {/* ── Main Content ── */}
       <main
         className="no-scrollbar"
+        onTouchStart={isAppMode ? handleTabSwipeStart : undefined}
+        onTouchEnd={isAppMode ? handleTabSwipeEnd : undefined}
         style={{
           flex: 1,
           overflowY: "auto",
@@ -9814,6 +9902,7 @@ export const DashboardPage: React.FC = () => {
           WebkitOverflowScrolling: "touch",
           scrollbarWidth: "none",
           msOverflowStyle: "none",
+          touchAction: isAppMode ? "pan-y" : undefined,
         }}
       >
         {activeTab === "home" ? (
