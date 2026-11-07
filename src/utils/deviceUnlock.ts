@@ -2,6 +2,11 @@ import { Capacitor } from "@capacitor/core";
 import { DeviceUnlock } from "../plugins/DeviceUnlock";
 
 const PREF_KEY = "ds_app_lock_enabled";
+/** Survives page/live-update reloads in the same WebView session. */
+const SESSION_UNLOCK_KEY = "ds_session_unlocked";
+const BG_AT_KEY = "ds_lock_bg_at";
+/** Re-ask for unlock only after the app was away this long. */
+const BG_RELOCK_AFTER_MS = 45_000;
 const AUTH_TIMEOUT_MS = 60_000;
 
 export type UnlockAttemptResult = {
@@ -19,6 +24,55 @@ export function isAppLockEnabled(): boolean {
 
 export function setAppLockEnabled(enabled: boolean): void {
   localStorage.setItem(PREF_KEY, enabled ? "1" : "0");
+  if (!enabled) clearSessionUnlocked();
+}
+
+/** True when the user already unlocked in this app session (survives reloads). */
+export function isSessionUnlocked(): boolean {
+  try {
+    return sessionStorage.getItem(SESSION_UNLOCK_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function markSessionUnlocked(): void {
+  try {
+    sessionStorage.setItem(SESSION_UNLOCK_KEY, "1");
+    sessionStorage.removeItem(BG_AT_KEY);
+  } catch {
+    // ignore
+  }
+}
+
+export function clearSessionUnlocked(): void {
+  try {
+    sessionStorage.removeItem(SESSION_UNLOCK_KEY);
+    sessionStorage.removeItem(BG_AT_KEY);
+  } catch {
+    // ignore
+  }
+}
+
+export function markAppBackgrounded(): void {
+  try {
+    sessionStorage.setItem(BG_AT_KEY, String(Date.now()));
+  } catch {
+    // ignore
+  }
+}
+
+/** Returns true when the app was backgrounded long enough to require unlock again. */
+export function shouldRelockAfterBackground(): boolean {
+  try {
+    const raw = sessionStorage.getItem(BG_AT_KEY);
+    if (!raw) return false;
+    const at = parseInt(raw, 10);
+    if (!Number.isFinite(at)) return false;
+    return Date.now() - at >= BG_RELOCK_AFTER_MS;
+  } catch {
+    return false;
+  }
 }
 
 export async function canUseDeviceUnlock(): Promise<boolean> {

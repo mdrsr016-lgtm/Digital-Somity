@@ -5,17 +5,29 @@ import { Fingerprint, Lock, RefreshCw } from "lucide-react";
 import { Logo } from "./Logo";
 import {
   authenticateDeviceUnlock,
+  clearSessionUnlocked,
   isAppLockEnabled,
+  isSessionUnlocked,
+  markAppBackgrounded,
+  markSessionUnlocked,
   requestStartupPermissions,
+  shouldRelockAfterBackground,
 } from "../../utils/deviceUnlock";
 
 /**
  * Blocks the native app behind a lock screen until the device
  * fingerprint / face / PIN unlock succeeds.
+ *
+ * Unlock is remembered for the WebView session so live-update / page
+ * reloads do not ask again. Leaving the app for ~45s re-locks.
  */
 export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const isNative = Capacitor.isNativePlatform();
-  const [unlocked, setUnlocked] = useState(() => !isNative || !isAppLockEnabled());
+  const [unlocked, setUnlocked] = useState(() => {
+    if (!isNative) return true;
+    if (!isAppLockEnabled()) return true;
+    return isSessionUnlocked();
+  });
   const [busy, setBusy] = useState(false);
   const [hint, setHint] = useState<string | null>(null);
   const [ready, setReady] = useState(!isNative);
@@ -33,9 +45,13 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
         setUnlocked(true);
         return;
       }
+      // Already unlocked this session (e.g. after a reload) — stay open.
+      if (source !== "tap" && isSessionUnlocked()) {
+        setUnlocked(true);
+        return;
+      }
       if (source === "resume" && Date.now() < ignoreResumeUntilRef.current) return;
 
-      // Tap always forces a fresh attempt (fixes stuck "cancelled" with dead button).
       if (source === "tap") {
         authInProgressRef.current = false;
       } else if (authInProgressRef.current) {
@@ -52,7 +68,6 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
           await new Promise((r) => setTimeout(r, 400));
         }
 
-        // Auto + first tap use biometrics; later taps fall back to PIN/pattern screen.
         const preferPin = source === "tap" && attemptId >= 3;
         const result = await authenticateDeviceUnlock({
           preferDeviceCredential: preferPin,
@@ -61,6 +76,7 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
         if (attemptId !== attemptRef.current) return;
 
         if (result.ok) {
+          markSessionUnlocked();
           setUnlocked(true);
           setHint(null);
           return;
@@ -69,7 +85,7 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
         if (result.code === "userCancel" || result.code === "systemCancel") {
           setHint("Unlock cancelled. Tap Unlock to try again.");
         } else if (result.code === "notAvailable") {
-          setHint("No fingerprint/PIN set on this device. Tap Unlock to open settings.");
+          setHint("No fingerprint/PIN set on this device. Tap Unlock to try again.");
         } else if (result.code === "timeout") {
           setHint("Unlock timed out. Tap Unlock to try again.");
         } else if (result.message) {
@@ -98,7 +114,6 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
     let cancelled = false;
 
     (async () => {
-      // Ask for runtime permissions before the unlock prompt.
       await requestStartupPermissions();
       if (cancelled) return;
       setReady(true);
@@ -108,8 +123,13 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
         return;
       }
 
+      // Reload / live update: keep access if already unlocked this session.
+      if (isSessionUnlocked()) {
+        setUnlocked(true);
+        return;
+      }
+
       setUnlocked(false);
-      // Wait past splash (~1.6s) so BiometricPrompt is not system-cancelled.
       await new Promise((r) => setTimeout(r, 1800));
       if (cancelled) return;
       void tryUnlock("auto");
@@ -121,16 +141,30 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
         setUnlocked(true);
         return;
       }
+
       if (!isActive) {
-        if (!authInProgressRef.current) setUnlocked(false);
+        // Don't wipe unlock on brief pauses (prompt, permission sheet, reload).
+        if (!authInProgressRef.current) {
+          markAppBackgrounded();
+        }
         return;
       }
+
+      // Coming back to foreground
       if (authInProgressRef.current) return;
       if (Date.now() < ignoreResumeUntilRef.current) return;
-      setUnlocked((prev) => {
-        if (!prev) void tryUnlock("resume");
-        return prev;
-      });
+
+      if (shouldRelockAfterBackground()) {
+        clearSessionUnlocked();
+        setUnlocked(false);
+        void tryUnlock("resume");
+        return;
+      }
+
+      // Short background or reload bounce — stay unlocked if session says so.
+      if (isSessionUnlocked()) {
+        setUnlocked(true);
+      }
     }).then((h) => {
       handle = h;
     });
