@@ -5151,7 +5151,7 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
                 <div>
                   <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text-primary)", margin: 0, fontFamily: "var(--font-heading)" }}>
-                    {language === "bn" ? "ভূমিকা ও কর্মী অনুমতি ব্যবস্থাপনা" : "Roles & Permissions Management"}
+                    {language === "bn" ? "ভূমিকা ও অনুমতি" : "Roles & Permissions"}
                   </h2>
                   <p style={{ fontSize: 12.5, color: "var(--color-text-muted)", margin: "4px 0 0" }}>
                     {language === "bn"
