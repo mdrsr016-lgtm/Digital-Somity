@@ -23,7 +23,7 @@ export const GITHUB_REPO_OWNER = "mdrsr016-lgtm";
 export const GITHUB_REPO_NAME = "Digital-Somity";
 export const APK_DOWNLOAD_URL = "https://raw.githubusercontent.com/mdrsr016-lgtm/Digital-Somity/main/public/digitalsomity.apk";
 export const VERSION_CHECK_URL = "https://raw.githubusercontent.com/mdrsr016-lgtm/Digital-Somity/main/public/version.json";
-export const LIVE_APP_URL = "https://cdn.jsdelivr.net/gh/mdrsr016-lgtm/Digital-Somity@gh-pages/index.html";
+export const LIVE_APP_URL = "https://mdrsr016-lgtm.github.io/Digital-Somity/";
 `;
 fs.writeFileSync(tsPath, tsContent, 'utf8');
 console.log(`✓ Stamped app version: v${version} (${sha.slice(0, 8)})`);
