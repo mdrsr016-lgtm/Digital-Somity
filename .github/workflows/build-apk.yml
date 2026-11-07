@@ -85,9 +85,31 @@ jobs:
           cd android
           ./gradlew assembleDebug --no-daemon
 
+      - name: Publish versioned APK to public/
+        run: node scripts/publish-apk.cjs
+
+      - name: Read app version
+        id: ver
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "apk=digitalsomity-v${VERSION}.apk" >> "$GITHUB_OUTPUT"
+
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Digital-Somity-Release-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: Digital-Somity-v${{ steps.ver.outputs.version }}
+          path: public/${{ steps.ver.outputs.apk }}
           retention-days: 30
+
+      - name: Commit versioned APK to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/${{ steps.ver.outputs.apk }} public/digitalsomity.apk public/version.json || true
+          if git diff --cached --quiet; then
+            echo "No APK changes to commit"
+          else
+            git commit -m "chore: publish ${{ steps.ver.outputs.apk }}"
+            git push
+          fi

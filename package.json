@@ -1,16 +1,16 @@
 {
   "name": "digital-somity",
   "private": true,
-  "version": "1.4.5",
+  "version": "1.4.6",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "node scripts/stamp-version.cjs && node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc && vite build",
     "preview": "vite preview",
-    "cap:sync": "npm run build && npx cap sync android && node -e \"const fs=require('fs');const p='android/app/src/main/assets/public/digitalsomity.apk';if(fs.existsSync(p))fs.unlinkSync(p);\"",
+    "cap:sync": "npm run build && npx cap sync android && node scripts/clean-bundled-apk.cjs",
     "generate:assets": "node scripts/generate-android-assets.cjs",
     "cap:open": "npx cap open android",
-    "build:apk": "npm run cap:sync && cd android && .\\gradlew.bat assembleDebug && copy /Y app\\build\\outputs\\apk\\debug\\app-debug.apk ..\\public\\digitalsomity.apk"
+    "build:apk": "npm run cap:sync && cd android && .\\gradlew.bat assembleDebug && node ../scripts/publish-apk.cjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.6.0",

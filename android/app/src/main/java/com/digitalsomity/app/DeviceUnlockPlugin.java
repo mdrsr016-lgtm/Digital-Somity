@@ -1,10 +1,16 @@
 package com.digitalsomity.app;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
+import androidx.activity.result.ActivityResult;
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
@@ -14,18 +20,76 @@ import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.ActivityCallback;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
+import com.getcapacitor.annotation.PermissionCallback;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * Shows the system fingerprint / face / PIN prompt on the main Capacitor
- * activity (no separate AuthActivity). This avoids the hanging "Waiting…"
- * state caused by transparent secondary activities on many OEM devices.
+ * Device unlock using BiometricPrompt on MainActivity, with Keyguard PIN
+ * fallback. Also requests runtime permissions needed at launch.
  */
-@CapacitorPlugin(name = "DeviceUnlock")
+@CapacitorPlugin(
+    name = "DeviceUnlock",
+    permissions = {
+        @Permission(
+            alias = "notifications",
+            strings = { Manifest.permission.POST_NOTIFICATIONS }
+        )
+    }
+)
 public class DeviceUnlockPlugin extends Plugin {
 
     private PluginCall pendingCall;
+    private BiometricPrompt activePrompt;
+
+    @PluginMethod
+    public void requestStartupPermissions(PluginCall call) {
+        List<String> needed = new ArrayList<>();
+
+        if (Build.VERSION.SDK_INT >= 33) {
+            if (
+                ContextCompat.checkSelfPermission(
+                    getContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) !=
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                needed.add(Manifest.permission.POST_NOTIFICATIONS);
+            }
+        }
+
+        if (needed.isEmpty()) {
+            JSObject ret = new JSObject();
+            ret.put("notifications", "granted");
+            ret.put("requested", false);
+            call.resolve(ret);
+            return;
+        }
+
+        requestPermissionForAlias("notifications", call, "startupPermsCallback");
+    }
+
+    @PermissionCallback
+    private void startupPermsCallback(PluginCall call) {
+        JSObject ret = new JSObject();
+        if (Build.VERSION.SDK_INT >= 33) {
+            boolean granted =
+                ContextCompat.checkSelfPermission(
+                    getContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) ==
+                PackageManager.PERMISSION_GRANTED;
+            ret.put("notifications", granted ? "granted" : "denied");
+        } else {
+            ret.put("notifications", "granted");
+        }
+        ret.put("requested", true);
+        call.resolve(ret);
+    }
 
     @PluginMethod
     public void canAuthenticate(PluginCall call) {
@@ -64,6 +128,13 @@ public class DeviceUnlockPlugin extends Plugin {
 
     @PluginMethod
     public void authenticate(PluginCall call) {
+        // Cancel any previous prompt cleanly before starting a new one.
+        if (activePrompt != null) {
+            try {
+                activePrompt.cancelAuthentication();
+            } catch (Exception ignored) {}
+            activePrompt = null;
+        }
         if (pendingCall != null) {
             pendingCall.reject("Replaced by a newer unlock request", "superseded");
             pendingCall = null;
@@ -72,6 +143,11 @@ public class DeviceUnlockPlugin extends Plugin {
         FragmentActivity activity = getFragmentActivity();
         if (activity == null) {
             call.reject("Main activity is not ready", "noActivity");
+            return;
+        }
+
+        if (activity.isFinishing() || activity.isDestroyed()) {
+            call.reject("Main activity is closing", "noActivity");
             return;
         }
 
@@ -89,22 +165,48 @@ public class DeviceUnlockPlugin extends Plugin {
         final boolean allowDeviceCredential = Boolean.TRUE.equals(
             call.getBoolean("allowDeviceCredential", true)
         );
+        final boolean preferCredential = Boolean.TRUE.equals(
+            call.getBoolean("preferDeviceCredential", false)
+        );
 
         activity.runOnUiThread(() -> {
             try {
-                showPrompt(activity, title, subtitle, reason, allowDeviceCredential);
+                if (preferCredential && allowDeviceCredential) {
+                    if (launchDeviceCredential(activity, title, reason, call)) {
+                        return;
+                    }
+                }
+                showBiometricPrompt(
+                    activity,
+                    title,
+                    subtitle,
+                    reason,
+                    allowDeviceCredential,
+                    call
+                );
             } catch (Exception e) {
-                finishWithReject(e.getMessage(), "authError");
+                // Last resort: system PIN / pattern screen.
+                if (
+                    allowDeviceCredential &&
+                    launchDeviceCredential(activity, title, reason, call)
+                ) {
+                    return;
+                }
+                finishWithReject(
+                    e.getMessage() != null ? e.getMessage() : "auth failed",
+                    "authError"
+                );
             }
         });
     }
 
-    private void showPrompt(
+    private void showBiometricPrompt(
         FragmentActivity activity,
         String title,
         String subtitle,
         String reason,
-        boolean allowDeviceCredential
+        boolean allowDeviceCredential,
+        PluginCall originalCall
     ) {
         Executor executor = ContextCompat.getMainExecutor(activity);
 
@@ -115,10 +217,32 @@ public class DeviceUnlockPlugin extends Plugin {
                     int errorCode,
                     @NonNull CharSequence errString
                 ) {
-                    String code = mapErrorCode(errorCode);
+                    activePrompt = null;
+                    // If biometric UI was cancelled by the system, fall back to PIN screen.
+                    if (
+                        allowDeviceCredential &&
+                        (errorCode == BiometricPrompt.ERROR_CANCELED ||
+                            errorCode == BiometricPrompt.ERROR_HW_UNAVAILABLE ||
+                            errorCode == BiometricPrompt.ERROR_UNABLE_TO_PROCESS ||
+                            errorCode == BiometricPrompt.ERROR_TIMEOUT ||
+                            errorCode == BiometricPrompt.ERROR_NO_BIOMETRICS)
+                    ) {
+                        if (
+                            launchDeviceCredential(
+                                activity,
+                                title,
+                                reason,
+                                originalCall
+                            )
+                        ) {
+                            return;
+                        }
+                    }
                     finishWithReject(
-                        errString != null ? errString.toString() : "Authentication error",
-                        code
+                        errString != null
+                            ? errString.toString()
+                            : "Authentication error",
+                        mapErrorCode(errorCode)
                     );
                 }
 
@@ -126,66 +250,143 @@ public class DeviceUnlockPlugin extends Plugin {
                 public void onAuthenticationSucceeded(
                     @NonNull BiometricPrompt.AuthenticationResult result
                 ) {
+                    activePrompt = null;
                     finishWithResolve();
                 }
 
                 @Override
                 public void onAuthenticationFailed() {
-                    // Keep the prompt open; system will retry / fall back.
+                    // Keep prompt open for retry / device-credential button.
                 }
             };
 
-        BiometricPrompt prompt = new BiometricPrompt(activity, executor, callback);
+        activePrompt = new BiometricPrompt(activity, executor, callback);
 
         BiometricPrompt.PromptInfo.Builder builder =
             new BiometricPrompt.PromptInfo.Builder()
-                .setTitle(title != null && !title.isEmpty() ? title : "Authenticate")
+                .setTitle(
+                    title != null && !title.isEmpty() ? title : "Authenticate"
+                )
                 .setSubtitle(subtitle)
                 .setDescription(reason)
                 .setConfirmationRequired(false);
 
         int authenticators = BiometricManager.Authenticators.BIOMETRIC_WEAK;
-
-        // BIOMETRIC_STRONG | DEVICE_CREDENTIAL is invalid on API 28-29.
-        // WEAK | DEVICE_CREDENTIAL works across supported API levels.
-        if (allowDeviceCredential) {
-            authenticators |= BiometricManager.Authenticators.DEVICE_CREDENTIAL;
-        } else {
-            builder.setNegativeButtonText("Cancel");
-        }
-
-        // If biometrics are unavailable but device has a PIN, allow credential-only.
         BiometricManager manager = BiometricManager.from(activity);
         int bioOnly = manager.canAuthenticate(
             BiometricManager.Authenticators.BIOMETRIC_WEAK
         );
-        if (
-            allowDeviceCredential &&
-            bioOnly != BiometricManager.BIOMETRIC_SUCCESS
-        ) {
-            KeyguardManager keyguard =
-                (KeyguardManager) activity.getSystemService(Context.KEYGUARD_SERVICE);
-            if (keyguard != null && keyguard.isKeyguardSecure()) {
-                authenticators = BiometricManager.Authenticators.DEVICE_CREDENTIAL;
+
+        if (allowDeviceCredential) {
+            if (bioOnly == BiometricManager.BIOMETRIC_SUCCESS) {
+                authenticators =
+                    BiometricManager.Authenticators.BIOMETRIC_WEAK |
+                    BiometricManager.Authenticators.DEVICE_CREDENTIAL;
+            } else {
+                authenticators =
+                    BiometricManager.Authenticators.DEVICE_CREDENTIAL;
             }
+        } else {
+            builder.setNegativeButtonText("Cancel");
         }
 
         builder.setAllowedAuthenticators(authenticators);
-        BiometricPrompt.PromptInfo info = builder.build();
+        final BiometricPrompt.PromptInfo info = builder.build();
 
-        // Post so the activity has focus after splash / first paint.
         Runnable start = () -> {
             if (activity.isFinishing() || activity.isDestroyed()) {
                 finishWithReject("Activity closed", "noActivity");
                 return;
             }
-            prompt.authenticate(info);
+            try {
+                activePrompt.authenticate(info);
+            } catch (Exception e) {
+                if (
+                    allowDeviceCredential &&
+                    launchDeviceCredential(activity, title, reason, originalCall)
+                ) {
+                    return;
+                }
+                finishWithReject(
+                    e.getMessage() != null ? e.getMessage() : "prompt failed",
+                    "authError"
+                );
+            }
         };
 
-        if (Build.VERSION.SDK_INT >= 28) {
-            activity.getWindow().getDecorView().post(start);
+        // Delay slightly so splash / permission dialogs don't cancel the prompt.
+        new Handler(Looper.getMainLooper()).postDelayed(start, 180);
+    }
+
+    /**
+     * System lock-screen credential (PIN / pattern / password).
+     * More reliable than BiometricPrompt on some OEM devices.
+     */
+    private boolean launchDeviceCredential(
+        FragmentActivity activity,
+        String title,
+        String reason,
+        PluginCall call
+    ) {
+        try {
+            KeyguardManager keyguard =
+                (KeyguardManager) activity.getSystemService(
+                    Context.KEYGUARD_SERVICE
+                );
+            if (keyguard == null || !keyguard.isKeyguardSecure()) {
+                return false;
+            }
+
+            @SuppressWarnings("deprecation")
+            Intent intent = keyguard.createConfirmDeviceCredentialIntent(
+                title != null ? title : "Unlock Digital Somity",
+                reason != null ? reason : "Confirm your device credentials"
+            );
+            if (intent == null) {
+                return false;
+            }
+
+            // Keep the same pending call for the activity result.
+            pendingCall = call;
+            startActivityForResult(call, intent, "credentialResult");
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @ActivityCallback
+    private void credentialResult(PluginCall call, ActivityResult result) {
+        pendingCall = null;
+        activePrompt = null;
+        if (result.getResultCode() == Activity.RESULT_OK) {
+            call.resolve();
         } else {
-            new Handler(Looper.getMainLooper()).post(start);
+            call.reject("Device credential cancelled", "userCancel");
+        }
+    }
+
+    @PluginMethod
+    public void openSecuritySettings(PluginCall call) {
+        try {
+            Intent intent;
+            if (Build.VERSION.SDK_INT >= 30) {
+                intent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
+            } else {
+                intent = new Intent(Settings.ACTION_SECURITY_SETTINGS);
+            }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getContext().startActivity(intent);
+            call.resolve();
+        } catch (Exception e) {
+            try {
+                Intent fallback = new Intent(Settings.ACTION_SETTINGS);
+                fallback.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getContext().startActivity(fallback);
+                call.resolve();
+            } catch (Exception e2) {
+                call.reject(e2.getMessage(), "settingsError");
+            }
         }
     }
 
@@ -208,7 +409,6 @@ public class DeviceUnlockPlugin extends Plugin {
                 return "lockout";
             case BiometricPrompt.ERROR_NO_BIOMETRICS:
             case BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL:
-                return "notAvailable";
             case BiometricPrompt.ERROR_HW_UNAVAILABLE:
             case BiometricPrompt.ERROR_HW_NOT_PRESENT:
                 return "notAvailable";
@@ -220,6 +420,7 @@ public class DeviceUnlockPlugin extends Plugin {
     private void finishWithResolve() {
         PluginCall call = pendingCall;
         pendingCall = null;
+        activePrompt = null;
         if (call != null) {
             call.resolve();
         }
@@ -228,6 +429,7 @@ public class DeviceUnlockPlugin extends Plugin {
     private void finishWithReject(String message, String code) {
         PluginCall call = pendingCall;
         pendingCall = null;
+        activePrompt = null;
         if (call != null) {
             call.reject(message, code);
         }

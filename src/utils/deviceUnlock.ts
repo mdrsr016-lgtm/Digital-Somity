@@ -2,7 +2,13 @@ import { Capacitor } from "@capacitor/core";
 import { DeviceUnlock } from "../plugins/DeviceUnlock";
 
 const PREF_KEY = "ds_app_lock_enabled";
-const AUTH_TIMEOUT_MS = 45_000;
+const AUTH_TIMEOUT_MS = 60_000;
+
+export type UnlockAttemptResult = {
+  ok: boolean;
+  code?: string;
+  message?: string;
+};
 
 /** App lock is ON by default on native builds. */
 export function isAppLockEnabled(): boolean {
@@ -25,10 +31,20 @@ export async function canUseDeviceUnlock(): Promise<boolean> {
   }
 }
 
+/** Ask for notification (and other) runtime permissions once at launch. */
+export async function requestStartupPermissions(): Promise<void> {
+  if (!Capacitor.isNativePlatform()) return;
+  try {
+    await DeviceUnlock.requestStartupPermissions();
+  } catch (err) {
+    console.warn("Startup permissions:", err);
+  }
+}
+
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const timer = window.setTimeout(() => {
-      reject(new Error(`${label} timed out after ${ms}ms`));
+      reject(Object.assign(new Error(`${label} timed out after ${ms}ms`), { code: "timeout" }));
     }, ms);
     promise.then(
       (value) => {
@@ -43,13 +59,26 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   });
 }
 
+function errParts(err: unknown): { code: string; message: string } {
+  if (typeof err === "object" && err) {
+    const code = "code" in err ? String((err as { code?: string }).code || "") : "";
+    const message =
+      "message" in err
+        ? String((err as { message?: string }).message || "")
+        : String(err);
+    return { code, message };
+  }
+  return { code: "", message: String(err) };
+}
+
 /**
  * Prompt for fingerprint / face / device PIN-password.
- * Returns true when unlocked (or when lock is unavailable / disabled).
  */
-export async function authenticateDeviceUnlock(): Promise<boolean> {
-  if (!Capacitor.isNativePlatform()) return true;
-  if (!isAppLockEnabled()) return true;
+export async function authenticateDeviceUnlock(options?: {
+  preferDeviceCredential?: boolean;
+}): Promise<UnlockAttemptResult> {
+  if (!Capacitor.isNativePlatform()) return { ok: true };
+  if (!isAppLockEnabled()) return { ok: true };
 
   try {
     const info = await withTimeout(
@@ -58,8 +87,7 @@ export async function authenticateDeviceUnlock(): Promise<boolean> {
       "canAuthenticate"
     );
     if (!info.canAuthenticate) {
-      // No biometrics and no device PIN — don't brick the app.
-      return true;
+      return { ok: true, code: "notRequired", message: "No device lock configured" };
     }
 
     await withTimeout(
@@ -68,26 +96,15 @@ export async function authenticateDeviceUnlock(): Promise<boolean> {
         subtitle: "Use fingerprint, face, or your device PIN / password",
         reason: "Unlock Digital Somity to continue",
         allowDeviceCredential: true,
+        preferDeviceCredential: options?.preferDeviceCredential === true,
       }),
       AUTH_TIMEOUT_MS,
       "authenticate"
     );
-    return true;
+    return { ok: true };
   } catch (err) {
-    const code =
-      typeof err === "object" && err && "code" in err
-        ? String((err as { code?: string }).code || "")
-        : "";
-
-    if (
-      code === "userCancel" ||
-      code === "systemCancel" ||
-      code === "superseded"
-    ) {
-      return false;
-    }
-
-    console.warn("Device unlock failed:", err);
-    return false;
+    const { code, message } = errParts(err);
+    console.warn("Device unlock failed:", code, message, err);
+    return { ok: false, code, message };
   }
 }

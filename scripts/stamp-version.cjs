@@ -5,6 +5,7 @@ const path = require('path');
 // Read version from package.json
 const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8'));
 const version = pkg.version;
+const apkFileName = `digitalsomity-v${version}.apk`;
 
 let sha = '';
 try {
@@ -21,7 +22,8 @@ export const CURRENT_BUILD_SHA = "${sha}";
 export const CURRENT_BUILD_DATE = "${new Date().toISOString()}";
 export const GITHUB_REPO_OWNER = "mdrsr016-lgtm";
 export const GITHUB_REPO_NAME = "Digital-Somity";
-export const APK_DOWNLOAD_URL = "https://raw.githubusercontent.com/mdrsr016-lgtm/Digital-Somity/main/public/digitalsomity.apk";
+export const APK_FILE_NAME = "${apkFileName}";
+export const APK_DOWNLOAD_URL = "https://raw.githubusercontent.com/mdrsr016-lgtm/Digital-Somity/main/public/${apkFileName}";
 export const VERSION_CHECK_URL = "https://mdrsr016-lgtm.github.io/Digital-Somity/version.json";
 export const LIVE_APP_URL = "https://mdrsr016-lgtm.github.io/Digital-Somity/";
 `;
@@ -34,9 +36,10 @@ const versionJson = JSON.stringify({
   version,
   sha,
   date: new Date().toISOString(),
+  apk: apkFileName,
 }, null, 2);
 fs.writeFileSync(versionJsonPath, versionJson, 'utf8');
-console.log(`✓ Wrote public/version.json`);
+console.log(`✓ Wrote public/version.json (apk: ${apkFileName})`);
 
 // ── 3. Stamp the version the live page compares against ─────────────────────
 const indexPath = path.join(__dirname, '../index.html');

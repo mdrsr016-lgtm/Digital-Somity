@@ -5,6 +5,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth, DEMO_USERS } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
+import { APK_FILE_NAME } from "../constants/appVersion";
 
 export const LoginPage: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
@@ -1121,8 +1122,8 @@ export const LoginPage: React.FC = () => {
             <>
               <span style={{ color: "var(--color-border)", opacity: 0.4, fontSize: "8px", flexShrink: 0 }}>•</span>
               <a
-                href={`${import.meta.env.BASE_URL}digitalsomity.apk`}
-                download="digitalsomity.apk"
+                href={`${import.meta.env.BASE_URL}${APK_FILE_NAME}`}
+                download={APK_FILE_NAME}
                 style={{
                   background: "transparent",
                   border: "none",

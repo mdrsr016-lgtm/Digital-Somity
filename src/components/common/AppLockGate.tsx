@@ -6,6 +6,7 @@ import { Logo } from "./Logo";
 import {
   authenticateDeviceUnlock,
   isAppLockEnabled,
+  requestStartupPermissions,
 } from "../../utils/deviceUnlock";
 
 /**
@@ -17,57 +18,102 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
   const [unlocked, setUnlocked] = useState(() => !isNative || !isAppLockEnabled());
   const [busy, setBusy] = useState(false);
   const [hint, setHint] = useState<string | null>(null);
+  const [ready, setReady] = useState(!isNative);
   const authInProgressRef = useRef(false);
   const ignoreResumeUntilRef = useRef(0);
+  const attemptRef = useRef(0);
 
-  const tryUnlock = useCallback(async (source: "auto" | "tap" | "resume" = "auto") => {
-    if (!isNative) {
-      setUnlocked(true);
-      return;
-    }
-    if (!isAppLockEnabled()) {
-      setUnlocked(true);
-      return;
-    }
-    if (authInProgressRef.current) return;
-    if (source === "resume" && Date.now() < ignoreResumeUntilRef.current) return;
-
-    authInProgressRef.current = true;
-    setBusy(true);
-    setHint(null);
-    try {
-      if (source === "auto") {
-        // Wait for MainActivity + WebView to be ready before BiometricPrompt.
-        await new Promise((r) => setTimeout(r, 900));
-      }
-      const ok = await authenticateDeviceUnlock();
-      if (ok) {
+  const tryUnlock = useCallback(
+    async (source: "auto" | "tap" | "resume" = "auto") => {
+      if (!isNative) {
         setUnlocked(true);
-        setHint(null);
-      } else {
-        setHint("Unlock cancelled. Tap Unlock to try again.");
+        return;
       }
-    } catch (err) {
-      console.warn("Unlock attempt failed:", err);
-      setHint("Could not open unlock prompt. Tap Unlock to retry.");
-    } finally {
-      setBusy(false);
-      ignoreResumeUntilRef.current = Date.now() + 800;
-      setTimeout(() => {
+      if (!isAppLockEnabled()) {
+        setUnlocked(true);
+        return;
+      }
+      if (source === "resume" && Date.now() < ignoreResumeUntilRef.current) return;
+
+      // Tap always forces a fresh attempt (fixes stuck "cancelled" with dead button).
+      if (source === "tap") {
         authInProgressRef.current = false;
-      }, 300);
-    }
-  }, [isNative]);
+      } else if (authInProgressRef.current) {
+        return;
+      }
+
+      const attemptId = ++attemptRef.current;
+      authInProgressRef.current = true;
+      setBusy(true);
+      setHint(null);
+
+      try {
+        if (source === "auto") {
+          await new Promise((r) => setTimeout(r, 400));
+        }
+
+        // Auto + first tap use biometrics; later taps fall back to PIN/pattern screen.
+        const preferPin = source === "tap" && attemptId >= 3;
+        const result = await authenticateDeviceUnlock({
+          preferDeviceCredential: preferPin,
+        });
+
+        if (attemptId !== attemptRef.current) return;
+
+        if (result.ok) {
+          setUnlocked(true);
+          setHint(null);
+          return;
+        }
+
+        if (result.code === "userCancel" || result.code === "systemCancel") {
+          setHint("Unlock cancelled. Tap Unlock to try again.");
+        } else if (result.code === "notAvailable") {
+          setHint("No fingerprint/PIN set on this device. Tap Unlock to open settings.");
+        } else if (result.code === "timeout") {
+          setHint("Unlock timed out. Tap Unlock to try again.");
+        } else if (result.message) {
+          setHint(`${result.message}. Tap Unlock to retry.`);
+        } else {
+          setHint("Could not unlock. Tap Unlock to try again.");
+        }
+      } catch (err) {
+        console.warn("Unlock attempt failed:", err);
+        if (attemptId === attemptRef.current) {
+          setHint("Could not open unlock prompt. Tap Unlock to retry.");
+        }
+      } finally {
+        if (attemptId === attemptRef.current) {
+          setBusy(false);
+          ignoreResumeUntilRef.current = Date.now() + 1000;
+          authInProgressRef.current = false;
+        }
+      }
+    },
+    [isNative]
+  );
 
   useEffect(() => {
     if (!isNative) return;
+    let cancelled = false;
 
-    if (isAppLockEnabled()) {
+    (async () => {
+      // Ask for runtime permissions before the unlock prompt.
+      await requestStartupPermissions();
+      if (cancelled) return;
+      setReady(true);
+
+      if (!isAppLockEnabled()) {
+        setUnlocked(true);
+        return;
+      }
+
       setUnlocked(false);
+      // Wait past splash (~1.6s) so BiometricPrompt is not system-cancelled.
+      await new Promise((r) => setTimeout(r, 1800));
+      if (cancelled) return;
       void tryUnlock("auto");
-    } else {
-      setUnlocked(true);
-    }
+    })();
 
     let handle: { remove: () => Promise<void> } | undefined;
     CapApp.addListener("appStateChange", ({ isActive }) => {
@@ -76,7 +122,6 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
         return;
       }
       if (!isActive) {
-        // Real backgrounding only — BiometricPrompt stays on same activity.
         if (!authInProgressRef.current) setUnlocked(false);
         return;
       }
@@ -91,6 +136,7 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
     });
 
     return () => {
+      cancelled = true;
       handle?.remove().catch(() => {});
     };
   }, [isNative, tryUnlock]);
@@ -130,7 +176,11 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
             marginTop: 8,
           }}
         >
-          {busy ? <RefreshCw size={28} style={{ animation: "spin 1s linear infinite" }} /> : <Lock size={28} />}
+          {busy || !ready ? (
+            <RefreshCw size={28} style={{ animation: "spin 1s linear infinite" }} />
+          ) : (
+            <Lock size={28} />
+          )}
         </div>
         <div style={{ textAlign: "center", maxWidth: 280 }}>
           <h2
@@ -154,7 +204,7 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
         <button
           type="button"
           onClick={() => void tryUnlock("tap")}
-          disabled={busy}
+          disabled={busy || !ready}
           style={{
             marginTop: 8,
             display: "inline-flex",
@@ -167,12 +217,12 @@ export const AppLockGate: React.FC<{ children: React.ReactNode }> = ({ children 
             color: "#fff",
             fontSize: 14,
             fontWeight: 700,
-            cursor: busy ? "wait" : "pointer",
-            opacity: busy ? 0.7 : 1,
+            cursor: busy || !ready ? "wait" : "pointer",
+            opacity: busy || !ready ? 0.7 : 1,
           }}
         >
           <Fingerprint size={18} />
-          {busy ? "Waiting…" : "Unlock"}
+          {busy || !ready ? "Waiting…" : "Unlock"}
         </button>
         <style>{`
           @keyframes spin {
