@@ -5085,10 +5085,8 @@ const ConsoleTab: React.FC<{ onNavigateTab?: (tab: string) => void; onCardClick?
                 <div
                   className="console-cards-grid"
                   style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)",
-                    gap: 8,
                     width: "100%",
+                    maxWidth: "100%",
                     boxSizing: "border-box",
                   }}
                 >
@@ -10005,19 +10003,20 @@ export const DashboardPage: React.FC = () => {
 
       {/* ── Main Content ── */}
       <main
-        className="no-scrollbar"
+        className="no-scrollbar app-main"
         onTouchStart={isAppMode ? handleTabSwipeStart : undefined}
         onTouchEnd={isAppMode ? handleTabSwipeEnd : undefined}
         style={{
           flex: 1,
           overflowY: "auto",
-          padding: "16px",
-          paddingBottom: "calc(88px + env(safe-area-inset-bottom, 0px))",
           WebkitOverflowScrolling: "touch",
           scrollbarWidth: "none",
           msOverflowStyle: "none",
           touchAction: isAppMode ? "pan-y" : undefined,
           overflowX: "hidden",
+          minWidth: 0,
+          width: "100%",
+          boxSizing: "border-box",
         }}
       >
         <div style={{ overflow: "hidden", width: "100%" }}>
@@ -10180,22 +10179,24 @@ export const DashboardPage: React.FC = () => {
 
       {/* ── Bottom Navigation (Floating & Glass Transparent) ── */}
       <div
+        className="bottom-nav-wrap"
         style={{
           position: "absolute",
           bottom: 0,
           left: 0,
           right: 0,
-          padding: "10px 16px",
           paddingBottom: "calc(14px + env(safe-area-inset-bottom, 0px))",
           background: "transparent",
           zIndex: 25,
           pointerEvents: "none",
           width: "100%",
+          maxWidth: "100%",
           boxSizing: "border-box",
         }}
       >
         <div
           ref={navRef}
+          className="bottom-nav-bar"
           style={{
             pointerEvents: "auto",
             display: "flex",
@@ -10212,7 +10213,9 @@ export const DashboardPage: React.FC = () => {
               : "0 14px 35px rgba(4, 27, 69, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04)",
             position: "relative",
             width: "100%",
+            maxWidth: "100%",
             boxSizing: "border-box",
+            overflow: "hidden",
           }}
         >
           {/* ── Single sliding pill (Accent Color) ── */}
@@ -10242,6 +10245,7 @@ export const DashboardPage: React.FC = () => {
               <button
                 key={item.id}
                 ref={(el) => { btnRefs.current[idx] = el; }}
+                className={`bottom-nav-btn${isActive ? " is-active" : ""}`}
                 onClick={() => {
                   if (item.id === "console") {
                     // Re-tap while Console is active: bring the console card/sheet back
@@ -10264,13 +10268,13 @@ export const DashboardPage: React.FC = () => {
                   alignItems: "center",
                   justifyContent: "center",
                   gap: isActive ? 8 : 0,
-                  padding: isActive ? "10px 18px" : "10px 11px",
+                  padding: isActive ? "10px 16px" : "10px 10px",
                   border: "none",
                   borderRadius: 999,
                   background: "transparent",
                   color: isActive ? "#FFFFFF" : "var(--color-text-muted)",
                   cursor: "pointer",
-                  flexShrink: isActive ? 0 : 1,
+                  flex: isActive ? "0 1 auto" : "1 1 0",
                   whiteSpace: "nowrap",
                   minWidth: 0,
                   transition: "color 180ms ease",
@@ -10297,6 +10301,7 @@ export const DashboardPage: React.FC = () => {
                 {/* Label */}
                 {isActive && (
                   <span
+                    className="nav-label"
                     style={{
                       fontSize: 13.5,
                       fontWeight: 700,

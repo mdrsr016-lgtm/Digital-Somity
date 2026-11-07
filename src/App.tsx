@@ -135,6 +135,11 @@ const AppRouter: React.FC = () => {
   const [showApkSplash, setShowApkSplash] = useState(() => Capacitor.isNativePlatform());
 
   useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      document.documentElement.classList.add("is-native-app");
+      document.body.classList.add("is-native-app");
+    }
+
     const run = () => {
       applyLiveUpdate().catch(() => {});
     };
@@ -147,6 +152,8 @@ const AppRouter: React.FC = () => {
     return () => {
       document.removeEventListener("visibilitychange", onVisible);
       stopBack();
+      document.documentElement.classList.remove("is-native-app");
+      document.body.classList.remove("is-native-app");
     };
   }, []);
 
