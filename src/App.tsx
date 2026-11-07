@@ -10,6 +10,7 @@ import { Logo } from "./components/common/Logo";
 import { UpdateNotificationModal } from "./components/common/UpdateNotificationModal";
 import { PullToRefresh } from "./components/common/PullToRefresh";
 import { APP_VERSION } from "./constants/appVersion";
+import { applyLiveUpdate } from "./utils/liveUpdate";
 
 // ─── APK-Only Opening Splash Screen ──────────────────────────────────────────
 const ApkSplashScreen: React.FC<{ onFinish: () => void }> = ({ onFinish }) => {
@@ -131,6 +132,18 @@ const ApkSplashScreen: React.FC<{ onFinish: () => void }> = ({ onFinish }) => {
 const AppRouter: React.FC = () => {
   const { currentUser } = useAuth();
   const [showApkSplash, setShowApkSplash] = useState(() => Capacitor.isNativePlatform());
+
+  useEffect(() => {
+    const run = () => {
+      applyLiveUpdate().catch(() => {});
+    };
+    run();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") run();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, []);
 
   return (
     <>

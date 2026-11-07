@@ -10,6 +10,7 @@ import {
   APK_DOWNLOAD_URL,
   VERSION_CHECK_URL,
 } from "../../constants/appVersion";
+import { applyLiveUpdate } from "../../utils/liveUpdate";
 
 // ── Native AppUpdater Plugin Interface ──────────────────────────────────────
 interface AppUpdaterPlugin {
@@ -100,7 +101,17 @@ export const UpdateNotificationModal: React.FC = () => {
         const displayVer = `v${remoteVer}`;
         setTargetVersion(displayVer);
 
-        // ── 3A. WEB VERSION: Show reload option ──────────────────────────────
+        // The Android app applies the GitHub site directly. No package install.
+        if (Capacitor.isNativePlatform()) {
+          try {
+            await applyLiveUpdate();
+          } catch (err) {
+            console.warn("Live update failed:", err);
+          }
+          return;
+        }
+
+        // ── Web: offer a reload of this page ──────────────────────────────
         if (!Capacitor.isNativePlatform()) {
           setModalState("web_reload_ready");
           return;

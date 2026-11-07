@@ -23,6 +23,7 @@ export const GITHUB_REPO_OWNER = "mdrsr016-lgtm";
 export const GITHUB_REPO_NAME = "Digital-Somity";
 export const APK_DOWNLOAD_URL = "https://raw.githubusercontent.com/mdrsr016-lgtm/Digital-Somity/main/public/digitalsomity.apk";
 export const VERSION_CHECK_URL = "https://raw.githubusercontent.com/mdrsr016-lgtm/Digital-Somity/main/public/version.json";
+export const LIVE_APP_URL = "https://cdn.jsdelivr.net/gh/mdrsr016-lgtm/Digital-Somity@gh-pages/index.html";
 `;
 fs.writeFileSync(tsPath, tsContent, 'utf8');
 console.log(`✓ Stamped app version: v${version} (${sha.slice(0, 8)})`);
@@ -36,3 +37,17 @@ const versionJson = JSON.stringify({
 }, null, 2);
 fs.writeFileSync(versionJsonPath, versionJson, 'utf8');
 console.log(`✓ Wrote public/version.json`);
+
+// ── 3. Stamp the version the live page compares against ─────────────────────
+const indexPath = path.join(__dirname, '../index.html');
+const indexHtml = fs.readFileSync(indexPath, 'utf8');
+const stampedIndex = indexHtml.replace(
+  /(<meta name="ds-version" content=")[^"]*(")/,
+  `$1${version}$2`
+);
+if (stampedIndex === indexHtml) {
+  console.warn('⚠ Could not stamp ds-version in index.html');
+} else {
+  fs.writeFileSync(indexPath, stampedIndex, 'utf8');
+  console.log(`✓ Stamped index.html version: v${version}`);
+}
