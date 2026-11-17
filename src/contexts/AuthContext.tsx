@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase, isSupabaseConfigured } from "../utils/supabaseClient";
 
 export type UserRole = "founder" | "admin" | "manager" | "cashier" | "investor" | "member";
@@ -130,9 +131,25 @@ export const DEMO_USERS: Record<string, User> = {
   },
 };
 
+const getUserFromBrowserMemory = (): User | null => {
+  try {
+    const local = localStorage.getItem("ds_user");
+    if (local) {
+      return JSON.parse(local);
+    }
+    const session = sessionStorage.getItem("ds_user");
+    if (session) {
+      return JSON.parse(session);
+    }
+  } catch (err) {
+    console.warn("Could not parse user from browser memory:", err);
+  }
+  return null;
+};
+
 interface AuthContextType {
   currentUser: User | null;
-  login: (loginId: string, password?: string) => Promise<{ success: boolean; error?: string }>;
+  login: (loginId: string, password?: string, rememberMe?: boolean) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -140,30 +157,69 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem("ds_user");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  });
+  const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState<User | null>(() => getUserFromBrowserMemory());
   const [isLoading, setIsLoading] = useState(false);
 
+  // Sync memory when currentUser changes externally (e.g. balance or profile updates)
   useEffect(() => {
     if (currentUser) {
-      localStorage.setItem("ds_user", JSON.stringify(currentUser));
-    } else {
-      localStorage.removeItem("ds_user");
+      const isRemembered = localStorage.getItem("ds_remember") !== "false";
+      if (isRemembered) {
+        localStorage.setItem("ds_user", JSON.stringify(currentUser));
+      } else {
+        sessionStorage.setItem("ds_user", JSON.stringify(currentUser));
+      }
     }
   }, [currentUser]);
 
-  const login = async (loginId: string, _password?: string): Promise<{ success: boolean; error?: string }> => {
+  // Sync with changes in other browser tabs
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "ds_user") {
+        if (e.newValue) {
+          try {
+            setCurrentUser(JSON.parse(e.newValue));
+          } catch {
+            setCurrentUser(null);
+          }
+        } else {
+          setCurrentUser(null);
+        }
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  const login = async (
+    loginId: string,
+    _password?: string,
+    rememberMe: boolean = true
+  ): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     const cleanId = loginId.trim().toLowerCase();
+
+    const persistUser = (user: User) => {
+      if (rememberMe) {
+        localStorage.setItem("ds_user", JSON.stringify(user));
+        localStorage.setItem("ds_remember", "true");
+        try {
+          sessionStorage.removeItem("ds_user");
+        } catch {
+          // ignore
+        }
+      } else {
+        sessionStorage.setItem("ds_user", JSON.stringify(user));
+        localStorage.setItem("ds_remember", "false");
+        try {
+          localStorage.removeItem("ds_user");
+        } catch {
+          // ignore
+        }
+      }
+      setCurrentUser(user);
+    };
 
     // 1. Check Supabase first if online & configured
     if (isSupabaseConfigured) {
@@ -192,7 +248,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             initial: data.initial || data.name.charAt(0).toUpperCase(),
             balance: 50000,
           };
-          setCurrentUser(user);
+          persistUser(user);
           setIsLoading(false);
           return { success: true };
         }
@@ -203,7 +259,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // 2. Demo accounts fallback
     if (DEMO_USERS[cleanId]) {
-      setCurrentUser(DEMO_USERS[cleanId]);
+      persistUser(DEMO_USERS[cleanId]);
       setIsLoading(false);
       return { success: true };
     }
@@ -214,6 +270,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     setCurrentUser(null);
+    try {
+      localStorage.removeItem("ds_user");
+      sessionStorage.removeItem("ds_user");
+    } catch {
+      // ignore
+    }
+    navigate("/login", { replace: true });
   };
 
   return (

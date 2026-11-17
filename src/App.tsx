@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -166,7 +167,46 @@ const AppRouter: React.FC = () => {
       <UpdateNotificationModal />
       <div id="ptr-content">
         {showApkSplash && <ApkSplashScreen onFinish={() => setShowApkSplash(false)} />}
-        {currentUser ? <DashboardPage /> : <LoginPage />}
+        <Routes>
+          {/* Landing root: dynamically lands on Dashboard if logged in in browser memory, otherwise Login */}
+          <Route
+            path="/"
+            element={
+              currentUser ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+
+          {/* Login Page: if already logged in, redirect to Dashboard */}
+          <Route
+            path="/login"
+            element={
+              currentUser ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <LoginPage />
+              )
+            }
+          />
+
+          {/* Dashboard Page: if not logged in, redirect to Login */}
+          <Route
+            path="/dashboard"
+            element={
+              currentUser ? (
+                <DashboardPage />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+
+          {/* Catch-all unknown routes: fallback to root */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </div>
     </AppLockGate>
   );

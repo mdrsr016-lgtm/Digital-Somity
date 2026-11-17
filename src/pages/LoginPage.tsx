@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { User, Lock, Eye, EyeOff, ShieldCheck, Moon, Sun, Globe, X, Ticket, KeyRound, Check, Crown, Shield, Briefcase, TrendingUp, Users, Download } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { useTheme } from "../contexts/ThemeContext";
@@ -8,6 +9,7 @@ import { useToast } from "../contexts/ToastContext";
 import { APK_FILE_NAME } from "../constants/appVersion";
 
 export const LoginPage: React.FC = () => {
+  const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const { language, toggleLanguage, t } = useLanguage();
   const { login, isLoading } = useAuth();
@@ -23,7 +25,9 @@ export const LoginPage: React.FC = () => {
     return localStorage.getItem("ds_recent_account") || "adm00";
   });
   const [avatarErrors, setAvatarErrors] = useState<Record<string, boolean>>({});
-  const [rememberMe, setRememberMe] = useState(true);
+  const [rememberMe, setRememberMe] = useState(() => {
+    return localStorage.getItem("ds_remember") !== "false";
+  });
 
   // Modals state
   const [activeModal, setActiveModal] = useState<"forgot" | "privacy" | "policy" | "terms" | "conditions" | "register" | null>(null);
@@ -67,7 +71,7 @@ export const LoginPage: React.FC = () => {
       return;
     }
 
-    const res = await login(userId, password);
+    const res = await login(userId, password, rememberMe);
     if (res.success) {
       const userStr = userId.trim().toLowerCase();
       setSuccessUser(userStr);
@@ -77,6 +81,7 @@ export const LoginPage: React.FC = () => {
         language === "bn" ? "সফল হয়েছে!" : "Success",
         language === "bn" ? `${userStr} হিসেবে সফলভাবে লগইন সম্পন্ন হয়েছে।` : `Authenticated successfully as ${userStr}!`
       );
+      navigate("/dashboard", { replace: true });
     } else {
       error(
         language === "bn" ? "ত্রুটি!" : "Error",
